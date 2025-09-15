@@ -1,5 +1,8 @@
 // Shared utility functions and constants
 
+// Theme hook
+export { useTheme } from './useTheme';
+
 export const formatDate = (date: Date | string): string => {
   const d = new Date(date);
   return d.toLocaleDateString('vi-VN', {
@@ -29,4 +32,8 @@ export const debounce = <T extends (...args: any[]) => any>(
 
 export const generateId = (): string => {
   return Math.random().toString(36).substr(2, 9);
+};
+
+export const cn = (...classes: (string | undefined | null | false)[]): string => {
+  return classes.filter(Boolean).join(' ');
 };
