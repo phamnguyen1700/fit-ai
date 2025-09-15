@@ -1,36 +1,105 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Fit AI - Next.js Project
 
-## Getting Started
+## Cấu trúc Project
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── (admin)/           # Route group cho admin
+│   │   ├── admin/         # Admin routes
+│   │   │   ├── dashboard/ # /admin/dashboard
+│   │   │   ├── plans/     # /admin/plans
+│   │   │   ├── users/     # /admin/users
+│   │   │   └── settings/  # /admin/settings
+│   │   └── layout.tsx     # Admin layout
+│   ├── (marketing)/       # Route group cho marketing
+│   │   ├── home/          # /home
+│   │   ├── features/      # /features
+│   │   ├── pricing/       # /pricing
+│   │   ├── download/      # /download
+│   │   ├── feedback/      # /feedback
+│   │   └── layout.tsx     # Marketing layout
+│   └── page.tsx           # Root page (redirect to /home)
+├── features/              # Feature-based architecture
+│   ├── plans/             # Plans feature
+│   │   ├── components/    # UI components
+│   │   └── index.tsx      # Page component
+│   ├── users/             # Users feature
+│   │   ├── components/    # UI components
+│   │   └── index.tsx      # Page component
+│   ├── home/              # Home feature
+│   │   ├── components/    # UI components
+│   │   └── index.tsx      # Page component
+│   └── feedback/          # Feedback feature
+│       ├── components/    # UI components
+│       └── index.tsx      # Page component
+├── tanstack/              # TanStack Query (React Query)
+│   ├── services/          # API Services
+│   │   ├── plans/         # Plan service
+│   │   ├── users/         # User service
+│   │   ├── home/          # Home service
+│   │   └── feedback/      # Feedback service
+│   ├── hooks/             # React Query Hooks
+│   │   ├── plans/         # Plan hooks + query keys
+│   │   ├── users/         # User hooks + query keys
+│   │   ├── home/          # Home hooks + query keys
+│   │   └── feedback/      # Feedback hooks + query keys
+│   └── index.ts           # Export tất cả
+├── stores/                # Zustand stores
+│   ├── app.store.ts       # Main app store
+│   ├── modal.store.ts     # Modal state
+│   ├── filter.store.ts    # Filter state
+│   ├── plans.ts           # Plans store
+│   ├── users.ts           # Users store
+│   ├── home.ts            # Home store
+│   ├── feedback.ts        # Feedback store
+│   └── index.ts           # Export tất cả
+├── shared/                # Shared utilities
+│   ├── api/               # HTTP client
+│   ├── ui/                # UI components
+│   └── lib/                # Utility functions
+└── lib/                   # Library configurations
+    └── queryClient.ts     # TanStack Query client
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tính năng
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- ✅ **Next.js 15** với App Router
+- ✅ **Route Groups** cho admin và marketing
+- ✅ **Feature-based Architecture** 
+- ✅ **TanStack Query** cho data fetching
+- ✅ **Zustand** cho state management
+- ✅ **TypeScript** cho type safety
+- ✅ **Tailwind CSS** cho styling
+- ✅ **Responsive Design**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Cách sử dụng
 
-## Learn More
+### Chạy development
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Build production
+```bash
+npm run build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Chạy production
+```bash
+npm start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Cấu trúc trang
 
-## Deploy on Vercel
+Tất cả các trang hiện tại chỉ hiển thị tên trang đơn giản để bạn có thể tự phát triển nội dung:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Admin**: Dashboard, Plans, Users, Settings
+- **Marketing**: Home, Features, Pricing, Download, Feedback
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Lưu ý
+
+- Tất cả component phức tạp đã được xóa, chỉ giữ lại khung sườn
+- TanStack Query hooks đã được setup sẵn trong `src/tanstack/`
+- Zustand stores đã được setup sẵn trong `src/stores/`
+- Types đã được định nghĩa trong `src/features/*/types/`
