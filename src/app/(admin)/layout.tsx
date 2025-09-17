@@ -33,7 +33,7 @@ export default function AdminLayout({
         <SearchInput />
         {/* Main Content */}
         <main
-          className="flex-1 p-6"
+          className="flex-1"
           style={{
             background: 'var(--bg-secondary)',
             minHeight: 'calc(100vh - 64px)'

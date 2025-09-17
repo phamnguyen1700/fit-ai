@@ -6,6 +6,7 @@
   --primary: #FF8C00;
   --primary-dark: #E67A00;
   --primary-light: #FFB84D;
+  --primay-extralight: #fcede0;
   
   /* Text Colors */
   --text: #333333;
@@ -45,7 +46,8 @@
   /* Brand Colors (same as light) */
   --primary: #FF8C00;
   --primary-dark: #E67A00;
-  --primary-light: #FFB84D;
+  --primary-light: #ffb84db4;
+  --primay-extralight: #302d2b;
   
   /* Text Colors (inverted) */
   --text: #D0D0D0;
@@ -276,25 +278,84 @@ body {
   }
   
   /* Card Styles */
-  .card {
-    background-color: var(--bg);
-    border: 1px solid var(--border);
+  .ant-card {
+    background-color: var(--bg) !important;
+    border: 1px solid var(--border) !important;
     box-shadow: 0 1px 3px var(--shadow);
-    border-radius: 0.5rem;
-    padding: 1.5rem;
+  }
+  .ant-card-head-title {
+    color: var(--text) !important;
+  }
+  .ant-card-body {
+    border-top: none !important;
+  }
+  /* Dark: remove card border for cleaner look */
+  [data-theme="dark"] .ant-card {
+    border-color: transparent !important;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+  [data-theme="dark"] .ant-card .ant-card-head {
+    border-bottom-color: transparent !important;
   }
   
-  .card-hover {
-    background-color: var(--bg);
-    border: 1px solid var(--border);
-    box-shadow: 0 1px 3px var(--shadow);
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-    transition: all 0.3s ease;
-  }
+  .new-paid-report-card {
+    background-color: var(--primay-extralight) !important;
+  } 
   
-  .card-hover:hover {
-    box-shadow: 0 4px 6px var(--shadow-medium);
+  
+  /* Segmented themed */
+  /* Segmented (light) */
+  .themed-segmented.ant-segmented {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+  }
+  .themed-segmented .ant-segmented-item {
+    color: var(--text-secondary);
+    font-size: xx-small;
+  }
+  .themed-segmented .ant-segmented-item-selected {
+    color: var(--text);
+    background: var(--bg);
+  }
+  /* Moving thumb background/border should follow theme */
+  .themed-segmented .ant-segmented-thumb {
+    background: var(--bg) !important;
+    box-shadow: inset 0 0 0 1px var(--border);
+    transition: background-color .2s ease, box-shadow .2s ease;
+  }
+  .themed-segmented .ant-segmented-item:hover {
+    color: var(--text);
+  }
+  /* Segmented (dark) */
+  [data-theme="dark"] .themed-segmented.ant-segmented {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border) !important;
+  }
+  [data-theme="dark"] .themed-segmented .ant-segmented-item {
+    color: var(--text-secondary) !important;
+  }
+  [data-theme="dark"] .themed-segmented .ant-segmented-item-selected {
+    background: rgba(255, 140, 0, 0.12) !important;
+    color: var(--primary) !important;
+  }
+  [data-theme="dark"] .themed-segmented .ant-segmented-thumb {
+    background: rgba(255, 140, 0, 0.12) !important;
+    box-shadow: inset 0 0 0 1px var(--border) !important;
+  }
+  /* Rate themed */
+  .themed-rate .ant-rate-star-first,
+  .themed-rate .ant-rate-star-second { color: var(--primary) !important; }
+  .themed-rate .ant-rate-star-zero .ant-rate-star-first,
+  .themed-rate .ant-rate-star-zero .ant-rate-star-second { color: var(--border) !important; }
+  /* ensure disabled state still uses our colors */
+  .themed-rate.ant-rate-disabled .ant-rate-star-first,
+  .themed-rate.ant-rate-disabled .ant-rate-star-second { color: var(--primary) !important; }
+  .themed-rate.ant-rate-disabled .ant-rate-star-zero .ant-rate-star-first,
+  .themed-rate.ant-rate-disabled .ant-rate-star-zero .ant-rate-star-second { color: var(--border) !important; }
+  
+  /* Progress trail color aligns to theme */
+  .ant-progress .ant-progress-outer .ant-progress-inner:not(.ant-progress-circle-gradient) {
+    --ant-progress-remaining-color: var(--border);
   }
   
   /* Input Styles */
@@ -361,6 +422,51 @@ body {
     cursor: pointer;
   }
 
+  /* Select themed */
+  .themed-select .ant-select-selector {
+    background: var(--bg);
+    border: 1px solid var(--border) !important;
+    color: var(--text);
+  }
+  .themed-select .ant-select-selection-item,
+  .themed-select .ant-select-selection-placeholder {
+    color: var(--text-secondary);
+  }
+  .themed-select .ant-select-arrow {
+    color: var(--text-tertiary);
+  }
+  [data-theme="dark"] .themed-select .ant-select-selector {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border) !important;
+  }
+  [data-theme="dark"] .themed-select .ant-select-selection-item,
+  [data-theme="dark"] .themed-select .ant-select-selection-placeholder {
+    color: var(--text);
+  }
+  [data-theme="dark"] .themed-select .ant-select-arrow {
+    color: var(--text-tertiary);
+  }
+  
+  /* Feedback card background */
+  .feedback-card.ant-card {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border) !important;
+    transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
+  }
+  .feedback-card.ant-card:hover {
+    box-shadow: 0 6px 14px var(--shadow-medium);
+    transform: translateY(-2px);
+    border-color: var(--border-focus) !important;
+  }
+  [data-theme="dark"] .feedback-card.ant-card {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border) !important;
+  }
+  [data-theme="dark"] .feedback-card.ant-card:hover {
+    box-shadow: 0 6px 14px var(--shadow-medium);
+    transform: translateY(-2px);
+    border-color: var(--border-focus) !important;
+  }
   /* Header Banner */
   .header-banner {
     border-radius: 12px;
@@ -448,4 +554,56 @@ body {
     box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.25) !important;
     background-color: var(--bg) !important;
   }
+}
+
+/* Expand toggle (icon-only button) */
+.expand-toggle {
+  color: var(--text-tertiary);            /* default (light) = xám */
+  background: transparent;
+  border: none;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  transition: color 0.18s ease, box-shadow 0.18s ease, transform 0.06s ease;
+  cursor: pointer;
+}
+
+/* apply to icon children (Icon component that renders svg/iconify) */
+.expand-toggle .iconify,
+.expand-toggle svg {
+  color: currentColor;
+  width: 20px;
+  height: 20px;
+  transition: transform 0.12s ease;
+}
+
+/* hover / active */
+.expand-toggle:hover {
+  transform: translateY(-1px);
+}
+
+/* pressed */
+.expand-toggle:active .iconify,
+.expand-toggle:active svg {
+  transform: translateY(0);
+}
+
+/* DARK THEME: orange + subtle glow */
+[data-theme="dark"] .expand-toggle {
+  color: var(--primary); /* cam */
+  box-shadow: 0 4px 12px rgba(255, 184, 77, 0.12); /* subtle orange glow */
+}
+
+/* optional stronger hover glow on dark */
+[data-theme="dark"] .expand-toggle:hover {
+  box-shadow: 0 6px 18px rgba(255, 184, 77, 0.18);
+}
+
+/* If you want the open state (when expanded) to always be orange regardless of theme,
+   add a modifier class .is-open on the button (optional) */
+.expand-toggle.is-open {
+  color: var(--primary);
+  box-shadow: 0 4px 12px rgba(255, 184, 77, 0.12);
 }
