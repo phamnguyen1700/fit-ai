@@ -26,7 +26,9 @@ export const icons = {
   chevronLeft: 'mdi:chevron-left',
   chevronRight: 'mdi:chevron-right',
   menu: 'majesticons:menu',
-  message: 'mdi:message-outline'
+  message: 'mdi:message-outline',
+  up: 'mdi:chevron-up',
+  down: 'mdi:chevron-down',
 };
 
 // Usage: <Icon name={icons.dashboard} />
