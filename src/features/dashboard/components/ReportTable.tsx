@@ -46,7 +46,6 @@ const ReportTable: React.FC = () => {
             className="min-w-[90px] themed-select !text !font-semibold"
             defaultValue="Loại"
             options={[{ value: 'Loại', label: 'Loại' }]}
-            dropdownStyle={{ zIndex: 9999 }} 
           />
           <Select
             className="min-w-[110px] themed-select !text"
@@ -54,7 +53,7 @@ const ReportTable: React.FC = () => {
             options={[{ value: 'Thời gian', label: 'Thời gian' }]}
           />
         </div>
-      </div>
+      </div>      
       <ReportCard items={reportItems} />
     </div>
   );
