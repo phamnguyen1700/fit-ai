@@ -71,14 +71,14 @@ const areaLabels = [
 
 const ChartReport: React.FC = () => {
   return (
-    <div className="w-full bg-white border border-[var(--primary)] rounded-xl p-4">
+    <div className="w-full bg-[var(--bg)] border border-[var(--primary)] rounded-xl p-4">
       {/* Phân tích + LineChart */}
       <div className="mb-4">
-        <div className="text-xl font-semibold text mb-2">Phân tích</div>
-        <div className="bg-white rounded-xl p-4 mt-2">
+        <div className="text-xl font-semibold text mb-2 text-[var(--text)]">Phân tích</div>
+        <div className="bg-[var(--bg)] rounded-xl p-4 mt-2">
           <div className="mb-4">
             <div className="bg-[var(--primay-extralight)] w-full ">
-              <div className="text text-base sm:text-lg font-semibold inline-block px-3 py-1 rounded-t-md">Tỷ lệ tăng trưởng user</div>
+              <div className="text text-base sm:text-lg font-semibold inline-block px-3 py-1 rounded-t-md text-[var(--text)]">Tỷ lệ tăng trưởng user</div>
               <div className="h-[2px] w-full bg-[var(--primary)] mt-1" />
             </div>
           </div>
@@ -95,9 +95,9 @@ const ChartReport: React.FC = () => {
       {/* PieChart + MultiCircleChart */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
         {/* PieChart */}
-        <div className="bg-white rounded-xl p-6 flex flex-col items-center mt-2">
+        <div className="bg-[var(--bg)] rounded-xl p-6 flex flex-col items-center mt-2">
           <div className="bg-[var(--primay-extralight)] w-full flex flex-col items-start">
-            <div className="text text-base sm:text-lg font-semibold inline-block px-3 py-1 rounded-t-md">Người dùng hiện tại</div>
+            <div className="text text-base sm:text-lg font-semibold inline-block px-3 py-1 rounded-t-md text-[var(--text)]">Người dùng hiện tại</div>
             <div className="h-[2px] w-full bg-[var(--primary)] mt-1" />
           </div>
           <PieChart data={pieData} size={220} innerRadius={70} className="mt-5"/>
@@ -106,30 +106,30 @@ const ChartReport: React.FC = () => {
               <div key={item.label} className="flex items-center gap-3 mb-2 w-56 justify-between">
                 <div className="flex items-center gap-2">
                   <span className="inline-block w-4 h-4 rounded-full" style={{ background: item.color }}></span>
-                  <span className="text-secondary text-base">{item.label}</span>
+                  <span className="text-secondary text-base text-[var(--text)]">{item.label}</span>
                 </div>
-                <span className="text-secondary text-base font-medium">{item.value}</span>
+                <span className="text-secondary text-base font-medium text-[var(--text)]">{item.value}</span>
               </div>
             ))}
           </div>
         </div>
         {/* MultiCircleChart */}
-        <div className="bg-white rounded-xl p-6 flex flex-col items-center mt-2">
+        <div className="bg-[var(--bg)] rounded-xl p-6 flex flex-col items-center mt-2">
           <div className="bg-[var(--primay-extralight)] w-full flex flex-col items-start">
-            <div className="text text-base sm:text-lg font-semibold inline-block px-3 py-1 rounded-t-md">Gói đăng ký</div>
+            <div className="text text-base sm:text-lg font-semibold inline-block px-3 py-1 rounded-t-md text-[var(--text)]">Gói đăng ký</div>
             <div className="h-[2px] w-full bg-[var(--primary)] mt-1" />
           </div>
           <div className="mt-5">
-          <MultiCircleChart values={multiCircleData} colors={multiCircleColors} size={220} strokeWidth={14} />
+          <MultiCircleChart values={multiCircleData} colors={multiCircleColors} size={220} strokeWidth={14} legend={multiCircleLegend} />
           </div>
           <div className="mt-6 w-full flex flex-col items-center">
             {multiCircleLegend.map((item) => (
               <div key={item.label} className="flex items-center gap-3 mb-2 w-56 justify-between">
                 <div className="flex items-center gap-2">
                   <span className="inline-block w-4 h-4 rounded-full" style={{ background: item.color }}></span>
-                  <span className="text-secondary text-base">{item.label}</span>
+                  <span className="text-secondary text-base text-[var(--text)]">{item.label}</span>
                 </div>
-                <span className="text-secondary text-base font-medium">{item.value}</span>
+                <span className="text-secondary text-base font-medium text-[var(--text)]">{item.value}</span>
               </div>
             ))}
           </div>
@@ -138,15 +138,15 @@ const ChartReport: React.FC = () => {
       {/* AreaChart */}
       <div className="mt-10">
         <div className="bg-[var(--primay-extralight)] w-full ">
-              <div className="text text-base sm:text-lg font-semibold inline-block px-3 py-1 rounded-t-md">Tỷ lệ doanh thu theo thời gian</div>
+              <div className="text text-base sm:text-lg font-semibold inline-block px-3 py-1 rounded-t-md text-[var(--text)]">Tỷ lệ doanh thu theo thời gian</div>
               <div className="h-[2px] w-full bg-[var(--primary)] mt-1" />
             </div>
-        <div className="bg-white rounded-xl p-6 mt-2">
-          <div className="text-[2.5rem] font-extrabold text-[#23233b] mb-[-2.5rem]">75%</div>
+        <div className="bg-[var(--bg)] rounded-xl p-6 mt-2">
+          <div className="text-[2.5rem] font-extrabold text-[#23233b] text-[var(--text)] mb-[-2.5rem]">75%</div>
           <div className="flex items-center justify-end gap-2 mb-4">
-            <button className="px-3 py-1 rounded bg-[#f5f5f5] text-[#23233b] font-semibold text-sm">Ngày</button>
-            <button className="px-3 py-1 rounded bg-[#f5f5f5] text-[#23233b] font-semibold text-sm">Tháng</button>
-            <button className="px-3 py-1 rounded bg-[#f5f5f5] text-[#23233b] font-semibold text-sm">Năm</button>
+            <button className="px-3 py-1 rounded bg-[var(--bg-secondary)] text-[var(--text)] font-semibold text-sm">Ngày</button>
+            <button className="px-3 py-1 rounded bg-[var(--bg-secondary)] text-[var(--text)] font-semibold text-sm">Tháng</button>
+            <button className="px-3 py-1 rounded bg-[var(--bg-secondary)] text-[var(--text)] font-semibold text-sm">Năm</button>
           </div>
           <div className="mt-4">
             <AreaChart series={areaSeries} labels={areaLabels} height={260} />
