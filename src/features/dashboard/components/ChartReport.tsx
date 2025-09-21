@@ -4,22 +4,45 @@ import PieChart from '@/shared/ui/core/PieChart';
 import MultiCircleChart from '@/shared/ui/core/MultiCircleChart';
 import AreaChart, { AreaSeriesItem } from '@/shared/ui/core/AreaChart';
 
+// Card component for reusability
+const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
+  <div className={`bg-[var(--bg)] rounded-xl ${className}`}>
+    {children}
+  </div>
+);
+
+// Chart header component
+const ChartHeader: React.FC<{ title: string }> = ({ title }) => (
+  <div className="bg-[var(--primay-extralight)] w-full">
+    <div className="text text-base sm:text-lg font-semibold inline-block px-3 py-1 rounded-t-md text-[var(--text)]">
+      {title}
+    </div>
+    <div className="h-[2px] w-full bg-[var(--primary)] mt-1" />
+  </div>
+);
+
+// Legend component for charts
+const Legend: React.FC<{ items: Array<{ color: string; label: string; value?: number }> }> = ({ items }) => (
+  <div className="mt-6 w-full flex flex-col items-center">
+    {items.map((item) => (
+      <div key={item.label} className="flex items-center gap-3 mb-2 w-56 justify-between">
+        <div className="flex items-center gap-2">
+          <span className="inline-block w-4 h-4 rounded-full" style={{ background: item.color }}></span>
+          <span className="text-secondary text-base text-[var(--text)]">{item.label}</span>
+        </div>
+        {item.value && (
+          <span className="text-secondary text-base font-medium text-[var(--text)]">{item.value}</span>
+        )}
+      </div>
+    ))}
+  </div>
+);
+
+// Data constants
 const lineSeries: SeriesItem[] = [
-  {
-    name: '18-20',
-    color: '#7C3AED',
-    data: [10, 30, 60, 90, 60, 30, 10],
-  },
-  {
-    name: '20-25',
-    color: '#FBBF24',
-    data: [20, 50, 80, 40, 30, 60, 20],
-  },
-  {
-    name: '>30',
-    color: '#60A5FA',
-    data: [5, 20, 40, 60, 40, 20, 5],
-  },
+  { name: '18-20', color: '#7C3AED', data: [10, 30, 60, 90, 60, 30, 10] },
+  { name: '20-25', color: '#FBBF24', data: [20, 50, 80, 40, 30, 60, 20] },
+  { name: '>30', color: '#60A5FA', data: [5, 20, 40, 60, 40, 20, 5] },
 ];
 
 const pieData = [
@@ -39,121 +62,86 @@ const multiCircleLegend = [
 ];
 
 const areaSeries: AreaSeriesItem[] = [
-  {
-    name: 'Doanh thu',
-    color: '#2563EB',
-    data: [0, 10, 25, 55, 80, 120, 150],
-    fillOpacity: 0.25,
-  },
-  {
-    name: 'Dự đoán',
-    color: '#A5B4FC',
-    data: [0, 15, 35, 60, 100, 160, 200],
-    fillOpacity: 0.15,
-  },
-  {
-    name: 'Kỳ vọng',
-    color: '#7C3AED',
-    data: [0, 20, 40, 80, 130, 180, 250],
-    fillOpacity: 0.10,
-  },
+  { name: 'Doanh thu', color: '#2563EB', data: [0, 10, 25, 55, 80, 120, 150], fillOpacity: 0.25 },
+  { name: 'Dự đoán', color: '#A5B4FC', data: [0, 15, 35, 60, 100, 160, 200], fillOpacity: 0.15 },
+  { name: 'Kỳ vọng', color: '#7C3AED', data: [0, 20, 40, 80, 130, 180, 250], fillOpacity: 0.10 },
 ];
 
 const areaLabels = [
-  '1 - 10 Aug',
-  '11 - 20 Aug',
-  '21 - 30 Aug',
-  '1 - 10 Nov',
-  '11 - 20 Nov',
-  '21 - 30 Nov',
-  '1 - 10 Dec',
+  '1 - 10 Aug', '11 - 20 Aug', '21 - 30 Aug', '1 - 10 Nov',
+  '11 - 20 Nov', '21 - 30 Nov', '1 - 10 Dec'
 ];
 
 const ChartReport: React.FC = () => {
   return (
-    <div className="w-full bg-[var(--bg)] border border-[var(--primary)] rounded-xl p-4">
-      {/* Phân tích + LineChart */}
+    <Card className="w-full border border-[var(--primary)] p-4">
+      {/* Line Chart Section */}
       <div className="mb-4">
-        <div className="text-xl font-semibold text mb-2 text-[var(--text)]">Phân tích</div>
-        <div className="bg-[var(--bg)] rounded-xl p-4 mt-2">
+        <div className="text-xl font-semibold mb-2 text-[var(--text)]">Phân tích</div>
+        <Card className="p-4 mt-2">
           <div className="mb-4">
-            <div className="bg-[var(--primay-extralight)] w-full ">
-              <div className="text text-base sm:text-lg font-semibold inline-block px-3 py-1 rounded-t-md text-[var(--text)]">Tỷ lệ tăng trưởng user</div>
-              <div className="h-[2px] w-full bg-[var(--primary)] mt-1" />
-            </div>
+            <ChartHeader title="Tỷ lệ tăng trưởng user" />
           </div>
           <div className="flex items-center justify-end gap-4 mb-4">
-            <span className="flex items-center gap-1 text-sm"><span className="inline-block w-3 h-3 rounded-full" style={{background:'#7C3AED'}}></span>18-20</span>
-            <span className="flex items-center gap-1 text-sm"><span className="inline-block w-3 h-3 rounded-full" style={{background:'#FBBF24'}}></span>20-25</span>
-            <span className="flex items-center gap-1 text-sm"><span className="inline-block w-3 h-3 rounded-full" style={{background:'#60A5FA'}}></span>&gt;30</span>
+            {lineSeries.map(({ name, color }) => (
+              <span key={name} className="flex items-center gap-1 text-sm">
+                <span className="inline-block w-3 h-3 rounded-full" style={{ background: color }}></span>
+                {name}
+              </span>
+            ))}
           </div>
           <div className="mt-4">
             <LineChart series={lineSeries} height={220} dashed className="bg-transparent" />
           </div>
-        </div>
+        </Card>
       </div>
-      {/* PieChart + MultiCircleChart */}
+
+      {/* Pie Chart and Multi Circle Chart */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-        {/* PieChart */}
-        <div className="bg-[var(--bg)] rounded-xl p-6 flex flex-col items-center mt-2">
-          <div className="bg-[var(--primay-extralight)] w-full flex flex-col items-start">
-            <div className="text text-base sm:text-lg font-semibold inline-block px-3 py-1 rounded-t-md text-[var(--text)]">Người dùng hiện tại</div>
-            <div className="h-[2px] w-full bg-[var(--primary)] mt-1" />
-          </div>
-          <PieChart data={pieData} size={220} innerRadius={70} className="mt-5"/>
-          <div className="mt-6 w-full flex flex-col items-center">
-            {pieData.map((item) => (
-              <div key={item.label} className="flex items-center gap-3 mb-2 w-56 justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="inline-block w-4 h-4 rounded-full" style={{ background: item.color }}></span>
-                  <span className="text-secondary text-base text-[var(--text)]">{item.label}</span>
-                </div>
-                <span className="text-secondary text-base font-medium text-[var(--text)]">{item.value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        {/* MultiCircleChart */}
-        <div className="bg-[var(--bg)] rounded-xl p-6 flex flex-col items-center mt-2">
-          <div className="bg-[var(--primay-extralight)] w-full flex flex-col items-start">
-            <div className="text text-base sm:text-lg font-semibold inline-block px-3 py-1 rounded-t-md text-[var(--text)]">Gói đăng ký</div>
-            <div className="h-[2px] w-full bg-[var(--primary)] mt-1" />
-          </div>
+        {/* Pie Chart */}
+        <Card className="p-6 flex flex-col items-center mt-2">
+          <ChartHeader title="Người dùng hiện tại" />
+          <PieChart data={pieData} size={220} innerRadius={70} className="mt-5" />
+          <Legend items={pieData} />
+        </Card>
+
+        {/* Multi Circle Chart */}
+        <Card className="p-6 flex flex-col items-center mt-2">
+          <ChartHeader title="Gói đăng ký" />
           <div className="mt-5">
-          <MultiCircleChart values={multiCircleData} colors={multiCircleColors} size={220} strokeWidth={14} legend={multiCircleLegend} />
+            <MultiCircleChart 
+              values={multiCircleData} 
+              colors={multiCircleColors} 
+              size={220} 
+              strokeWidth={14} 
+              legend={multiCircleLegend} 
+            />
           </div>
-          <div className="mt-6 w-full flex flex-col items-center">
-            {multiCircleLegend.map((item) => (
-              <div key={item.label} className="flex items-center gap-3 mb-2 w-56 justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="inline-block w-4 h-4 rounded-full" style={{ background: item.color }}></span>
-                  <span className="text-secondary text-base text-[var(--text)]">{item.label}</span>
-                </div>
-                <span className="text-secondary text-base font-medium text-[var(--text)]">{item.value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+          <Legend items={multiCircleLegend} />
+        </Card>
       </div>
-      {/* AreaChart */}
+
+      {/* Area Chart */}
       <div className="mt-10">
-        <div className="bg-[var(--primay-extralight)] w-full ">
-              <div className="text text-base sm:text-lg font-semibold inline-block px-3 py-1 rounded-t-md text-[var(--text)]">Tỷ lệ doanh thu theo thời gian</div>
-              <div className="h-[2px] w-full bg-[var(--primary)] mt-1" />
-            </div>
-        <div className="bg-[var(--bg)] rounded-xl p-6 mt-2">
-          <div className="text-[2.5rem] font-extrabold text-[#23233b] text-[var(--text)] mb-[-2.5rem]">75%</div>
+        <ChartHeader title="Tỷ lệ doanh thu theo thời gian" />
+        <Card className="p-6 mt-2">
+          <div className="text-[2.5rem] font-extrabold text-[var(--text)] mb-[-2.5rem]">75%</div>
           <div className="flex items-center justify-end gap-2 mb-4">
-            <button className="px-3 py-1 rounded bg-[var(--bg-secondary)] text-[var(--text)] font-semibold text-sm">Ngày</button>
-            <button className="px-3 py-1 rounded bg-[var(--bg-secondary)] text-[var(--text)] font-semibold text-sm">Tháng</button>
-            <button className="px-3 py-1 rounded bg-[var(--bg-secondary)] text-[var(--text)] font-semibold text-sm">Năm</button>
+            {['Ngày', 'Tháng', 'Năm'].map((period) => (
+              <button 
+                key={period}
+                className="px-3 py-1 rounded bg-[var(--bg-secondary)] text-[var(--text)] font-semibold text-sm"
+              >
+                {period}
+              </button>
+            ))}
           </div>
           <div className="mt-4">
             <AreaChart series={areaSeries} labels={areaLabels} height={260} />
           </div>
-        </div>
+        </Card>
       </div>
-    </div>
+    </Card>
   );
 };
 
