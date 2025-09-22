@@ -607,3 +607,111 @@ body {
   color: var(--primary);
   box-shadow: 0 4px 12px rgba(255, 184, 77, 0.12);
 }
+
+/* ===== CUSTOM BUTTON & INPUT HEIGHT CONSISTENCY ===== */
+/* Ensure all buttons and inputs have consistent height of 44px (h-11) */
+.tabs-header-button {
+  height: 44px !important;
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Override Ant Design button height in TabsHeader context */
+.tabs-header-button.ant-btn {
+  height: 44px !important;
+  line-height: 1 !important;
+  padding: 0 16px !important;
+}
+
+/* Override Ant Design input height in TabsHeader context */
+.tabs-header-input .ant-input {
+  height: 44px !important;
+  line-height: 1.5 !important;
+  padding: 8px 12px !important;
+}
+
+.tabs-header-input .admin-search-input {
+  height: 44px !important;
+  min-height: 44px !important;
+}
+
+/* Ensure icon buttons have consistent sizing */
+.tabs-header-icon-button {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+
+.tabs-header-icon-button.ant-btn {
+  width: 44px !important;
+  height: 44px !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+}
+
+/* ===== BUTTON HOVER & ACTIVE EFFECTS ===== */
+/* White background with orange border buttons */
+.tabs-header-button {
+  background-color: white !important;
+  border: 2px solid var(--primary) !important;
+  color: var(--primary) !important;
+  transition: all 0.3s ease !important;
+}
+
+.tabs-header-button:hover {
+  background-color: var(--primary) !important;
+  color: white !important;
+  border-color: var(--primary) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(255, 140, 0, 0.3) !important;
+}
+
+.tabs-header-button:active {
+  background-color: var(--primary-dark) !important;
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 4px rgba(255, 140, 0, 0.4) !important;
+}
+
+/* Icon button hover effects */
+.tabs-header-icon-button {
+  background-color: white !important;
+  border: 2px solid var(--border) !important;
+  color: var(--text-secondary) !important;
+  transition: all 0.3s ease !important;
+}
+
+.tabs-header-icon-button:hover {
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: white !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(255, 140, 0, 0.3) !important;
+}
+
+.tabs-header-icon-button:active {
+  background-color: var(--primary-dark) !important;
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 4px rgba(255, 140, 0, 0.4) !important;
+}
+
+/* Ant Design button overrides for hover/active states */
+.tabs-header-button.ant-btn:hover,
+.tabs-header-button.ant-btn:focus {
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: white !important;
+}
+
+.tabs-header-icon-button.ant-btn:hover,
+.tabs-header-icon-button.ant-btn:focus {
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: white !important;
+}

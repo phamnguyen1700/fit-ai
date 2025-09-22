@@ -2,9 +2,12 @@
 "use client";
 
 import React, { useState } from 'react';
+import TabsHeader from '../TabsHeader';
 
 const ExerciseTab = () => {
-    return <div>ExerciseTab</div>
+    return <div>
+        <TabsHeader/>
+    </div>
 };
 
 export default ExerciseTab;

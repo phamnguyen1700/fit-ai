@@ -26,7 +26,10 @@ export default function Content() {
       <Header 
         activeTab={activeTab} 
         onTabChange={(key) => setActiveTab(key)} 
-        onImportExport={() => console.log('Import/Export clicked')} 
+        onImportExport={() => console.log('Import/Export clicked')}
+        onSearch={(value) => console.log('Search:', value)}
+        onAddNew={() => console.log('Add new clicked')}
+        onEdit={() => console.log('Edit clicked')}
       />
       <div className="mt-4">
         {renderTabContent()}
