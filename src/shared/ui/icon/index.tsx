@@ -29,6 +29,10 @@ export const icons = {
   message: 'mdi:message-outline',
   up: 'mdi:chevron-up',
   down: 'mdi:chevron-down',
+  import: 'mdi:import',
+  export: 'mdi:export',
+  upload: 'mdi:upload',
+  download: 'mdi:download',
 };
 
 // Usage: <Icon name={icons.dashboard} />
