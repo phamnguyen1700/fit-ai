@@ -27,7 +27,7 @@ export default function Content() {
         activeTab={activeTab} 
         onTabChange={(key) => setActiveTab(key)} 
         onImportExport={() => console.log('Import/Export clicked')}
-        onSearch={(value) => console.log('Search:', value)}
+        onSearch={(value: string) => console.log('Search:', value)}
         onAddNew={() => console.log('Add new clicked')}
         onEdit={() => console.log('Edit clicked')}
       />
