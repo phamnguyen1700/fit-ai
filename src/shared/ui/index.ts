@@ -29,3 +29,6 @@ export {
   Typography,
   ConfigProvider
 } from 'antd';
+
+// Simple wrappers
+export { Tabs } from './core/Tabs';

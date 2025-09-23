@@ -29,6 +29,9 @@ export const icons = {
   message: 'mdi:message-outline',
   up: 'mdi:chevron-up',
   down: 'mdi:chevron-down',
+  email: 'mdi:email-outline',
+  password: 'mdi:lock-outline',
+  phone: 'mdi:phone-outline',
 };
 
 // Usage: <Icon name={icons.dashboard} />
