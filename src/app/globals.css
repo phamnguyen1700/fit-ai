@@ -715,3 +715,53 @@ body {
   border-color: var(--primary) !important;
   color: white !important;
 }
+
+/* ===== EXERCISE CARD STYLES ===== */
+.exercise-card {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.exercise-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.exercise-card .ant-card-body {
+  padding: 0 !important;
+}
+
+/* Exercise card hover overlay animations */
+.exercise-card .absolute.inset-0 {
+  transition: all 0.3s ease;
+}
+
+/* Smooth button animations in overlay */
+.exercise-card button {
+  transition: all 0.2s ease;
+}
+
+.exercise-card button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== EXERCISE CARDS CONTAINER STYLES ===== */
+.exercise-cards-container {
+  padding: 16px 0;
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 1200px) {
+  .exercise-cards-container .ant-col-12 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 768px) {
+  .exercise-cards-container .ant-col-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
