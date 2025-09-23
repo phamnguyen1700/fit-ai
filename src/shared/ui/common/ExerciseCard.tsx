@@ -171,7 +171,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                     onClick={onView}
                     className="w-full !bg-white !text-gray-800 hover:!bg-gray-50 hover:!text-gray-900 px-8 py-4 rounded-lg font-medium text-base shadow-lg border border-gray-100"
                   >
-                    Gim bài tập
+                    Ghim bài tập
                   </Button>
                   <Button
                     variant="primary"

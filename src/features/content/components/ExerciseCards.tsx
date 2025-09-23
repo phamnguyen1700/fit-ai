@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import { ExerciseCard } from '@/shared/ui';
+import { ExerciseCard, Card } from '@/shared/ui';
 import { Row, Col } from '@/shared/ui';
 
 interface ExerciseCardsProps {
@@ -13,7 +13,7 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
     {
       id: 1,
       title: "Bài tập Squat - cơ mông",
-      videoThumbnail: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
+      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
       muscleGroup: "Chân, Mông",
       exerciseType: "Strength",
       difficulty: "Trung bình",
@@ -24,7 +24,7 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
     {
       id: 2,
       title: "Bài tập Squat - cơ mông",
-      videoThumbnail: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
+      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
       muscleGroup: "Chân, Mông",
       exerciseType: "Strength",
       difficulty: "Trung bình",
@@ -35,7 +35,7 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
     {
       id: 3,
       title: "Bài tập Squat - cơ mông",
-      videoThumbnail: "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&h=300&fit=crop",
+      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
       muscleGroup: "Chân, Mông",
       exerciseType: "Strength",
       difficulty: "Trung bình",
@@ -46,7 +46,7 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
     {
       id: 4,
       title: "Bài tập Squat - cơ mông",
-      videoThumbnail: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
+      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
       muscleGroup: "Chân, Mông",
       exerciseType: "Strength",
       difficulty: "Trung bình",
@@ -57,7 +57,7 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
     {
       id: 5,
       title: "Bài tập Squat - cơ mông",
-      videoThumbnail: "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&h=300&fit=crop",
+      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
       muscleGroup: "Chân, Mông",
       exerciseType: "Strength",
       difficulty: "Trung bình",
@@ -68,7 +68,7 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
     {
       id: 6,
       title: "Bài tập Squat - cơ mông",
-      videoThumbnail: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
+      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
       muscleGroup: "Chân, Mông",
       exerciseType: "Strength",
       difficulty: "Trung bình",
@@ -79,7 +79,7 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
     {
       id: 7,
       title: "Bài tập Squat - cơ mông",
-      videoThumbnail: "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&h=300&fit=crop",
+      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
       muscleGroup: "Chân, Mông",
       exerciseType: "Strength",
       difficulty: "Trung bình",
@@ -90,7 +90,7 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
     {
       id: 8,
       title: "Bài tập Squat - cơ mông",
-      videoThumbnail: "https://images.unsplash.com/photo-1566241134711-acf1e5b8ad5a?w=400&h=300&fit=crop",
+      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
       muscleGroup: "Chân, Mông",
       exerciseType: "Strength",
       difficulty: "Trung bình",

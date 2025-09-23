@@ -716,6 +716,64 @@ body {
   color: white !important;
 }
 
+/* ===== DARK MODE STYLES FOR TABS HEADER BUTTONS ===== */
+/* Dark mode: Add Button */
+[data-theme="dark"] .tabs-header-button {
+  background-color: var(--bg-secondary) !important; /* #2A2A2A */
+  border: 2px solid var(--primary) !important;
+  color: var(--primary) !important;
+}
+
+[data-theme="dark"] .tabs-header-button:hover {
+  background-color: var(--primary) !important;
+  color: var(--text-inverse) !important; /* #8A8A8A */
+  border-color: var(--primary) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(255, 140, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .tabs-header-button:active {
+  background-color: var(--primary-dark) !important;
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 4px rgba(255, 140, 0, 0.5) !important;
+}
+
+/* Dark mode: Icon Button */
+[data-theme="dark"] .tabs-header-icon-button {
+  background-color: var(--bg-secondary) !important; /* #2A2A2A */
+  border: 2px solid var(--border) !important; /* #4A4A4A */
+  color: var(--text-secondary) !important; /* #B0B0B0 */
+}
+
+[data-theme="dark"] .tabs-header-icon-button:hover {
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: var(--text-inverse) !important; /* #8A8A8A */
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(255, 140, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .tabs-header-icon-button:active {
+  background-color: var(--primary-dark) !important;
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 4px rgba(255, 140, 0, 0.5) !important;
+}
+
+/* Dark mode: Ant Design button overrides */
+[data-theme="dark"] .tabs-header-button.ant-btn:hover,
+[data-theme="dark"] .tabs-header-button.ant-btn:focus {
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: var(--text-inverse) !important;
+}
+
+[data-theme="dark"] .tabs-header-icon-button.ant-btn:hover,
+[data-theme="dark"] .tabs-header-icon-button.ant-btn:focus {
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: var(--text-inverse) !important;
+}
+
 /* ===== EXERCISE CARD STYLES ===== */
 .exercise-card {
   transition: all 0.3s ease;
