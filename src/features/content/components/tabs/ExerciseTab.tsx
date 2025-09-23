@@ -15,7 +15,8 @@ const ExerciseTab = () => {
                 onSearch={(value) => console.log('Search:', value)}
                 onEdit={() => console.log('Edit exercises')}
             />
-            <ExerciseCards />
+            {/* <ExerciseCards /> */}
+            <ExerciseCards/>
         </div>
     );
 };
