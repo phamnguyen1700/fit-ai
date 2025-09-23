@@ -948,6 +948,39 @@ body {
   }
 }
 
+/* ===== EXERCISE TAB CONTAINER STYLES ===== */
+.exercise-tab-container {
+  padding: 24px;
+  border-radius: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin: 16px 0;
+}
+
+.exercise-tab-container .space-y-6 > * + * {
+  margin-top: 24px;
+}
+
+/* Dark mode for exercise tab container */
+[data-theme="dark"] .exercise-tab-container {
+  background: var(--bg-secondary);
+  border-color: var(--border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive adjustments for exercise tab */
+@media (max-width: 768px) {
+  .exercise-tab-container {
+    padding: 16px;
+    margin: 8px 0;
+    border-radius: 8px;
+  }
+  
+  .exercise-tab-container .space-y-6 > * + * {
+    margin-top: 16px;
+  }
+}
 
 /* ===== PAGINATION COMPONENT STYLES ===== */
 .pagination-container {
