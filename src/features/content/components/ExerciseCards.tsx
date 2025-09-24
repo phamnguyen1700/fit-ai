@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { ExerciseCard, Card, Pagination } from '@/shared/ui';
+import { ExerciseCard, Card, Pagination, PopupContent } from '@/shared/ui';
 import { Row, Col } from '@/shared/ui';
 
 interface ExerciseCardsProps {
@@ -9,6 +9,8 @@ interface ExerciseCardsProps {
 
 const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [selectedExercise, setSelectedExercise] = useState<any>(null);
   const itemsPerPage = 8;
 
   // Sample data for exercise cards
@@ -171,7 +173,11 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
   };
 
   const handlePlay = (exerciseId: number) => {
-    console.log('Play video for exercise:', exerciseId);
+    const exercise = allExerciseData.find(ex => ex.id === exerciseId);
+    if (exercise) {
+      setSelectedExercise(exercise);
+      setIsPopupVisible(true);
+    }
   };
 
   const handleEdit = (exerciseId: number) => {
@@ -179,11 +185,35 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
   };
 
   const handleView = (exerciseId: number) => {
-    console.log('View details for exercise:', exerciseId);
+    const exercise = allExerciseData.find(ex => ex.id === exerciseId);
+    if (exercise) {
+      setSelectedExercise(exercise);
+      setIsPopupVisible(true);
+    }
   };
 
   const handleDelete = (exerciseId: number) => {
     console.log('Delete exercise:', exerciseId);
+  };
+
+  const handleClosePopup = () => {
+    setIsPopupVisible(false);
+    setSelectedExercise(null);
+  };
+
+  const handlePopupEdit = (exerciseId: number) => {
+    console.log('Edit exercise from popup:', exerciseId);
+    handleClosePopup();
+  };
+
+  const handlePopupSave = (exerciseId: number) => {
+    console.log('Save exercise from popup:', exerciseId);
+    handleClosePopup();
+  };
+
+  const handlePopupDelete = (exerciseId: number) => {
+    console.log('Delete exercise from popup:', exerciseId);
+    handleClosePopup();
   };
 
   return (
@@ -222,6 +252,18 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
             maxVisiblePages={5}
           />
         </div>
+      )}
+
+      {/* Exercise Details Popup */}
+      {selectedExercise && (
+        <PopupContent
+          isVisible={isPopupVisible}
+          onClose={handleClosePopup}
+          exercise={selectedExercise}
+          onEdit={handlePopupEdit}
+          onSave={handlePopupSave}
+          onDelete={handlePopupDelete}
+        />
       )}
     </div>
   );

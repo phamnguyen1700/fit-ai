@@ -33,6 +33,8 @@ export const icons = {
   export: 'mdi:export',
   upload: 'mdi:upload',
   download: 'mdi:download',
+  chevronDown : 'mdi:chevron-down',
+  chevronUp : 'mdi:chevron-up'
 };
 
 // Usage: <Icon name={icons.dashboard} />
