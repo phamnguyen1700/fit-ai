@@ -7,7 +7,6 @@ import { Icon, icons } from '@/shared/ui/icon';
 const tabItems: TabItem[] = [
   { key: 'exercise', label: 'Quản lý bài tập' },
   { key: 'nutrition', label: 'Quản lý nội dung dinh dưỡng' },
-  { key: 'archive', label: 'Kho lưu trữ' },
 ];
 
 interface HeaderProps {
