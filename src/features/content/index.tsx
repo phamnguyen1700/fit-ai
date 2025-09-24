@@ -14,7 +14,7 @@ export default function Content() {
         return <ExerciseTab />;
       case 'nutrition':
         return <NutritionTab />;
-      case 'archive':
+      case 'history':
         return <ArchiveTab />;
       default:
         return <ExerciseTab />;
