@@ -32,3 +32,4 @@ export {
 
 // Simple wrappers
 export { Tabs } from './core/Tabs';
+export { Table } from './core/Table';
