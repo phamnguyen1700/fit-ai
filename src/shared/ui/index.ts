@@ -18,6 +18,7 @@ export { Pagination } from './core/Pagination';
 export { FeedbackCard } from './common/FeedbackCard';
 export { PaidCard } from './common/PaidCard';
 export { ExerciseCard } from './common/ExerciseCard';
+export { MealCard } from './common/MealCard';
 export { PopupContent } from './common/PopupContent';
 export { Flex } from './core/Flex';
 export { TabsHeader } from '../../features/content/components/TabsHeader';

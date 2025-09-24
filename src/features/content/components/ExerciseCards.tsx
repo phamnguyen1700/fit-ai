@@ -175,7 +175,19 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
   const handlePlay = (exerciseId: number) => {
     const exercise = allExerciseData.find(ex => ex.id === exerciseId);
     if (exercise) {
-      setSelectedExercise(exercise);
+      const exerciseData = {
+        id: exercise.id,
+        title: exercise.title,
+        image: exercise.videoThumbnail,
+        type: 'exercise' as const,
+        muscleGroup: exercise.muscleGroup,
+        exerciseType: exercise.exerciseType,
+        difficulty: exercise.difficulty,
+        duration: exercise.duration,
+        equipment: exercise.equipment,
+        calories: exercise.calories,
+      };
+      setSelectedExercise(exerciseData);
       setIsPopupVisible(true);
     }
   };
@@ -187,7 +199,19 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
   const handleView = (exerciseId: number) => {
     const exercise = allExerciseData.find(ex => ex.id === exerciseId);
     if (exercise) {
-      setSelectedExercise(exercise);
+      const exerciseData = {
+        id: exercise.id,
+        title: exercise.title,
+        image: exercise.videoThumbnail,
+        type: 'exercise' as const,
+        muscleGroup: exercise.muscleGroup,
+        exerciseType: exercise.exerciseType,
+        difficulty: exercise.difficulty,
+        duration: exercise.duration,
+        equipment: exercise.equipment,
+        calories: exercise.calories,
+      };
+      setSelectedExercise(exerciseData);
       setIsPopupVisible(true);
     }
   };
@@ -259,7 +283,7 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
         <PopupContent
           isVisible={isPopupVisible}
           onClose={handleClosePopup}
-          exercise={selectedExercise}
+          data={selectedExercise}
           onEdit={handlePopupEdit}
           onSave={handlePopupSave}
           onDelete={handlePopupDelete}

@@ -948,6 +948,170 @@ body {
   }
 }
 
+/* ===== MEAL CARD STYLES ===== */
+.meal-card {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.meal-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.meal-card .ant-card-body {
+  padding: 0 !important;
+}
+
+/* Meal card hover overlay animations */
+.meal-card .absolute.inset-0 {
+  transition: all 0.3s ease;
+}
+
+/* Smooth button animations in overlay */
+.meal-card button {
+  transition: all 0.2s ease;
+}
+
+.meal-card button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== MEAL CARDS CONTAINER STYLES ===== */
+.meal-cards-container {
+  padding: 16px 0;
+  width: 100%;
+}
+
+.meal-cards-wrapper {
+  /* padding: 24px; */
+  border-radius: 8px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+}
+
+.meal-cards-grid {
+  margin-bottom: 32px;
+}
+
+.meal-cards-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Dark mode for meal cards container */
+[data-theme="dark"] .meal-cards-wrapper {
+  background: var(--bg-secondary);
+  border-color: #434343;
+}
+
+[data-theme="dark"] .meal-cards-pagination {
+  border-top-color: #434343;
+}
+
+/* Responsive adjustments for meal cards */
+@media (max-width: 768px) {
+  .meal-cards-wrapper {
+    padding: 16px;
+  }
+  
+  .meal-cards-grid .ant-col {
+    span: 24 !important; /* Full width on mobile */
+  }
+  
+  .meal-cards-pagination {
+    margin-top: 16px;
+    padding-top: 16px;
+  }
+}
+
+/* Meal cards loading state */
+.meal-cards-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  color: var(--text-secondary);
+}
+
+/* Meal cards empty state */
+.meal-cards-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.meal-cards-empty h3 {
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.meal-cards-empty p {
+  margin-bottom: 16px;
+}
+
+/* Animation for meal cards grid */
+.meal-cards-grid .ant-col {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+/* Pagination controls enhancement for meal cards */
+.meal-cards-pagination .navigation-pagination {
+  background: transparent;
+}
+
+.meal-cards-pagination .navigation-pagination .ant-pagination-item {
+  border-color: var(--border-color);
+  background: var(--bg-primary);
+}
+
+.meal-cards-pagination .navigation-pagination .ant-pagination-item:hover {
+  border-color: var(--primary);
+}
+
+.meal-cards-pagination .navigation-pagination .ant-pagination-item-active {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+
+.meal-cards-pagination .navigation-pagination .ant-pagination-item-active a {
+  color: white;
+}
+
+[data-theme="dark"] .meal-cards-pagination .navigation-pagination .ant-pagination-item {
+  border-color: #434343;
+  background: var(--bg-secondary);
+}
+
+[data-theme="dark"] .meal-cards-pagination .navigation-pagination .ant-pagination-item a {
+  color: var(--text-primary);
+}
+
+/* Responsive grid adjustments for meal cards */
+@media (max-width: 1200px) {
+  .meal-cards-container .ant-col-12 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 768px) {
+  .meal-cards-container .ant-col-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+
 /* ===== EXERCISE TAB CONTAINER STYLES ===== */
 .exercise-tab-container {
   padding: 24px;
@@ -978,6 +1142,37 @@ body {
   }
   
   .exercise-tab-container .space-y-6 > * + * {
+    margin-top: 16px;
+  }
+}
+
+/* ===== NUTRITION TAB CONTAINER STYLES ===== */
+.nutrition-tab-container {
+  padding: 24px;
+  border-radius: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin: 16px 0;
+}
+
+
+/* Dark mode for nutrition tab container */
+[data-theme="dark"] .nutrition-tab-container {
+  background: var(--bg-secondary);
+  border-color: var(--border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive adjustments for nutrition tab */
+@media (max-width: 768px) {
+  .nutrition-tab-container {
+    padding: 16px;
+    margin: 8px 0;
+    border-radius: 8px;
+  }
+  
+  .nutrition-tab-container .space-y-4 > * + * {
     margin-top: 16px;
   }
 }
