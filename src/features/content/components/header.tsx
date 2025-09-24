@@ -1,12 +1,13 @@
 "use client";
-import React from 'react';
-import Tabs, { TabItem } from '@/shared/ui/core/Tabs';
-import { Button } from '@/shared/ui/core/Button';
-import { Icon, icons } from '@/shared/ui/icon';
+import React from "react";
+import Tabs, { TabItem } from "@/shared/ui/core/Tabs";
+import { Button } from "@/shared/ui/core/Button";
+import { Icon, icons } from "@/shared/ui/icon";
 
 const tabItems: TabItem[] = [
-  { key: 'exercise', label: 'Quản lý bài tập' },
-  { key: 'nutrition', label: 'Quản lý nội dung dinh dưỡng' },
+  { key: "exercise", label: "Quản lý bài tập" },
+  { key: "nutrition", label: "Quản lý nội dung dinh dưỡng" },
+  { key: "history", label: "Lịch sử Import/Export" },
 ];
 
 interface HeaderProps {
@@ -15,7 +16,11 @@ interface HeaderProps {
   onImportExport?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, onImportExport }) => {
+const Header: React.FC<HeaderProps> = ({
+  activeTab,
+  onTabChange,
+  onImportExport,
+}) => {
   return (
     <div className="flex items-center justify-between w-full mb-4 p-4">
       <Tabs
