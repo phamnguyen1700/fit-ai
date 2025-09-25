@@ -4,20 +4,34 @@ import type { InputProps as AntInputProps, PasswordProps, SearchProps, TextAreaP
 
 export type InputProps = AntInputProps;
 
-export const Input: React.FC<InputProps> = (props) => {
-  return <AntInput {...props} />;
-};
+const InputBase = React.forwardRef<any, AntInputProps>((props, ref) => {
+  const { className, rootClassName, ...rest } = props as any;
+  const themedClass = ['themed-input', className].filter(Boolean).join(' ');
+  const themedRoot = ['themed-input', rootClassName].filter(Boolean).join(' ');
+  return <AntInput ref={ref} className={themedClass} rootClassName={themedRoot} {...rest} />;
+});
 
-export const PasswordInput: React.FC<PasswordProps> = (props) => {
-  return <AntInput.Password {...props} />;
-};
+export const Input = Object.assign(InputBase, {
+  Password: React.forwardRef<any, PasswordProps>((props, ref) => {
+    const { className, rootClassName, ...rest } = props as any;
+    const themedClass = ['themed-input', className].filter(Boolean).join(' ');
+    const themedRoot = ['themed-input', rootClassName].filter(Boolean).join(' ');
+    return <AntInput.Password ref={ref} className={themedClass} rootClassName={themedRoot} {...rest} />;
+  }),
+  Search: React.forwardRef<any, SearchProps>((props, ref) => {
+    const { className, rootClassName, ...rest } = props as any;
+    const themedClass = ['themed-input', className].filter(Boolean).join(' ');
+    const themedRoot = ['themed-input', rootClassName].filter(Boolean).join(' ');
+    return <AntInput.Search ref={ref} allowClear className={themedClass} rootClassName={themedRoot} {...rest} />;
+  }),
+  TextArea: React.forwardRef<any, TextAreaProps>((props, ref) => {
+    const { className, rootClassName, autoSize = true, ...rest } = props as any;
+    const themedClass = ['themed-input', className].filter(Boolean).join(' ');
+    const themedRoot = ['themed-input', rootClassName].filter(Boolean).join(' ');
+    return <AntInput.TextArea ref={ref} autoSize={autoSize as any} className={themedClass} rootClassName={themedRoot} {...rest} />;
+  }),
+});
 
-export const SearchInput: React.FC<SearchProps> = (props) => {
-  return <AntInput.Search allowClear {...props} />;
-};
-
-export const TextArea: React.FC<TextAreaProps> = (props) => {
-  return <AntInput.TextArea autoSize {...props} />;
-};
-
-
+export const PasswordInput = Input.Password as any;
+export const SearchInput = Input.Search as any;
+export const TextArea = Input.TextArea as any;

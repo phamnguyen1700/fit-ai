@@ -1,146 +1,152 @@
 "use client";
+
 import React from 'react';
-import { Table as AntTable, TableProps as AntTableProps } from 'antd';
-import { ColumnsType } from 'antd/es/table';
+import { Table as AntTable, Pagination } from 'antd';
+import type { TableProps as AntTableProps } from 'antd';
 
-export interface TableColumn<T = any> {
-  title?: React.ReactNode;
-  dataIndex?: string;
+// Types
+export interface Column<T> {
+  colName: string;
+  render: (record: T) => React.ReactNode;
   key?: string;
-  render?: (value: any, record: T, index: number) => React.ReactNode;
-  width?: string | number;
-  align?: 'left' | 'right' | 'center';
-  sorter?: boolean | ((a: T, b: T) => number);
-  filters?: { text: string; value: string | number | boolean }[];
-  onFilter?: (value: string | number | boolean, record: T) => boolean;
-  fixed?: 'left' | 'right';
-  ellipsis?: boolean;
-  responsive?: ('xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl')[];
+  width?: number | string;
+  align?: 'left' | 'center' | 'right';
 }
 
-export interface TableProps<T = any> extends Omit<AntTableProps<T>, 'columns'> {
-  columns: TableColumn<T>[];
-  dataSource: T[];
-  loading?: boolean;
-  bordered?: boolean;
-  size?: 'large' | 'middle' | 'small';
-  showHeader?: boolean;
-  tableLayout?: 'auto' | 'fixed';
-  scroll?: {
-    x?: string | number | true;
-    y?: string | number;
-  };
-  sticky?: boolean | {
-    offsetHeader?: number;
-    offsetScroll?: number;
-    getContainer?: () => HTMLElement;
-  };
-  pagination?: false | {
-    current?: number;
-    total?: number;
-    pageSize?: number;
+export interface TableProps<T> {
+  columns: Column<T>[];
+  records: T[];
+  onRowClick?: (record: T) => void;
+  pagination?: {
+    current: number;
+    pageSize: number;
+    total: number;
+    onChange: (page: number, pageSize?: number) => void;
     showSizeChanger?: boolean;
-    showQuickJumper?: boolean;
-    showTotal?: (total: number, range: [number, number]) => React.ReactNode;
-    pageSizeOptions?: string[];
-    position?: ('topLeft' | 'topCenter' | 'topRight' | 'bottomLeft' | 'bottomCenter' | 'bottomRight')[];
+    showTotal?: (total: number, range: [number, number]) => string;
   };
-  rowSelection?: {
-    type?: 'checkbox' | 'radio';
-    selectedRowKeys?: React.Key[];
-    onChange?: (selectedRowKeys: React.Key[], selectedRows: T[]) => void;
-    onSelect?: (record: T, selected: boolean, selectedRows: T[], nativeEvent: Event) => void;
-    onSelectAll?: (selected: boolean, selectedRows: T[], changeRows: T[]) => void;
-    getCheckboxProps?: (record: T) => { disabled?: boolean; name?: string };
-  };
-  expandable?: {
-    expandedRowKeys?: readonly React.Key[];
-    defaultExpandedRowKeys?: readonly React.Key[];
-    defaultExpandAllRows?: boolean;
-    expandedRowRender?: (record: T, index: number, indent: number, expanded: boolean) => React.ReactNode;
-    expandIcon?: (props: any) => React.ReactNode;
-    expandRowByClick?: boolean;
-    onExpand?: (expanded: boolean, record: T) => void;
-    onExpandedRowsChange?: (expandedKeys: readonly React.Key[]) => void;
-  };
-  onRow?: (record: T, index?: number) => {
-    onClick?: (event: React.MouseEvent<HTMLElement>) => void;
-    onDoubleClick?: (event: React.MouseEvent<HTMLElement>) => void;
-    onContextMenu?: (event: React.MouseEvent<HTMLElement>) => void;
-    onMouseEnter?: (event: React.MouseEvent<HTMLElement>) => void;
-    onMouseLeave?: (event: React.MouseEvent<HTMLElement>) => void;
-  };
+  loading?: boolean;
+  rowKey?: string | ((record: T) => string);
   className?: string;
-  style?: React.CSSProperties;
+  size?: 'small' | 'middle' | 'large';
+  // Mobile card props
+  mobileCardRender?: (record: T) => React.ReactNode;
+  showMobileCards?: boolean;
 }
 
-export const Table = <T extends Record<string, any> = any>({
+export const Table = <T extends Record<string, any>>({
   columns,
-  dataSource,
+  records,
+  onRowClick,
+  pagination,
   loading = false,
-  bordered = false,
+  rowKey = 'id',
+  className = '',
   size = 'middle',
-  showHeader = true,
-  tableLayout = 'auto',
-  scroll,
-  sticky,
-  pagination = {
-    showSizeChanger: true,
-    showQuickJumper: true,
-    showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} mục`,
-    pageSizeOptions: ['10', '20', '50', '100'],
-  },
-  rowSelection,
-  expandable,
-  onRow,
-  className,
-  style,
-  ...restProps
+  mobileCardRender,
+  showMobileCards = true,
 }: TableProps<T>) => {
-  // Convert our column format to Ant Design's format
-  const antColumns: ColumnsType<T> = columns.map((col) => ({
-    title: col.title,
-    dataIndex: col.dataIndex,
-    key: col.key || col.dataIndex,
-    render: col.render,
+  // Ensure records is always an array
+  const safeRecords = records || [];
+  // Transform columns to Ant Design format
+  const antColumns = columns.map((col, index) => ({
+    title: col.colName,
+    dataIndex: col.key || `col_${index}`,
+    key: col.key || `col_${index}`,
     width: col.width,
-    align: col.align,
-    sorter: col.sorter,
-    filters: col.filters,
-    onFilter: col.onFilter,
-    fixed: col.fixed,
-    ellipsis: col.ellipsis,
-    responsive: col.responsive,
+    align: col.align || 'center',
+    render: (value: any, record: T, index: number) => {
+      // Ensure record exists before calling render function
+      if (!record) return null;
+      return col.render(record);
+    },
   }));
 
+  // Mobile pagination component
+  const MobilePagination = () => {
+    if (!pagination || pagination.total <= 0) return null;
+    
+    const totalPages = Math.ceil(pagination.total / pagination.pageSize);
+    
+    return (
+      <div className="mobile-pagination mb-2 flex justify-center">
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => pagination.onChange(Math.max(1, pagination.current - 1))}
+            disabled={pagination.current === 1}
+            className="px-2 py-1 border border-var(--text-secondary) rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            ←
+          </button>
+          
+          <span className="px-4 py-1 text-sm text-gray-600">
+            {pagination.current} / {totalPages}
+          </span>
+          
+          <button
+            onClick={() => pagination.onChange(Math.min(totalPages, pagination.current + 1))}
+            disabled={pagination.current === totalPages}
+            className="px-2 py-1 border border-var(--text-secondary) rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            →
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className={`table-wrapper ${className || ''}`} style={style}>
-      <AntTable<T>
-        columns={antColumns}
-        dataSource={dataSource}
-        loading={loading}
-        bordered={bordered}
-        size={size}
-        showHeader={showHeader}
-        tableLayout={tableLayout}
-        scroll={scroll}
-        sticky={sticky}
-        pagination={pagination}
-        rowSelection={rowSelection}
-        expandable={expandable}
-        onRow={onRow}
-        className="custom-table"
-        {...restProps}
-      />
+    <div className={`custom-table-wrapper ${className}`}>
+      {/* Desktop Table */}
+      <div className="hidden md:block">
+        <AntTable
+          columns={antColumns}
+          dataSource={safeRecords}
+          loading={loading}
+          rowKey={rowKey}
+          size={size}
+          pagination={false} // We'll handle pagination separately
+          className="custom-table"
+          rowClassName="custom-table-row"
+          onRow={(record) => ({
+            onClick: onRowClick ? () => onRowClick(record) : undefined,
+            style: onRowClick ? { cursor: 'pointer' } : undefined,
+          })}
+        />
+        
+        {/* Desktop Pagination */}
+        {pagination && pagination.total > 0 && (
+          <div className="custom-pagination-wrapper">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+              onChange={pagination.onChange}
+              showSizeChanger={pagination.showSizeChanger}
+              showTotal={pagination.showTotal}
+              className="custom-pagination"
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Mobile Cards */}
+      {showMobileCards && mobileCardRender && (
+        <div className="md:hidden">
+          <div className="space-y-3 px-5">
+            {safeRecords.map((record, index) => (
+              <div key={typeof rowKey === 'function' ? rowKey(record) : record[rowKey]}>
+                {mobileCardRender(record)}
+              </div>
+            ))}
+          </div>
+          
+          {/* Mobile Pagination */}
+          <MobilePagination />
+        </div>
+      )}
     </div>
   );
 };
 
-// Export default for convenience
 export default Table;
-
-// Export specific table utilities
-export type { TableColumn, TableProps };
-
-// Re-export useful Ant Design table types
-export type { ColumnsType, ColumnType } from 'antd/es/table';

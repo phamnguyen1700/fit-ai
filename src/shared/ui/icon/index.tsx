@@ -35,6 +35,9 @@ export const icons = {
   download: 'mdi:download',
   chevronDown : 'mdi:chevron-down',
   chevronUp : 'mdi:chevron-up'
+  email: 'mdi:email-outline',
+  password: 'mdi:lock-outline',
+  phone: 'mdi:phone-outline',
 };
 
 // Usage: <Icon name={icons.dashboard} />

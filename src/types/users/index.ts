@@ -66,3 +66,12 @@ export interface UserStats {
   newUsersThisMonth: number;
   averageLoginCount: number;
 }
+
+export type AuthUser = {
+	id: string
+	email: string
+	name?: string
+	role?: string
+}
+
+
