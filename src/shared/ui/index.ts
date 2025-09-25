@@ -14,6 +14,7 @@ export { LineChart } from './core/LineChart';
 export { Rate } from './core/Rate';
 export { Avatar } from './core/Avatar';
 export { Table } from './core/Table';
+export { Table2 } from './core/Table2';
 // export { Navigation, BreadcrumbNavigation } from './core/Navigation';
 export { Pagination } from './core/Pagination';
 export { FeedbackCard } from './common/FeedbackCard';
@@ -39,4 +40,3 @@ export {
 
 // Simple wrappers
 export { Tabs } from './core/Tabs';
-export { Table } from './core/Table';

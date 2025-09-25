@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { Table, TableColumn, Pagination } from '@/shared/ui';
+import { Table, TableColumn, Pagination, Table2 } from '@/shared/ui';
 
 interface ImportExportRecord {
   id: string;
@@ -212,7 +212,7 @@ const TableImEx: React.FC = () => {
 
   return (
     <div className="w-full">
-      <Table<ImportExportRecord>
+      <Table2<ImportExportRecord>
         columns={columns}
         dataSource={currentData}
         rowKey="id"
