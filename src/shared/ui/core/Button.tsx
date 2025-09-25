@@ -47,6 +47,13 @@ export const Button: React.FC<ButtonProps> = ({
     };
 
     switch (variant) {
+      case 'primary':
+        return {
+          ...baseStyle,
+          backgroundColor: 'var(--primary)',
+          borderColor: 'var(--primary)',
+          color: 'white',
+        };
       case 'danger':
         return {
           ...baseStyle,
