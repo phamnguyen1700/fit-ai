@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button, Input } from '@/shared/ui';
 import { Icon } from '@iconify/react';
 import { PopupImport } from './PopupImport';
+import { PopupExport } from './PopupExport';
 
 interface ArchiveHeaderProps {
   onImport?: () => void;
@@ -22,6 +23,7 @@ const ArchiveHeader: React.FC<ArchiveHeaderProps> = ({
   className = "",
 }) => {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const handleImport = () => {
     console.log('Import clicked');
@@ -31,6 +33,7 @@ const ArchiveHeader: React.FC<ArchiveHeaderProps> = ({
 
   const handleExport = () => {
     console.log('Export clicked');
+    setIsExportModalOpen(true);
     onExport?.();
   };
 
@@ -42,6 +45,12 @@ const ArchiveHeader: React.FC<ArchiveHeaderProps> = ({
     console.log('Importing file:', file.name);
     // Handle the actual file import logic here
     // You can integrate with your API or file processing logic
+  };
+
+  const handleFileExport = (dataType: string, dateRange: { from: Date | null; to: Date | null }, fileFormat: string) => {
+    console.log('Exporting data:', { dataType, dateRange, fileFormat });
+    // Handle the actual file export logic here
+    // You can integrate with your API or file generation logic
   };
 
   return (
@@ -86,6 +95,13 @@ const ArchiveHeader: React.FC<ArchiveHeaderProps> = ({
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
         onImport={handleFileImport}
+      />
+
+      {/* Export Modal */}
+      <PopupExport
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        onExport={handleFileExport}
       />
     </div>
   );
