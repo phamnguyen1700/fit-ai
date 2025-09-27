@@ -13,7 +13,6 @@ export { PieChart } from './core/PieChart';
 export { LineChart } from './core/LineChart';
 export { Rate } from './core/Rate';
 export { Avatar } from './core/Avatar';
-export { Table } from './core/Table';
 export { Table2 } from './core/Table2';
 // export { Navigation, BreadcrumbNavigation } from './core/Navigation';
 export { Pagination } from './core/Pagination';
@@ -24,6 +23,7 @@ export { MealCard } from './common/MealCard';
 export { PopupContent } from './common/PopupContent';
 export { Flex } from './core/Flex';
 export { TabsHeader } from '../../features/content/components/TabsHeader';
+export { PopupImport } from '../../features/content/components/PopupImport';
   
 // Layout Components
 export { Sider } from './layout/admin/Sider';

@@ -38,6 +38,7 @@ export const icons = {
   email: 'mdi:email-outline',
   password: 'mdi:lock-outline',
   phone: 'mdi:phone-outline',
+  file : 'mdi:file-outline',
 };
 
 // Usage: <Icon name={icons.dashboard} />

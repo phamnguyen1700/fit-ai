@@ -1,7 +1,8 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, Input } from '@/shared/ui';
 import { Icon } from '@iconify/react';
+import { PopupImport } from './PopupImport';
 
 interface ArchiveHeaderProps {
   onImport?: () => void;
@@ -20,8 +21,11 @@ const ArchiveHeader: React.FC<ArchiveHeaderProps> = ({
   searchPlaceholder = "Tìm kiếm gói, tên ứng viên...",
   className = "",
 }) => {
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
   const handleImport = () => {
     console.log('Import clicked');
+    setIsImportModalOpen(true);
     onImport?.();
   };
 
@@ -32,6 +36,12 @@ const ArchiveHeader: React.FC<ArchiveHeaderProps> = ({
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onSearch?.(e.target.value);
+  };
+
+  const handleFileImport = (file: File) => {
+    console.log('Importing file:', file.name);
+    // Handle the actual file import logic here
+    // You can integrate with your API or file processing logic
   };
 
   return (
@@ -70,6 +80,13 @@ const ArchiveHeader: React.FC<ArchiveHeaderProps> = ({
           />
         </div>
       </div>
+
+      {/* Import Modal */}
+      <PopupImport
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImport={handleFileImport}
+      />
     </div>
   );
 };
