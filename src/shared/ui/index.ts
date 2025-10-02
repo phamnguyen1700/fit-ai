@@ -40,3 +40,4 @@ export {
 
 // Simple wrappers
 export { Tabs } from './core/Tabs';
+export { Tabs2 } from './core/Tabs2';
