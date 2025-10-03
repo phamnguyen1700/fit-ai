@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { LoginModal } from '@/shared/ui/layout/marketing/components/LoginModal';
-import Header from './components/Header';
+import Header from '../../shared/ui/layout/marketing/components/Header';
 
 export default function MarketingLayout({
   children,
