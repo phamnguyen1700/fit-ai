@@ -1,8 +1,9 @@
-// # /admin/users
+import { UserPage } from '@/features/users';
+
 export default function AdminUsersPage() {
   return (
     <div>
-      Users
+      <UserPage />
     </div>
   );
 }

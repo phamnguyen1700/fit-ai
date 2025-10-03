@@ -15,6 +15,7 @@ export { Rate } from './core/Rate';
 export { Avatar } from './core/Avatar';
 export { FeedbackCard } from './common/FeedbackCard';
 export { PaidCard } from './common/PaidCard';
+export { UserCard } from './common/UserCard';
 export { Flex } from './core/Flex';
   
 // Layout Components

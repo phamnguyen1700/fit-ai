@@ -11,7 +11,7 @@ class HttpClient {
   private instance: AxiosInstance;
 
   constructor() {
-    const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+    const baseURL = process.env.NEXT_PUBLIC_API_URL;
 
     this.instance = axios.create({
       baseURL,

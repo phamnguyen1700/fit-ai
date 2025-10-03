@@ -7,7 +7,7 @@ export const useLoginMutation = () =>
     mutationFn: login,
     onSuccess: (data) => {
       toast.success('Đăng nhập thành công ✅')
-      console.log('onSuccess data:', data) // log để debug
+      console.log(data)
     },
     onError: (err: any) => {
       toast.error(err?.message || 'Đăng nhập thất bại ❌')
