@@ -10,7 +10,14 @@ export const Card: React.FC<CardProps> = ({ className, ...props }) => {
     <AntCard
       {...props}
       className={(className ? className + ' ' : '') + 'bg-[var(--bg)] border border-[var(--border)]'}
-      styles={{ body: { padding: 16 } }}
+      styles={{ 
+        body: { padding: 16 },
+        header: { 
+          borderBottom: 'none',
+          padding: '0 16px 0 16px',
+          marginBottom: -24
+        }
+      }}
     />
   );
 };

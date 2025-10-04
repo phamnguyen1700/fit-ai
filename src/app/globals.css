@@ -614,8 +614,8 @@ body {
   }
   .admin-search-input.ant-input-affix-wrapper-focused,
   .admin-search-input:focus-within {
-    border-color: var(--primary) !important;
-    box-shadow: 0 0 0 2px var(--primary) !important;
+    border-color: var(--primary-light) !important;
+    box-shadow: 0 0 0 1px var(--primary-light) !important;
     background-color: var(--bg) !important;
   }
 }
@@ -2389,6 +2389,53 @@ body {
   color: var(--text) !important;
 }
 
+/* ===== BREADCRUMB DARK MODE ===== */
+/* Ant Design Breadcrumb dark mode */
+.themed-breadcrumb.ant-breadcrumb {
+  padding-left: '10px' !important;
+  color: var(--text-secondary);
+}
+
+.themed-breadcrumb .ant-breadcrumb-link {
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.themed-breadcrumb .ant-breadcrumb-link:hover {
+  color: var(--primary);
+}
+
+.themed-breadcrumb .ant-breadcrumb-separator {
+  color: var(--text-tertiary);
+}
+
+.themed-breadcrumb .ant-breadcrumb-link:last-child {
+  color: var(--text);
+  font-weight: 400;
+}
+
+/* Dark mode breadcrumb */
+[data-theme="dark"] .themed-breadcrumb.ant-breadcrumb {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .themed-breadcrumb .ant-breadcrumb-link {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .themed-breadcrumb .ant-breadcrumb-link:hover {
+  color: var(--primary);
+}
+
+[data-theme="dark"] .themed-breadcrumb .ant-breadcrumb-separator {
+  color: var(--text-tertiary);
+}
+
+[data-theme="dark"] .themed-breadcrumb .ant-breadcrumb-link:last-child {
+  color: var(--text);
+  font-weight: 400;
+}
+
 /* ===== DROPDOWN MENU DARK MODE ===== */
 /* Ant Design Dropdown Menu dark mode */
 [data-theme="dark"] .ant-dropdown-menu {
@@ -2428,7 +2475,7 @@ body {
 }
 
 .user-card.ant-card:hover {
-  box-shadow: 0 6px 14px var(--primary) !important;
+  box-shadow: 0 3px 3px var(--primary-light) !important;
   transform: translateY(-2px) !important;
   border-color: var(--border-focus) !important;
 }
@@ -2445,7 +2492,7 @@ body {
 }
 
 [data-theme="dark"] .user-card.ant-card:hover {
-  box-shadow: 0 6px 14px rgba(255, 140, 0, 0.4) !important;
+  box-shadow: 0 3px 3px var(--primary-light) !important;
   transform: translateY(-2px) !important;
   border-color: var(--border-focus) !important;
 }

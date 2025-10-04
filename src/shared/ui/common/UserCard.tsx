@@ -1,4 +1,5 @@
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { Card } from '../core/Card';
 import { Avatar } from '../core/Avatar';
 import { Flex } from '../core/Flex';
@@ -7,6 +8,7 @@ import type { MenuProps } from 'antd';
 import { Icon } from '../../ui/icon';
 
 export interface UserCardProps {
+    id?: string;
     name: string;
     email: string;
     avatarUrl?: string;
@@ -14,10 +16,11 @@ export interface UserCardProps {
     planLabel: string;
     amountLabel: string;
     statusLabel: string;
-    onMenuClick?: (key: string) => void;
+    onMenuClick?: (key: string, userId: string) => void;
 }
 
 export const UserCard: React.FC<UserCardProps> = ({
+    id,
     name,
     email,
     avatarUrl,
@@ -27,6 +30,35 @@ export const UserCard: React.FC<UserCardProps> = ({
     statusLabel,
     onMenuClick,
 }) => {
+    const router = useRouter();
+    
+    const handleMenuClick = (key: string) => {
+        const userId = id || '1'; // fallback nếu không có id
+        
+        switch (key) {
+            case 'detail':
+                router.push(`/admin/users/${userId}`);
+                break;
+            case 'edit':
+                // TODO: Implement edit functionality
+                console.log('Edit user:', userId);
+                break;
+            case 'delete':
+                // TODO: Implement delete functionality
+                console.log('Delete user:', userId);
+                break;
+            case 'pin':
+                // TODO: Implement pin functionality
+                console.log('Pin user:', userId);
+                break;
+            default:
+                break;
+        }
+        
+        // Gọi callback nếu có
+        onMenuClick?.(key, userId);
+    };
+
     const items: MenuProps['items'] = [
         { key: 'pin', label: 'Ghim' },
         { key: 'delete', label: 'Xoá người dùng' },
@@ -54,7 +86,7 @@ export const UserCard: React.FC<UserCardProps> = ({
                         <div style={{ color: 'var(--text-secondary)' }}>{datetime}</div>
                         <Dropdown
                             trigger={['click']}
-                            menu={{ items, onClick: (info) => onMenuClick?.(info.key) }}
+                            menu={{ items, onClick: (info) => handleMenuClick(info.key) }}
                         >
                             <button className="user-filter-more h-6 w-6 grid place-items-center rounded-md border border-[var(--border)] hover:bg-[var(--bg-tertiary)]">
                                 <Icon name="mdi:dots-vertical" />

@@ -13,6 +13,8 @@ export { PieChart } from './core/PieChart';
 export { LineChart } from './core/LineChart';
 export { Rate } from './core/Rate';
 export { Avatar } from './core/Avatar';
+export { Badge } from './core/Badge';
+export { Breadcrumb } from './core/Breadcrumb';
 export { FeedbackCard } from './common/FeedbackCard';
 export { PaidCard } from './common/PaidCard';
 export { UserCard } from './common/UserCard';

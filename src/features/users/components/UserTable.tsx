@@ -43,8 +43,9 @@ export const UserTable: React.FC<UserTableProps> = ({
     <CardTable
       items={filteredUsers}
       pageSize={6}
-      renderItem={(item) => (
+      renderItem={(item, index) => (
         <UserCard
+          id={item.id || (index + 1).toString()}
           name={item.name}
           email={item.email}
           avatarUrl={item.avatarUrl}

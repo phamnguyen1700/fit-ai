@@ -46,7 +46,7 @@ export const UserFilter: React.FC<UserFilterProps> = ({
       </button>
 
       <Dropdown trigger={[ 'click' ]} menu={{ items: planItems, onClick: (i) => onPlanChange?.(i.key) }}>
-        <button className="user-filter-dropdown flex-1 h-9 rounded-md border border-[var(--border)] px-3 text-left hover:bg-[var(--bg-tertiary)]">
+        <button className="user-filter-dropdown flex-1 h-9 rounded-md border border-[var(--border)] px-3 text-left hover:bg-[var(--bg-secondary)]">
           Gói đăng ký <Icon name="mdi:chevron-down" className="inline ml-1" />
         </button>
       </Dropdown>
