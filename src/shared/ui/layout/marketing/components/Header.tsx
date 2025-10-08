@@ -20,16 +20,28 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-orange-50 border-b border-orange-100">
+    <header
+      className="border-b"
+      style={{
+        background: 'var(--primay-extralight)',
+        borderColor: 'var(--primay-extralight)',
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center" style={{ height: '4.5rem' }}>
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/home" className="flex flex-col items-start">
-              <span className="text-xl font-bold text-gray-900 leading-tight">
+              <span
+                className="text-xl font-bold leading-tight"
+                style={{ color: 'var(--text)' }}
+              >
                 AI Planning
               </span>
-              <span className="text-3xl font-bold text-orange-500 leading-tight -mt-1">
+              <span
+                className="text-3xl font-bold leading-tight -mt-1"
+                style={{ color: 'var(--primary)' }}
+              >
                 FIT
               </span>
             </Link>
@@ -41,15 +53,22 @@ export default function Header() {
               <button
                 key={item.name}
                 onClick={() => handleNavigation(item.href)}
-                className={`text-base font-semibold transition-colors relative pb-1 ${
-                  pathname === item.href
-                    ? 'text-orange-500'
-                    : 'text-gray-700 hover:text-orange-500'
-                }`}
+                className={
+                  'text-base font-semibold transition-colors relative pb-1'
+                }
+                style={{
+                  color:
+                    pathname === item.href
+                      ? 'var(--primary)'
+                      : 'var(--text)',
+                }}
               >
                 {item.name}
                 {pathname === item.href && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500 rounded-full"></div>
+                  <div
+                    className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+                    style={{ background: 'var(--primary)' }}
+                  ></div>
                 )}
               </button>
             ))}
@@ -59,7 +78,11 @@ export default function Header() {
           <div className="hidden md:flex items-center">
             <button
               onClick={() => router.push('/download')}
-              className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg text-base font-bold transition-colors"
+              className="px-8 py-3 rounded-lg text-base font-bold transition-colors"
+              style={{
+                background: 'var(--primary)',
+                color: 'var(--text-inverse)',
+              }}
             >
               Tải app ngay
             </button>
@@ -67,7 +90,10 @@ export default function Header() {
 
           {/* Mobile menu button */}
           <div className="md:hidden">
-            <button className="text-gray-700 hover:text-orange-500 p-2">
+            <button
+              className="p-2"
+              style={{ color: 'var(--text)' }}
+            >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
