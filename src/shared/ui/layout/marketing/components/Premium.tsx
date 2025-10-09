@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card } from '@/shared/ui/core/Card';
 
 export interface PlanFeature {
   text: string;
@@ -25,71 +24,85 @@ const PlanCard: React.FC<PlanCardProps> = ({
   starColor = '#FF6B35'
 }) => {
   return (
-    <Card
-      className="h-full rounded-2xl border-0 shadow-lg hover:shadow-xl transition-shadow duration-300 relative overflow-hidden"
-      styles={{
-        body: {
+    <div className={`relative ${isPopular ? 'md:scale-105' : 'md:scale-95'}`}>
+      {/* Decorative background */}
+      {isPopular && (
+        <div className="absolute inset-0 rounded-2xl opacity-20 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse at center, rgba(255, 107, 53, 0.3) 0%, transparent 70%)',
+            transform: 'scale(1.1)'
+          }}
+        />
+      )}
+      
+      <div
+        className="relative rounded-2xl border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden h-full"
+        style={{
+          background: 'white',
           padding: '32px 24px',
-          height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          background: 'white',
-        }
-      }}
-    >
-      {/* Orange decorative element at top */}
-      <div 
-        className="absolute top-0 left-0 right-0 h-1.5"
-        style={{ background: starColor }}
-      />
-      
-      {/* Plan Header */}
-      <div className="flex items-center mb-6">
+          minHeight: '500px',
+          boxShadow: isPopular ? '0 20px 50px rgba(255, 107, 53, 0.15)' : '0 10px 30px rgba(0, 0, 0, 0.1)'
+        }}
+      >
+        {/* Orange decorative line at top */}
         <div 
-          className="w-6 h-6 rounded flex items-center justify-center mr-3"
+          className="absolute top-0 left-0 right-0 h-1.5"
+          style={{ background: starColor }}
+        />
+        
+        {/* Plan Header */}
+        <div className="flex items-center mb-8">
+          <div 
+            className="w-8 h-8 rounded flex items-center justify-center mr-3 flex-shrink-0"
+            style={{ backgroundColor: starColor }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+          </div>
+          <h3 className="text-2xl font-bold text-gray-800">{name}</h3>
+        </div>
+
+        {/* Price */}
+        <div className="mb-8">
+          <div className="text-4xl font-bold text-gray-800">
+            {price} <span className="text-lg font-normal text-gray-600">/ {period}</span>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="w-16 h-0.5 bg-gray-200 mb-6"></div>
+
+        {/* Features List */}
+        <div className="flex-1 mb-8">
+          <ul className="space-y-4">
+            {features.map((feature, index) => (
+              <li key={index} className="flex items-start">
+                <div 
+                  className="w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0"
+                  style={{ backgroundColor: starColor }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                  </svg>
+                </div>
+                <span className="text-gray-700 text-sm leading-relaxed">{feature.text}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* CTA Button */}
+        <button
+          className="w-full py-3 px-6 rounded-lg font-semibold text-white transition-all duration-200 hover:opacity-90 text-base"
           style={{ backgroundColor: starColor }}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-        </div>
-        <h3 className="text-xl font-bold text-gray-800">{name}</h3>
+          {buttonText}
+        </button>
       </div>
-
-      {/* Price */}
-      <div className="mb-6">
-        <div className="text-3xl font-bold text-gray-800 mb-1">
-          {price} <span className="text-lg font-normal text-gray-600">/ {period}</span>
-        </div>
-      </div>
-
-      {/* Features List */}
-      <div className="flex-1 mb-8">
-        <ul className="space-y-3">
-          {features.map((feature, index) => (
-            <li key={index} className="flex items-start">
-              <div 
-                className="w-5 h-5 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0"
-                style={{ backgroundColor: starColor }}
-              >
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="white">
-                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                </svg>
-              </div>
-              <span className="text-gray-700 text-sm leading-relaxed">{feature.text}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* CTA Button */}
-      <button
-        className="w-full py-3 px-6 rounded-lg font-semibold text-white transition-all duration-200 hover:opacity-90"
-        style={{ backgroundColor: starColor }}
-      >
-        {buttonText}
-      </button>
-    </Card>
+    </div>
   );
 };
 
@@ -143,11 +156,17 @@ export const Premium: React.FC<PremiumProps> = ({ className = '' }) => {
   ];
 
   return (
-    <div className={`w-full ${className}`}>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {plans.map((plan, index) => (
-          <PlanCard key={index} {...plan} />
-        ))}
+    <div className={`w-full min-h-screen p-8 ${className}`}
+      style={{
+        background: 'transparent'
+      }}
+    >
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">
+          {plans.map((plan, index) => (
+            <PlanCard key={index} {...plan} />
+          ))}
+        </div>
       </div>
     </div>
   );
