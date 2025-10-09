@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, Input, Table, Segmented } from '@/shared/ui';
+import { Card, Input, Table2, Segmented } from '@/shared/ui';
 
 // Types
 interface User {
@@ -46,29 +46,37 @@ const NewUserTable: React.FC<NewUserTableProps> = ({ users }) => {
   // Table columns
   const columns = [
     {
-      colName: 'Tên',
-      render: (user: User) => (
+      title: 'Tên',
+      dataIndex: 'name',
+      key: 'name',
+      render: (text: string, user: User) => (
         <div className="text-left font-medium">{user.name}</div>
       ),
       align: 'left' as const,
     },
     {
-      colName: 'Email',
-      render: (user: User) => (
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+      render: (text: string, user: User) => (
         <div className="text-left">{user.email}</div>
       ),
       align: 'left' as const,
     },
     {
-      colName: 'Thời gian đăng ký',
-      render: (user: User) => (
+      title: 'Thời gian đăng ký',
+      dataIndex: 'registrationTime',
+      key: 'registrationTime',
+      render: (text: string, user: User) => (
         <div className="text-center">{user.registrationTime}</div>
       ),
       align: 'center' as const,
     },
     {
-      colName: 'Thời hạn',
-      render: (user: User) => (
+      title: 'Thời hạn',
+      dataIndex: 'expirationDate',
+      key: 'expirationDate',
+      render: (text: string, user: User) => (
         <div className="text-center">{user.expirationDate}</div>
       ),
       align: 'center' as const,
@@ -145,23 +153,15 @@ const NewUserTable: React.FC<NewUserTableProps> = ({ users }) => {
         </div>
 
         {/* Responsive Table */}
-        <Table
+        <Table2
           columns={columns}
-          records={paginatedUsers}
+          dataSource={paginatedUsers}
           rowKey="id"
-          mobileCardRender={renderUserCard}
-          showMobileCards={true}
           pagination={{
             current: currentPage,
             pageSize: pageSize,
             total: filteredUsers.length,
-            onChange: (page, newPageSize) => {
-              setCurrentPage(page);
-              if (newPageSize) {
-                setPageSize(newPageSize);
-              }
-            },
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+            showTotal: (total: number, range: [number, number]) => `${range[0]}-${range[1]} of ${total} items`,
             showSizeChanger: false,
           }}
         />

@@ -1,3 +1,4 @@
+'use client';
 // src/shared/ui/core/PieChart.tsx
 import React, { useMemo, useRef } from 'react';
 import {
