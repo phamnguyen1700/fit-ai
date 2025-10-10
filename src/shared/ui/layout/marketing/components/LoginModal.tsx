@@ -6,11 +6,11 @@ import { Form, Checkbox } from 'antd';
 import { Input } from '@/shared/ui/core/Input';
 import { Button } from '@/shared/ui/core/Button';
 import { useLoginMutation } from '@/tanstack/hooks/auth';
+import { useRegisterMutation } from '@/tanstack/hooks/users';
 import { Icon } from '@/shared/ui/icon';
 import { Row, Col } from '@/shared/ui/core/Grid';
-import { message } from 'antd';
+import { useRouter } from 'next/navigation';
 
-// --- fake data for carousel slides
 const carouselSlides = [
   {
     id: 1,
@@ -48,26 +48,60 @@ type LoginModalProps = {
 
 export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   const [activeKey, setActiveKey] = useState<'login' | 'register'>('login');
-  const { mutate, isPending } = useLoginMutation();
-
-  // Antd forms
+  const [loginError, setLoginError] = useState<string>('');
+  const [registerError, setRegisterError] = useState<string>('');
+  const { mutate: loginMutate, isPending: isLoginPending } = useLoginMutation();
+  const { mutate: registerMutate, isPending: isRegisterPending } = useRegisterMutation();
+  const router = useRouter()
   const [loginForm] = Form.useForm();
   const [registerForm] = Form.useForm();
 
   const handleLoginFinish = (values: { email: string; password: string }) => {
-    mutate(values, {
-      onSuccess: () => {
-        onClose() // chỉ đóng modal thôi
+    setLoginError('');
+    
+    loginMutate(values, {
+      onSuccess: (response) => {
+        if (response.success && response.data) {
+          onClose()
+          router.push('/admin/home')
+        } else if (response.success === false && response.data === undefined && response.message) {
+          setLoginError(response.message);
+        }
       }
     })
   }
-  
 
-  const handleRegisterFinish = (values: { phone: string; password: string }) => {
-    console.log('register values', values);
-    message.success('Đăng ký thành công (placeholder)');
-    registerForm.resetFields();
-    setActiveKey('login');
+  const handleLoginFormChange = () => {
+    if (loginError) {
+      setLoginError('');
+    }
+  }
+
+  const handleRegisterFormChange = () => {
+    if (registerError) {
+      setRegisterError('');
+    }
+  }
+
+  const handleRegisterFinish = (values: { email: string; password: string; confirmPassword: string }) => {
+    setRegisterError('');
+    
+    // Chỉ gửi email và password, không gửi confirmPassword
+    const registerData = {
+      email: values.email,
+      password: values.password
+    };
+    
+    registerMutate(registerData, {
+      onSuccess: (response) => {
+        if (response.success && response.data) {
+          registerForm.resetFields();
+          setActiveKey('login');
+        } else if (response.success === false && response.data === undefined && response.message) {
+          setRegisterError(response.message);
+        }
+      }
+    })
   };
 
   const slideContentStyle: React.CSSProperties = {
@@ -84,7 +118,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   return (
     <Modal className="login-modal" isOpen={isOpen} onClose={onClose} variant="centered" size="2xl">
       <Row style={{ height: '100%' }}>
-        {/* LEFT: image + carousel */}
         <Col span={18} style={{ height: '100%' }}>
           <div
             style={{
@@ -99,10 +132,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
               backgroundPosition: 'center',
             }}
           >
-            {/* dark overlay */}
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)' }} />
 
-            {/* Carousel centered */}
             <div
               style={{
                 position: 'relative',
@@ -140,7 +171,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
           </div>
         </Col>
 
-        {/* RIGHT: tabs + forms */}
         <Col
           span={6}
           style={{
@@ -154,13 +184,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
           }}
         >
           <div>
-            {/* Header */}
             <div style={{ marginBottom: 6 }}>
               <div style={{ fontSize: 13, fontWeight: 800 }}>AI Planing</div>
               <div style={{ fontSize: 20, color: 'var(--primary)', fontWeight: 800, marginTop: 3 }}>FIT</div>
             </div>
 
-            {/* Tabs */}
             <Tabs
               className="themed-tabs"
               activeKey={activeKey}
@@ -176,6 +204,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                         layout="vertical"
                         name="login"
                         onFinish={handleLoginFinish}
+                        onValuesChange={handleLoginFormChange}
                         initialValues={{ phone: '', password: '', remember: false }}
                       >
                         <Form.Item
@@ -208,10 +237,21 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                         </Form.Item>
 
                         <Form.Item>
+                          {loginError && (
+                            <div style={{ 
+                              color: 'var(--error)', 
+                              fontSize: '12px',
+                              textAlign: 'center'
+                            }}>
+                              {loginError}
+                            </div>
+                          )}
+                          
                           <Button
                             variant="primary"
                             htmlType="submit"
-                            loading={isPending}
+                            loading={isLoginPending}
+                            disabled={!!loginError} 
                             style={{ width: '100%', height: '34px', fontSize: '14px', fontWeight: '600' }}
                           >
                             Đăng nhập
@@ -231,20 +271,21 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                         layout="vertical"
                         name="register"
                         onFinish={handleRegisterFinish}
-                        initialValues={{ phone: '', password: '', confirmPassword: '' }}
+                        onValuesChange={handleRegisterFormChange}
+                        initialValues={{ email: '', password: '', confirmPassword: '' }}
                       >
                         <Form.Item
-                          name="phone"
-                          label="Số điện thoại"
+                          name="email"
+                          label="Email"
                           rules={[
-                            { required: true, message: 'Vui lòng nhập số điện thoại' },
+                            { required: true, message: 'Vui lòng nhập email' },
                             {
-                              pattern: /^\+?\d{9,15}$/,
-                              message: 'Số điện thoại không hợp lệ',
+                              pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                              message: 'Email không hợp lệ',
                             },
                           ]}
                         >
-                          <Input prefix={<Icon name="mdi:phone" />} placeholder="Số điện thoại" />
+                          <Input prefix={<Icon name="mdi:email" />} placeholder="Nhập email" />
                         </Form.Item>
 
                         <Form.Item
@@ -271,7 +312,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                 if (!value || getFieldValue('password') === value) {
                                   return Promise.resolve();
                                 }
-                                return Promise.reject(new Error('Mật khẩu không hợp lệ'));
+                                return Promise.reject(new Error('Mật khẩu không khớp'));
                               },
                             }),
                           ]}
@@ -280,9 +321,22 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                         </Form.Item>
 
                         <Form.Item>
+                          {registerError && (
+                            <div style={{ 
+                              color: 'var(--error)', 
+                              fontSize: '12px',
+                              textAlign: 'center',
+                              marginBottom: '8px'
+                            }}>
+                              {registerError}
+                            </div>
+                          )}
+                          
                           <Button
                             variant="primary"
                             htmlType="submit"
+                            loading={isRegisterPending}
+                            disabled={!!registerError}
                             style={{
                               width: '100%',
                               height: '34px',
@@ -302,7 +356,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             />
           </div>
 
-          {/* Footer small */}
           <div style={{ textAlign: 'center', fontSize: 10, color: '#bfbfbf', marginTop: 10 }}>
             Điều khoản sử dụng &nbsp; | &nbsp; Chính sách bảo mật
             <div style={{ marginTop: 4 }}>Copyright © FitAI Planing. All rights reserved.</div>

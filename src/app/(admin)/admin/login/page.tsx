@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { login } from '@/tanstack/services/auth';
+import { loginService } from '@/tanstack/services/auth';
 import toast from 'react-hot-toast';
 
 // # /admin/login
@@ -19,7 +19,7 @@ export default function AdminLoginPage() {
     setLoading(true);
     
     try {
-      const response = await login(formData);
+      const response = await loginService(formData);
       
       if (response.success && response.data) {
         // Lưu token vào localStorage

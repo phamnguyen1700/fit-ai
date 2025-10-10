@@ -46,11 +46,15 @@ class HttpClient {
     );
   }
 
-  private handleResponse<T>(res: AxiosResponse<T>): IApiResponse<T> {
+  private handleResponse<T>(res: AxiosResponse<any>): IApiResponse<T> {
+    // Handle nested response structure: data.data
+    const responseData = res.data?.data || res.data;
+    const message = res.data?.message || 'OK';
+    
     return {
-      data: res.data,
+      data: responseData,
       success: true,
-      message: 'OK',
+      message: message,
     };
   }
 

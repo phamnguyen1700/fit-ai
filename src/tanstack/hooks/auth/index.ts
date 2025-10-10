@@ -1,16 +1,20 @@
 import { useMutation } from '@tanstack/react-query'
-import { login } from '@/tanstack/services/auth'
+import { loginService } from '@/tanstack/services/auth'
 import toast from 'react-hot-toast'
+import { useAuthStore } from '@/stores/stores'
 
 export const useLoginMutation = () => 
   useMutation({
-    mutationFn: login,
-    onSuccess: (data) => {
-      toast.success('Đăng nhập thành công ✅')
-      console.log(data)
+    mutationFn: loginService,
+    onSuccess: (response) => {
+      if (response.success && response.data) {
+        // Lưu token và user data vào zustand store
+        const { token, id } = response.data;
+        useAuthStore.getState().login(token, id );
+        toast.success(response.message || 'Đăng nhập thành công')
+      }
     },
     onError: (err: any) => {
-      toast.error(err?.message || 'Đăng nhập thất bại ❌')
-      console.error('onError err:', err) // log để debug
+      console.error('Login error:', err)
     },
   })
