@@ -1,7 +1,7 @@
 'use client';
-import React, { useState } from "react";
+import React from "react";
 import { Card } from "@/shared/ui/core/Card";
-import Download from "@/shared/ui/layout/marketing/components/Dowload";
+import Download from "@/shared/ui/layout/marketing/components/Download";
 import FeedbackCard from "@/shared/ui/common/FeedbackCard";
 import Tabs3 from "@/shared/ui/core/Tabs3";
 import Premium from "@/shared/ui/layout/marketing/components/Premium";
@@ -43,7 +43,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
 }) => (
   <Card
     className="h-full rounded-3xl border-0 shadow-md hover:shadow-lg transition-shadow duration-300"
-    bodyStyle={{
+    styles={{ body: {
       padding: "40px 32px",
       background: bgColor,
       textAlign: "center",
@@ -52,7 +52,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
       flexDirection: "column",
       justifyContent: "center",
       alignItems: "center",
-    }}
+    } }}
   >
     <img src={image} alt={title} className="w-32 h-32 mx-auto mb-6" />
     <h3 className="text-2xl font-bold text-gray-800 mb-4" style={{ fontFamily: "Phudu, sans-serif" }}>
@@ -185,7 +185,7 @@ export default function MarketingHomePage() {
         <div className="w-full max-w-7xl px-4">
           <Card
             className="w-full rounded-2xl border-0 shadow-lg"
-            bodyStyle={{
+            styles={{ body: {
               padding: "48px 40px",
               height: "170px",
               background: "#2a2a2a",
@@ -194,7 +194,7 @@ export default function MarketingHomePage() {
               overflow: "hidden",
               display: "flex",
               alignItems: "center",
-            }}
+            } }}
           >
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 items-center relative z-10">
               {stats.map((stat, idx) => (
