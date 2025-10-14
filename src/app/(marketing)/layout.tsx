@@ -17,7 +17,7 @@ export default function MarketingLayout({
       <Header />
 
       {/* Main Content */}
-      <main className="flex-1">
+      <main className="flex-1 pt-[4.5rem]">
         {children}
       </main>
       <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
