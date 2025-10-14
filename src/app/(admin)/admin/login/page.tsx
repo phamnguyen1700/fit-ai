@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { loginService } from '@/tanstack/services/auth';
+import toast from 'react-hot-toast';
 
 // # /admin/login
 export default function AdminLoginPage() {
@@ -16,11 +18,23 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setLoading(true);
     
-    // Simulate login process
-    setTimeout(() => {
+    try {
+      const response = await loginService(formData);
+      
+      if (response.success && response.data) {
+        // Lưu token vào localStorage
+        localStorage.setItem('authToken', response.data.token);
+        toast.success('Đăng nhập thành công!');
+        router.push('/admin/dashboard');
+      } else {
+        toast.error(response.message || 'Đăng nhập thất bại');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error('Có lỗi xảy ra khi đăng nhập');
+    } finally {
       setLoading(false);
-      router.push('/admin/dashboard');
-    }, 1000);
+    }
   };
 
   return (

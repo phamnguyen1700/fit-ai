@@ -5,6 +5,7 @@ import { Grid, Layout } from 'antd';
 import { Menu } from '@/shared/ui/core/Menu';
 import { Icon, icons } from '@/shared/ui/icon';
 import { useRouter, usePathname } from 'next/navigation';
+import { useAuthStore } from '@/stores/stores';
 
 const { Sider: AntSider } = Layout;
 
@@ -46,7 +47,9 @@ export const Sider: React.FC<SiderProps> = ({
 
   const handleMenuClick = ({ key }: { key: string }) => {
     if (key === 'logout') {
-      console.log('Logout clicked');
+      // Logout logic
+      useAuthStore.getState().logout();
+      router.push('/');
       return;
     }
     router.push(key);
