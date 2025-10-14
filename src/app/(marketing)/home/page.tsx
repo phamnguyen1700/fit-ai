@@ -255,14 +255,61 @@ export default function MarketingHomePage() {
     <div className="w-full bg-[var(--primay-extralight)]">
       {/* Banner */}
       <div
-        className="w-full relative"
-        style={{ background: "var(--primay-extralight)" }}
+        className="w-full relative min-h-[750px] flex items-center justify-center"
+        style={{ 
+          backgroundImage: "url('/img/homeBanner.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat"
+        }}
       >
-        <img
-          src="/img/homeBanner.png"
-          alt="FIT AI Banner"
-          className="w-full h-auto object-cover"
-        />
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/0"></div>
+        
+        {/* Content */}
+        <div className="relative z-10 text-center max-w-4xl mx-auto px-4">
+          {/* Main Title */}
+          <h1 
+            className="text-6xl md:text-6xl font-bold mb-6"
+            style={{ fontFamily: "Phudu, sans-serif" }}
+          >
+            <span className="text-gray-800">AI Planning</span>
+            <br />
+            <span className="text-orange-500 text-6xl md:text-7xl">FIT</span>
+          </h1>
+          
+          {/* Subtitle */}
+          <h2 className="text-3xl md:text-3xl font-bold text-gray-800 mb-4"
+          style={{ fontFamily: "Phudu, sans-serif" }}
+          >
+            TẢI XUỐNG FIT AI NGAY HÔM NAY
+          </h2>
+          
+          {/* Description */}
+          <p className="text-lg text-gray-700 mb-8 max-w-2xl mx-auto leading-relaxed"
+          style={{ fontFamily: "Phudu, sans-serif" }}
+          >
+            TRẢI NGHIỆM SỨC MẠNH CỦA AI TRONG FITNESS TRÊN MỌI THIẾT BỊ CỦA BẠN
+          </p>
+          
+          {/* CTA Button */}
+          <button
+            onClick={() => {
+              const element = document.getElementById('download');
+              if (element) {
+                const headerHeight = 72;
+                const elementPosition = element.offsetTop - headerHeight;
+                window.scrollTo({
+                  top: elementPosition,
+                  behavior: 'smooth'
+                });
+              }
+            }}
+            className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
+          >
+            Tải app ngay
+          </button>
+        </div>
       </div>
 
       {/* Stats Section */}
