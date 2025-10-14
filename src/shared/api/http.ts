@@ -11,7 +11,7 @@ class HttpClient {
   private instance: AxiosInstance;
 
   constructor() {
-    const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+    const baseURL = process.env.NEXT_PUBLIC_API_URL;
 
     this.instance = axios.create({
       baseURL,
@@ -46,11 +46,15 @@ class HttpClient {
     );
   }
 
-  private handleResponse<T>(res: AxiosResponse<T>): IApiResponse<T> {
+  private handleResponse<T>(res: AxiosResponse<any>): IApiResponse<T> {
+    // Handle nested response structure: data.data
+    const responseData = res.data?.data || res.data;
+    const message = res.data?.message || 'OK';
+    
     return {
-      data: res.data,
+      data: responseData,
       success: true,
-      message: 'OK',
+      message: message,
     };
   }
 
