@@ -140,21 +140,51 @@ export default function Header() {
             })}
           </nav>
 
-          {/* CTA Button */}
+          {/* User Login Button */}
           <div className="hidden md:flex items-center">
             <button
-              onClick={() => handleNavigation('#download')}
-              className="px-6 py-2.5 rounded-xl text-base font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl active:scale-95 relative overflow-hidden group"
+              onClick={() => router.push('/login')}
+              className="relative group px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 overflow-hidden"
               style={{
+                color: 'white',
                 background: 'var(--primary)',
-                color: 'var(--text-inverse)',
               }}
+              aria-label="Đăng nhập"
             >
-              <span className="relative z-10">Tải app ngay</span>
-              {/* Hover glow effect */}
+              {/* Background animation */}
               <div 
-                className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300"
-                style={{ background: 'var(--primary)' }}
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%)',
+                }}
+              ></div>
+              
+              {/* Content */}
+              <div className="relative flex items-center gap-2">
+                <svg 
+                  className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2.5}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" 
+                  />
+                </svg>
+                <span>Đăng nhập</span>
+              </div>
+
+              {/* Hover border effect */}
+              <div 
+                className="absolute inset-0 rounded-lg border-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{ 
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  background: 'transparent',
+                  pointerEvents: 'none'
+                }}
               ></div>
             </button>
           </div>
