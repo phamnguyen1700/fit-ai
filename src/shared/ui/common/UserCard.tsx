@@ -3,9 +3,10 @@ import { useRouter } from 'next/navigation';
 import { Card } from '../core/Card';
 import { Avatar } from '../core/Avatar';
 import { Flex } from '../core/Flex';
-import { Dropdown } from 'antd';
+import { Dropdown, Modal } from 'antd';
 import type { MenuProps } from 'antd';
 import { Icon } from '../../ui/icon';
+import { useDeleteUserMutation } from '@/tanstack/hooks/users';
 
 export interface UserCardProps {
     id?: string;
@@ -31,6 +32,23 @@ export const UserCard: React.FC<UserCardProps> = ({
     onMenuClick,
 }) => {
     const router = useRouter();
+    const deleteUserMutation = useDeleteUserMutation();
+    
+    const handleDeleteUser = (userId: string) => {
+        Modal.confirm({
+            title: 'Xác nhận xóa người dùng',
+            content: `Bạn có chắc chắn muốn xóa người dùng "${name}"? Hành động này không thể hoàn tác.`,
+            okText: 'Xóa',
+            cancelText: 'Hủy',
+            okButtonProps: {
+                danger: true,
+                loading: deleteUserMutation.isPending,
+            },
+            onOk: () => {
+                deleteUserMutation.mutate(userId);
+            },
+        });
+    };
     
     const handleMenuClick = (key: string) => {
         const userId = id || '1'; // fallback nếu không có id
@@ -44,7 +62,7 @@ export const UserCard: React.FC<UserCardProps> = ({
                 console.log('Edit user:', userId);
                 break;
             case 'delete':
-                // TODO: Implement delete functionality
+                handleDeleteUser(userId);
                 console.log('Delete user:', userId);
                 break;
             case 'pin':
