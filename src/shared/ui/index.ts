@@ -6,6 +6,7 @@ export { Input, PasswordInput, TextArea } from './core/Input';
 export { Menu } from './core/Menu';
 export { Progress } from './core/Progress';
 export { Card } from './core/Card';
+export { Card2 } from './core/Card2';
 export { Segmented } from './core/Segmented';
 export { Row, Col, useBreakpoint } from './core/Grid';
 export { Select } from './core/Select';
