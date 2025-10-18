@@ -1,9 +1,16 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '../../../shared/ui/core/Button';
 import { SearchInput } from '../../../shared/ui/layout/admin/components/SearchInput';
 import { Icon, icons } from '../../../shared/ui/icon';
 import { Card } from '../../../shared/ui/core/Card';
+import Dropdown from './Dropdown';
+
+interface DropdownOption {
+  key: string;
+  label: string;
+  isActive?: boolean;
+}
 
 interface TabsHeaderProps {
   searchPlaceholder?: string;
@@ -11,6 +18,7 @@ interface TabsHeaderProps {
   onAddNew?: () => void;
   onImportExport?: () => void;
   onEdit?: () => void;
+  onDropdownSelect?: (option: DropdownOption) => void;
   addButtonText?: string;
   importExportButtonText?: string;
   addButtonIcon?: string;
@@ -23,11 +31,25 @@ export const TabsHeader: React.FC<TabsHeaderProps> = ({
   onAddNew,
   onImportExport,
   onEdit,
+  onDropdownSelect,
   addButtonText = "Thêm bài tập",
   importExportButtonText = "Nhập/ Xuất dữ liệu",
   addButtonIcon = "mdi:plus",
   className = ""
 }) => {
+  const [activeOption, setActiveOption] = useState<string>("muscle-group");
+
+  const dropdownOptions: DropdownOption[] = [
+    { key: "all", label: "Tất cả", isActive: activeOption === "all" },
+    { key: "muscle-group", label: "Nhóm cơ", isActive: activeOption === "muscle-group" },
+    { key: "exercise-type", label: "Loại bài tập", isActive: activeOption === "exercise-type" },
+    { key: "difficulty", label: "Mức độ", isActive: activeOption === "difficulty" }
+  ];
+
+  const handleDropdownSelect = (option: DropdownOption) => {
+    setActiveOption(option.key);
+    onDropdownSelect?.(option);
+  };
   return (
     <Card className={`${className}`} styles={{ body: { padding: 0 } }}>
       <div className="flex items-center gap-4 w-full p-4">
@@ -51,15 +73,20 @@ export const TabsHeader: React.FC<TabsHeaderProps> = ({
           />
         </div>
 
-        {/* Edit Icon Button */}
-        <Button
-          variant="ghost"
-          size="md"
-          onClick={onEdit}
-          className="tabs-header-icon-button rounded-lg"
-        >
-          <Icon name="mdi:pencil" size={18} color="currentColor" />
-        </Button>
+        {/* Edit Icon Button with Dropdown */}
+        <Dropdown
+          trigger={
+            <Button
+              variant="ghost"
+              size="md"
+              className="tabs-header-icon-button rounded-lg"
+            >
+              <Icon name="mdi:pencil" size={18} color="currentColor" />
+            </Button>
+          }
+          options={dropdownOptions}
+          onSelect={handleDropdownSelect}
+        />
       </div>
     </Card>
   );
