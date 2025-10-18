@@ -7,6 +7,18 @@ import TabsHeader from "../TabsHeader";
 import ExerciseCards from "../ExerciseCards";
 
 const ExerciseTab = () => {
+  const handleDropdownSelect = (option: any) => {
+    console.log("Selected exercise option:", option);
+    // Xử lý logic cho exercise categories
+  };
+
+  const exerciseDropdownOptions = [
+    { key: "all", label: "Tất cả" },
+    { key: "muscle-group", label: "Nhóm cơ" },
+    { key: "exercise-type", label: "Loại bài tập" },
+    { key: "difficulty", label: "Mức độ" }
+  ];
+
   return (
     <Card className="exercise-tab-container">
       <header className="mb-4">
@@ -18,7 +30,9 @@ const ExerciseTab = () => {
           searchPlaceholder="Tìm kiếm bài tập..."
           onAddNew={() => console.log("Add new exercise")}
           onSearch={(value) => console.log("Search:", value)}
-          onEdit={() => console.log("Edit exercises")}
+          onDropdownSelect={handleDropdownSelect}
+          dropdownOptions={exerciseDropdownOptions}
+          defaultActiveOption="muscle-group"
         />
         <ExerciseCards />
       </div>

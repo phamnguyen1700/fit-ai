@@ -23,6 +23,8 @@ interface TabsHeaderProps {
   importExportButtonText?: string;
   addButtonIcon?: string;
   className?: string;
+  dropdownOptions?: DropdownOption[];
+  defaultActiveOption?: string;
 }
 
 export const TabsHeader: React.FC<TabsHeaderProps> = ({
@@ -35,16 +37,17 @@ export const TabsHeader: React.FC<TabsHeaderProps> = ({
   addButtonText = "Thêm bài tập",
   importExportButtonText = "Nhập/ Xuất dữ liệu",
   addButtonIcon = "mdi:plus",
-  className = ""
+  className = "",
+  dropdownOptions: customDropdownOptions,
+  defaultActiveOption = "all"
 }) => {
-  const [activeOption, setActiveOption] = useState<string>("muscle-group");
+  const [activeOption, setActiveOption] = useState<string>(defaultActiveOption);
 
-  const dropdownOptions: DropdownOption[] = [
-    { key: "all", label: "Tất cả", isActive: activeOption === "all" },
-    { key: "muscle-group", label: "Nhóm cơ", isActive: activeOption === "muscle-group" },
-    { key: "exercise-type", label: "Loại bài tập", isActive: activeOption === "exercise-type" },
-    { key: "difficulty", label: "Mức độ", isActive: activeOption === "difficulty" }
-  ];
+  // Use custom options if provided
+  const dropdownOptions = customDropdownOptions?.map(option => ({
+    ...option,
+    isActive: activeOption === option.key
+  })) || [];
 
   const handleDropdownSelect = (option: DropdownOption) => {
     setActiveOption(option.key);
