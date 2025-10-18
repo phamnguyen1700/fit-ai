@@ -30,8 +30,12 @@ export const useDeleteUserMutation = () => {
   const queryClient = useQueryClient()
   
   return useMutation({
-    mutationFn: deleteUserService,
+    mutationFn: (id: string) => {
+      console.log('Attempting to delete user with ID:', id);
+      return deleteUserService(id);
+    },
     onSuccess: (response) => {
+      console.log('Delete response:', response);
       if (response.success) {
         toast.success(response.message || 'Xóa người dùng thành công')
         // Refresh the users list
