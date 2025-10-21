@@ -934,6 +934,243 @@ body {
     background: var(--bg) !important;
     color: var(--text-secondary) !important;
   }
+
+  /* ===== REVIEW FEEDBACK TABLE STYLES ===== */
+  .review-feedback-table {
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+
+  .review-feedback-table .ant-table-thead > tr > th {
+    background-color: #f9fafb !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+  }
+
+  .review-feedback-table .ant-table-tbody > tr > td {
+    padding: 12px 16px !important;
+    border-bottom: 1px solid #f3f4f6 !important;
+    font-size: 14px !important;
+  }
+
+  .review-feedback-table .ant-table-tbody > tr:hover > td {
+    background-color: #f9fafb !important;
+  }
+
+  .review-feedback-table .ant-pagination {
+    padding: 16px !important;
+    border-top: 1px solid #f3f4f6 !important;
+    margin: 0 !important;
+    text-align: center !important;
+  }
+
+  .review-feedback-table .ant-table {
+    border: none !important;
+  }
+
+  .review-feedback-table .ant-table-container {
+    border: none !important;
+  }
+
+  /* Review Feedback Table - Star Rating */
+  .review-feedback-table .star-rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    justify-content: center;
+  }
+
+  .review-feedback-table .star-icon {
+    color: #fbbf24;
+    font-size: 14px;
+  }
+
+  .review-feedback-table .rating-value {
+    font-weight: 500;
+    color: #1f2937;
+  }
+
+  /* Review Feedback Table - User Name */
+  .review-feedback-table .user-name {
+    font-weight: 500;
+    color: #1f2937;
+  }
+
+  /* Review Feedback Table - Date Text */
+  .review-feedback-table .date-text {
+    color: #6b7280;
+  }
+
+  /* Review Feedback Table - Content Text */
+  .review-feedback-table .content-text {
+    color: #6b7280;
+  }
+
+  /* Review Feedback Table - Action Buttons */
+  .review-feedback-table .action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .review-feedback-table .action-button {
+    padding: 4px 12px !important;
+    font-size: 12px !important;
+    border-radius: 4px !important;
+    background-color: white !important;
+    border: 1px solid #d1d5db !important;
+    color: #374151 !important;
+    height: auto !important;
+    transition: all 0.2s ease !important;
+  }
+
+  .review-feedback-table .action-button:hover {
+    background-color: #f9fafb !important;
+    border-color: #9ca3af !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Review Feedback Table - Approve Button Specific Styles */
+  .review-feedback-table .action-button.approve-btn:hover {
+    background-color: var(--success) !important;
+    border-color: var(--success) !important;
+    color: white !important;
+  }
+
+  /* Review Feedback Table - Reject Button Specific Styles */
+  .review-feedback-table .action-button.reject-btn:hover {
+    background-color: var(--error) !important;
+    border-color: var(--error) !important;
+    color: white !important;
+  }
+
+  /* Review Feedback Table - Dark Mode Styles */
+  [data-theme="dark"] .review-feedback-table {
+    background-color: var(--bg) !important;
+    box-shadow: 0 1px 3px var(--shadow-dark);
+  }
+
+  [data-theme="dark"] .review-feedback-table .ant-table-thead > tr > th {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text) !important;
+    border-bottom-color: var(--border) !important;
+  }
+
+  [data-theme="dark"] .review-feedback-table .ant-table-tbody > tr > td {
+    background-color: var(--bg) !important;
+    color: var(--text) !important;
+    border-bottom-color: var(--border) !important;
+  }
+
+  [data-theme="dark"] .review-feedback-table .ant-table-tbody > tr:hover > td {
+    background-color: var(--bg-secondary) !important;
+  }
+
+  [data-theme="dark"] .review-feedback-table .ant-pagination {
+    border-top-color: var(--border) !important;
+  }
+
+  [data-theme="dark"] .review-feedback-table .user-name {
+    color: var(--text) !important;
+  }
+
+  [data-theme="dark"] .review-feedback-table .rating-value {
+    color: var(--text) !important;
+  }
+
+  [data-theme="dark"] .review-feedback-table .date-text {
+    color: var(--text-secondary) !important;
+  }
+
+  [data-theme="dark"] .review-feedback-table .content-text {
+    color: var(--text-secondary) !important;
+  }
+
+  [data-theme="dark"] .review-feedback-table .action-button {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+  }
+
+  [data-theme="dark"] .review-feedback-table .action-button:hover {
+    background-color: var(--bg-tertiary) !important;
+    border-color: var(--border-secondary) !important;
+  }
+
+  /* Review Feedback Table - Pagination Styles */
+  .review-feedback-table .ant-pagination .ant-pagination-item {
+    border-color: var(--border) !important;
+    background-color: var(--bg) !important;
+  }
+
+  .review-feedback-table .ant-pagination .ant-pagination-item a {
+    color: var(--text) !important;
+  }
+
+  .review-feedback-table .ant-pagination .ant-pagination-item:hover {
+    border-color: var(--primary) !important;
+  }
+
+  .review-feedback-table .ant-pagination .ant-pagination-item:hover a {
+    color: var(--primary) !important;
+  }
+
+  .review-feedback-table .ant-pagination .ant-pagination-item-active {
+    border-color: var(--primary) !important;
+    background-color: var(--primary) !important;
+  }
+
+  .review-feedback-table .ant-pagination .ant-pagination-item-active a {
+    color: white !important;
+  }
+
+  .review-feedback-table .ant-pagination .ant-pagination-prev,
+  .review-feedback-table .ant-pagination .ant-pagination-next {
+    border-color: var(--border) !important;
+    background-color: var(--bg) !important;
+  }
+
+  .review-feedback-table .ant-pagination .ant-pagination-prev:hover,
+  .review-feedback-table .ant-pagination .ant-pagination-next:hover {
+    border-color: var(--primary) !important;
+  }
+
+  .review-feedback-table .ant-pagination .ant-pagination-prev .ant-pagination-item-link,
+  .review-feedback-table .ant-pagination .ant-pagination-next .ant-pagination-item-link {
+    color: var(--text) !important;
+  }
+
+  .review-feedback-table .ant-pagination .ant-pagination-prev:hover .ant-pagination-item-link,
+  .review-feedback-table .ant-pagination .ant-pagination-next:hover .ant-pagination-item-link {
+    color: var(--primary) !important;
+  }
+
+  /* Dark mode pagination styles */
+  [data-theme="dark"] .review-feedback-table .ant-pagination .ant-pagination-item {
+    border-color: var(--border) !important;
+    background-color: var(--bg-secondary) !important;
+  }
+
+  [data-theme="dark"] .review-feedback-table .ant-pagination .ant-pagination-item a {
+    color: var(--text) !important;
+  }
+
+  [data-theme="dark"] .review-feedback-table .ant-pagination .ant-pagination-prev,
+  [data-theme="dark"] .review-feedback-table .ant-pagination .ant-pagination-next {
+    border-color: var(--border) !important;
+    background-color: var(--bg-secondary) !important;
+  }
+
+  [data-theme="dark"] .review-feedback-table .ant-pagination .ant-pagination-prev .ant-pagination-item-link,
+  [data-theme="dark"] .review-feedback-table .ant-pagination .ant-pagination-next .ant-pagination-item-link {
+    color: var(--text) !important;
+  }
 }
 
 /* Themed Inputs (consistent hover/focus + dark mode selection) */
@@ -4472,4 +4709,101 @@ body {
 /* Override any inline styles */
 [data-theme="dark"] .user-card.ant-card[style*="background"] {
   background: #2d2d2d !important;
+}
+
+/* ===== PAGINATION STYLES ===== */
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 0;
+}
+
+.pagination-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.pagination-button:hover:not(.disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primay-extralight);
+}
+
+.pagination-button.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--text-inverse);
+}
+
+.pagination-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: var(--text-tertiary);
+}
+
+.pagination-numbers {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pagination-arrow {
+  padding: 8px;
+}
+
+.pagination-arrow svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Dark theme pagination */
+[data-theme="dark"] .pagination-button {
+  background: var(--bg);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+[data-theme="dark"] .pagination-button:hover:not(.disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primay-extralight);
+}
+
+[data-theme="dark"] .pagination-button.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+}
+
+/* Responsive pagination */
+@media (max-width: 640px) {
+  .pagination-container {
+    gap: 4px;
+  }
+  
+  .pagination-button {
+    min-width: 36px;
+    height: 36px;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+  
+  .pagination-numbers {
+    gap: 2px;
+  }
 }
