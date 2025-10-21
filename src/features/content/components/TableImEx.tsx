@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
-import { Table, TableColumn, Pagination, Table2 } from '@/shared/ui';
+import { Pagination, Table2 } from '@/shared/ui';
+import type { TableColumn } from '@/shared/ui/core/Table2';
 
 interface ImportExportRecord {
   id: string;
@@ -123,7 +124,7 @@ const TableImEx: React.FC = () => {
       dataIndex: 'date',
       key: 'date',
       width: 150,
-      sorter: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+      sorter: (a: ImportExportRecord, b: ImportExportRecord) => new Date(a.date).getTime() - new Date(b.date).getTime(),
     },
     {
       title: 'Loại dữ liệu',
@@ -151,7 +152,7 @@ const TableImEx: React.FC = () => {
         { text: 'Import', value: 'Import' },
         { text: 'Export', value: 'Export' },
       ],
-      onFilter: (value, record) => record.action === value,
+      onFilter: (value: boolean | React.Key, record: ImportExportRecord) => record.action === value,
     },
     {
       title: 'Trạng thái',
@@ -172,7 +173,7 @@ const TableImEx: React.FC = () => {
         { text: 'Thành công', value: 'success' },
         { text: 'Lỗi', value: 'error' },
       ],
-      onFilter: (value, record) => record.status === value,
+      onFilter: (value: boolean | React.Key, record: ImportExportRecord) => record.status === value,
     },
     {
       title: 'Người thực hiện',
