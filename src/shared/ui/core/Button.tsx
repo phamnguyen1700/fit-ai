@@ -2,7 +2,7 @@ import React from 'react';
 import { Button as AntButton, ButtonProps as AntButtonProps } from 'antd';
 
 interface ButtonProps extends Omit<AntButtonProps, 'size' | 'type' | 'variant'> {
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'dashed' | 'link' | 'text';
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'dashed' | 'link' | 'text' | 'solid';
   size?: 'sm' | 'md' | 'lg';
   children: React.ReactNode;
 }
@@ -25,6 +25,7 @@ export const Button: React.FC<ButtonProps> = ({
       case 'dashed': return 'dashed';
       case 'link': return 'link';
       case 'text': return 'text';
+      case 'solid': return 'default';
       default: return 'primary';
     }
   };
@@ -75,6 +76,13 @@ export const Button: React.FC<ButtonProps> = ({
           borderColor: 'var(--border)',
           color: 'var(--text)',
         };
+      case 'solid':
+        return {
+          ...baseStyle,
+          backgroundColor: 'white',
+          borderColor: '#d1d5db',
+          color: 'var(--text)',
+        };
       default:
         return baseStyle;
     }
@@ -88,6 +96,20 @@ export const Button: React.FC<ButtonProps> = ({
       style={{
         ...getCustomStyle(),
         ...style,
+      }}
+      onMouseEnter={(e) => {
+        if (variant === 'solid') {
+          e.currentTarget.style.backgroundColor = 'var(--primary)';
+          e.currentTarget.style.borderColor = 'var(--primary)';
+          e.currentTarget.style.color = 'white';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (variant === 'solid') {
+          e.currentTarget.style.backgroundColor = 'white';
+          e.currentTarget.style.borderColor = '#d1d5db';
+          e.currentTarget.style.color = 'var(--text)';
+        }
       }}
       {...props}
     >
