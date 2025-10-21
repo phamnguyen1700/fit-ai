@@ -265,7 +265,6 @@ const MealCards: React.FC<MealCardsProps> = ({ className }) => {
               protein={meal.protein}
               carbs={meal.carbs}
               fat={meal.fat}
-              vitamin={meal.vitamin}
               goal={meal.goal}
               onPlay={() => handlePlay(meal.id)}
               onEdit={() => handleEdit(meal.id)}
