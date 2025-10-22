@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Tabs3, { Tab3Item } from '../../../shared/ui/core/Tabs3';
 import Tabs4, { Tab4Item } from '../../../shared/ui/core/Tabs4';
+import { Segmented } from '../../../shared/ui/core/Segmented';
 import { SearchInput } from '../../../shared/ui/layout/admin/components/SearchInput';
 import { Select } from '../../../shared/ui/core/Select';
 
@@ -26,11 +27,11 @@ const Header: React.FC<HeaderProps> = ({
   const [dateFilter, setDateFilter] = useState<string | undefined>(undefined);
   const [ratingFilter, setRatingFilter] = useState<string | undefined>(undefined);
 
-  // Date range tabs (Ngày, Tháng, Năm)
-  const dateRangeTabs: Tab3Item[] = [
-    { key: "day", label: "Ngày" },
-    { key: "month", label: "Tháng" },
-    { key: "year", label: "Năm" }
+  // Date range options for Segmented (Ngày, Tháng, Năm)
+  const dateRangeOptions = [
+    { label: "Ngày", value: "day" },
+    { label: "Tháng", value: "month" },
+    { label: "Năm", value: "year" }
   ];
 
   // Category tabs (Danh sách phản hồi, Duyệt phản hồi, Phản hồi công khai)
@@ -49,7 +50,8 @@ const Header: React.FC<HeaderProps> = ({
     }
   ];
 
-  const handleDateRangeChange = (key: string) => {
+  const handleDateRangeChange = (value: string | number) => {
+    const key = String(value);
     setActiveDateRange(key);
     onDateRangeChange?.(key);
   };
@@ -76,9 +78,9 @@ const Header: React.FC<HeaderProps> = ({
         <h1 className="text-2xl font-bold text-gray-900">Quản lý phản hồi</h1>
         
         {/* Date Range Tabs */}
-        <Tabs3
-          items={dateRangeTabs}
-          defaultActiveKey="day"
+        <Segmented
+          options={dateRangeOptions}
+          value={activeDateRange}
           onChange={handleDateRangeChange}
           className="ml-auto"
         />
