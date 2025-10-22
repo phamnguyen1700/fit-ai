@@ -233,7 +233,13 @@ body {
     border-bottom: 1px solid var(--border);
   }
   .themed-modal .ant-modal-title {
-    color: var(--text);
+    color: var(--text) !important;
+  }
+  
+  /* Ensure modal title is styled in dark mode */
+  .import-modal .ant-modal-title,
+  .export-modal .ant-modal-title {
+    color: var(--text) !important;
   }
   .themed-modal .ant-modal-footer {
     background: var(--bg);

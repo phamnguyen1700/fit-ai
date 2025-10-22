@@ -141,9 +141,17 @@ export const PopupImport: React.FC<PopupImportProps> = ({
           isDragOver
             ? 'border-[var(--primary)] bg-[var(--primary)] bg-opacity-10'
             : selectedFile
-            ? 'border-[var(--primary)] bg-white'
-            : 'border-gray-300 hover:border-gray-400 bg-white'
+            ? 'border-[var(--primary)]'
+            : 'border-gray-300 hover:border-gray-400'
         }`}
+        style={{ 
+          backgroundColor: isDragOver 
+            ? 'rgba(255, 140, 0, 0.1)' 
+            : 'var(--bg)',
+          borderColor: isDragOver || selectedFile 
+            ? 'var(--primary)' 
+            : 'var(--border)'
+        }}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -164,7 +172,7 @@ export const PopupImport: React.FC<PopupImportProps> = ({
           Kéo & thả file vào đây để tải lên
         </h3>
         
-        <p className="text-sm text-gray-500 mb-3">
+        <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>
           Hỗ trợ định dạng: .xlsx, .csv, .xls – tối đa 10MB
         </p>
 
@@ -234,16 +242,16 @@ export const PopupImport: React.FC<PopupImportProps> = ({
           />
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-4">
+        <div className="bg-gray-50 rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600">File</span>
+            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>File</span>
             <span className="text-sm font-medium text-[var(--primary)]">
               {selectedFile?.name}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Ngày xuất</span>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Ngày xuất</span>
+            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               {formatDateTime(new Date())}
             </span>
           </div>
@@ -270,16 +278,16 @@ export const PopupImport: React.FC<PopupImportProps> = ({
           Nhập dữ liệu thành công!
         </h3>
 
-        <div className="bg-gray-50 rounded-lg p-4">
+        <div className="bg-gray-50 rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600">File</span>
+            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>File</span>
             <span className="text-sm font-medium text-[var(--primary)]">
               {selectedFile?.name?.replace(/\.[^/.]+$/, "_sep_2025.xlsx")}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Ngày xuất</span>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Ngày xuất</span>
+            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               {formatDateTime(new Date())}
             </span>
           </div>
@@ -318,7 +326,7 @@ export const PopupImport: React.FC<PopupImportProps> = ({
       title={getModalTitle()}
       variant="centered"
       size="md"
-      className={`import-modal ${className || ''}`}
+      className={`import-modal themed-modal ${className || ''}`}
     >
       {importState === 'initial' && renderInitialState()}
       {importState === 'uploading' && renderUploadingState()}

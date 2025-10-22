@@ -22,7 +22,7 @@ const ExerciseTab = () => {
   return (
     <Card className="exercise-tab-container">
       <header className="mb-4">
-        <h4 className="text-2xl font-bold">Quản lý bài tập</h4>
+        <h4 className="text-2xl font-bold" style={{ color: 'var(--text)' }}>Quản lý bài tập</h4>
       </header>
       <div className="space-y-4">
         <TabsHeader

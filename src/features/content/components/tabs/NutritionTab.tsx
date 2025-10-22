@@ -21,7 +21,7 @@ const NutritionTab = () => {
   return (
     <Card className="nutrition-tab-container">
       <header className="mb-4">
-        <h4 className="text-2xl font-bold">Quản lý bữa ăn</h4>
+        <h4 className="text-2xl font-bold" style={{ color: 'var(--text)' }}>Quản lý bữa ăn</h4>
       </header>
       <div className="space-y-4">
         <TabsHeader

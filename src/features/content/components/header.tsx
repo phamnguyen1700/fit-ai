@@ -32,7 +32,7 @@ const Header: React.FC<HeaderProps> = ({
         />
         <Button
           variant="ghost"
-          className="ml-8 px-4 py-2 text-orange-500 hover:text-orange-600 hover:bg-orange-50 font-medium text-sm flex items-center gap-2 transition-all duration-200 rounded-lg border border-orange-200 hover:border-orange-300"
+          className="ml-8 px-4 py-2 text-orange-500 hover:text-orange-600 hover:bg-orange-50 font-medium text-sm flex items-center gap-2 transition-all duration-200 rounded-lg border border-orange-200 hover:border-orange-300 "
           onClick={onImportExport}
         >
           <Icon name={icons.upload} size={16} color="currentColor" />

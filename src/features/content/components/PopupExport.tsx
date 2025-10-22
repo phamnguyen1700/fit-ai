@@ -100,7 +100,12 @@ export const PopupExport: React.FC<PopupExportProps> = ({
           <select
             value={selectedDataType}
             onChange={(e) => setSelectedDataType(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent appearance-none bg-white"
+            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent appearance-none"
+            style={{ 
+              backgroundColor: 'var(--bg)',
+              borderColor: 'var(--border)',
+              color: 'var(--text)'
+            }}
           >
             <option value="">Chọn loại dữ liệu</option>
             <option value="nutrition">Dữ liệu dinh dưỡng</option>
@@ -110,7 +115,8 @@ export const PopupExport: React.FC<PopupExportProps> = ({
           <Icon 
             name="mdi:chevron-down" 
             size={20} 
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
+            color="var(--text-tertiary)"
           />
         </div>
       </div>
@@ -126,13 +132,19 @@ export const PopupExport: React.FC<PopupExportProps> = ({
               type="date"
               value={dateFrom ? dateFrom.toISOString().split('T')[0] : ''}
               onChange={(e) => setDateFrom(e.target.value ? new Date(e.target.value) : null)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+              style={{ 
+                backgroundColor: 'var(--bg)',
+                borderColor: 'var(--border)',
+                color: 'var(--text)'
+              }}
               placeholder="Ngày bắt đầu"
             />
             <Icon 
               name="mdi:calendar" 
               size={16} 
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
+              color="var(--text-tertiary)"
             />
           </div>
         </div>
@@ -145,13 +157,19 @@ export const PopupExport: React.FC<PopupExportProps> = ({
               type="date"
               value={dateTo ? dateTo.toISOString().split('T')[0] : ''}
               onChange={(e) => setDateTo(e.target.value ? new Date(e.target.value) : null)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+              style={{ 
+                backgroundColor: 'var(--bg)',
+                borderColor: 'var(--border)',
+                color: 'var(--text)'
+              }}
               placeholder="Đến ngày"
             />
             <Icon 
               name="mdi:calendar" 
               size={16} 
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
+              color="var(--text-tertiary)"
             />
           </div>
         </div>
@@ -166,7 +184,12 @@ export const PopupExport: React.FC<PopupExportProps> = ({
           <select
             value={fileFormat}
             onChange={(e) => setFileFormat(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent appearance-none bg-white"
+            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent appearance-none"
+            style={{ 
+              backgroundColor: 'var(--bg)',
+              borderColor: 'var(--border)',
+              color: 'var(--text)'
+            }}
           >
             <option value="xlsx">.xlsx</option>
             <option value="csv">.csv</option>
@@ -174,10 +197,11 @@ export const PopupExport: React.FC<PopupExportProps> = ({
           <Icon 
             name="mdi:chevron-down" 
             size={20} 
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
+            color="var(--text-tertiary)"
           />
         </div>
-        <p className="text-xs text-gray-500 mt-1">.xlsx, .csv</p>
+        <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>.xlsx, .csv</p>
       </div>
 
       {/* Action Buttons */}
@@ -218,16 +242,16 @@ export const PopupExport: React.FC<PopupExportProps> = ({
           />
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-4">
+        <div className="bg-gray-50 rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600">File</span>
+            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>File</span>
             <span className="text-sm font-medium text-[var(--primary)]">
               {exportedFileName}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Ngày xuất</span>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Ngày xuất</span>
+            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               {formatDateTime(new Date())}
             </span>
           </div>
@@ -254,16 +278,16 @@ export const PopupExport: React.FC<PopupExportProps> = ({
           Xuất dữ liệu thành công!
         </h3>
 
-        <div className="bg-gray-50 rounded-lg p-4">
+        <div className="bg-gray-50 rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600">File</span>
+            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>File</span>
             <span className="text-sm font-medium text-[var(--primary)]">
               {exportedFileName}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Ngày xuất</span>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Ngày xuất</span>
+            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               {formatDateTime(new Date())}
             </span>
           </div>
@@ -302,7 +326,7 @@ export const PopupExport: React.FC<PopupExportProps> = ({
       title={getModalTitle()}
       variant="centered"
       size="md"
-      className={`export-modal ${className || ''}`}
+      className={`export-modal themed-modal ${className || ''}`}
     >
       {exportState === 'initial' && renderInitialState()}
       {exportState === 'exporting' && renderExportingState()}

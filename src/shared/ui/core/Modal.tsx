@@ -85,7 +85,7 @@ export const Modal: React.FC<ModalProps> = ({
           borderBottom: '1px solid var(--border)',
           padding: '16px 24px',
           backgroundColor: 'var(--bg)',
-          color: 'var(--text)',
+          color: 'var(--text) !important',
         },
         footer: showFooter
           ? {

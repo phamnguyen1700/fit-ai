@@ -28,13 +28,27 @@ export const Tabs2: React.FC<Tabs2Props> = ({
           className={`
             px-6 py-3 text-sm font-semibold border-b-2 transition-all duration-300 ease-in-out relative
             ${value === item.key
-              ? 'text-orange-500 border-orange-500 bg-transparent transform scale-105'
-              : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300 hover:transform hover:scale-102'
+              ? 'border-orange-500 bg-transparent transform scale-105'
+              : 'border-transparent hover:transform hover:scale-102'
             }
             ${index === 0 ? '' : 'ml-8'}
           `}
           style={{
-            transformOrigin: 'center bottom'
+            transformOrigin: 'center bottom',
+            color: value === item.key ? 'var(--primary)' : 'var(--text-secondary)',
+            borderBottomColor: value === item.key ? 'var(--primary)' : 'transparent'
+          }}
+          onMouseEnter={(e) => {
+            if (value !== item.key) {
+              e.currentTarget.style.color = 'var(--text)';
+              e.currentTarget.style.borderBottomColor = 'var(--border-secondary)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (value !== item.key) {
+              e.currentTarget.style.color = 'var(--text-secondary)';
+              e.currentTarget.style.borderBottomColor = 'transparent';
+            }
           }}
         >
           <span className={`transition-all duration-300 ease-in-out ${
