@@ -35,21 +35,11 @@ export const Tabs4: React.FC<Tabs4Props> = ({
             flex-1 px-6 py-3 font-medium text-sm transition-all duration-200 border-none outline-none
             ${index === 0 ? 'rounded-l-lg' : ''}
             ${index === items.length - 1 ? 'rounded-r-lg' : ''}
+            ${activeKey === item.key 
+              ? 'bg-primary text-white dark:text-white' 
+              : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
+            }
           `}
-          style={{
-            backgroundColor: activeKey === item.key ? 'var(--primary)' : 'var(--bg-secondary)',
-            color: activeKey === item.key ? 'var(--text-inverse)' : 'var(--text)',
-          }}
-          onMouseEnter={(e) => {
-            if (activeKey !== item.key) {
-              e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (activeKey !== item.key) {
-              e.currentTarget.style.backgroundColor = 'var(--bg-secondary)';
-            }
-          }}
         >
           {item.label}
         </button>

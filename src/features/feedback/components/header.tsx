@@ -76,7 +76,7 @@ const Header: React.FC<HeaderProps> = ({
       {/* Title and Date Range Tabs */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Quản lý phản hồi</h1>
-        
+  
         {/* Date Range Tabs */}
         <Segmented
           options={dateRangeOptions}
