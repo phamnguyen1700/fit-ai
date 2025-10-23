@@ -20,7 +20,7 @@ export const useRegisterMutation = () =>
   }) 
 
 export const useGetUsers = (params: Params) => {
-  return useQuery<any>({
+  return useQuery<IApiResponse<UserState>>({
     queryKey: ['users', params],
     queryFn: () => getUsersService(params),
   })

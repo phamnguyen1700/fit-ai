@@ -20,6 +20,7 @@ const convertApiUserToUserCard = (user: any, index: number): UserCardProps => {
     planLabel: '1 tháng Cơ bản', // Default plan - có thể customize sau
     amountLabel: 'đ300.000', // Default amount - có thể customize sau
     statusLabel: 'Thành công', // Default status - có thể customize sau
+    isActive: user.isActive, // Map isActive từ API response
   };
 };
 

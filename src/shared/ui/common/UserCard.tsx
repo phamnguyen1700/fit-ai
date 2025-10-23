@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { Card } from '../core/Card';
 import { Avatar } from '../core/Avatar';
 import { Flex } from '../core/Flex';
-import { Dropdown, Modal } from 'antd';
+import { Dropdown, Modal, Tag } from 'antd';
 import type { MenuProps } from 'antd';
 import { Icon } from '../../ui/icon';
 import { useDeleteUserMutation } from '@/tanstack/hooks/users';
@@ -17,6 +17,7 @@ export interface UserCardProps {
     planLabel: string;
     amountLabel: string;
     statusLabel: string;
+    isActive?: boolean;
     onMenuClick?: (key: string, userId: string) => void;
 }
 
@@ -29,6 +30,7 @@ export const UserCard: React.FC<UserCardProps> = ({
     planLabel,
     amountLabel,
     statusLabel,
+    isActive,
     onMenuClick,
 }) => {
     const router = useRouter();
@@ -96,7 +98,16 @@ export const UserCard: React.FC<UserCardProps> = ({
                             {name?.[0]}
                         </Avatar>
                         <div>
-                            <div style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>{name}</div>
+                            <div style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>
+                                <Flex align="center" gap={8}>
+                                    {name}
+                                    {isActive !== undefined && (
+                                        <Tag color={isActive ? 'success' : 'default'} style={{ fontSize: '12px' }}>
+                                            {isActive ? 'Active' : 'Inactive'}
+                                        </Tag>
+                                    )}
+                                </Flex>
+                            </div>
                             <div style={{ color: 'var(--text-secondary)' }}>{email}</div>
                         </div>
                     </Flex>
