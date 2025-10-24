@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import { registerService, getUsersService, deleteUserService } from '@/tanstack/services/users'
+import { registerService, getUsersService, updateUserStatusService } from '@/tanstack/services/users'
 import { Params, UserState } from '@/types/users'
 import { IApiResponse } from '@/shared/api/http'
 
@@ -26,27 +26,27 @@ export const useGetUsers = (params: Params) => {
   })
 }
 
-export const useDeleteUserMutation = () => {
+export const useUpdateUserStatusMutation = () => {
   const queryClient = useQueryClient()
   
   return useMutation({
     mutationFn: (id: string) => {
-      console.log('Attempting to delete user with ID:', id);
-      return deleteUserService(id);
+      console.log('Attempting to update user status with ID:', id);
+      return updateUserStatusService(id);
     },
     onSuccess: (response) => {
-      console.log('Delete response:', response);
+      console.log('Update status response:', response);
       if (response.success) {
-        toast.success(response.message || 'Xóa người dùng thành công')
+        toast.success(response.message || 'Cập nhật trạng thái người dùng thành công')
         // Refresh the users list
         queryClient.invalidateQueries({ queryKey: ['users'] })
       } else {
-        toast.error(response.message || 'Xóa người dùng thất bại')
+        toast.error(response.message || 'Cập nhật trạng thái người dùng thất bại')
       }
     },
     onError: (err: any) => {
-      console.error('Delete user error:', err)
-      const errorMessage = err?.response?.data?.message || err?.message || 'Xóa người dùng thất bại. Vui lòng thử lại.'
+      console.error('Update user status error:', err)
+      const errorMessage = err?.response?.data?.message || err?.message || 'Cập nhật trạng thái người dùng thất bại. Vui lòng thử lại.'
       toast.error(errorMessage)
     },
   })

@@ -19,7 +19,7 @@ export interface Params {
   pageSize?: number;
 }
 
-export interface deleteUserRequest {
+export interface UpdateUserStatusRequest {
   id: string;
 }
 
