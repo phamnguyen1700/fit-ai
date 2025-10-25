@@ -20,7 +20,7 @@ export const UserDetailPage: React.FC<UserDetailPageProps> = ({ userId }) => {
     const breadcrumbItems = useMemo(() => [
         { title: 'Trang chủ', href: '/admin/dashboard' },
         { title: 'Quản lý người dùng', href: '/admin/users' },
-        { title: 'Thông người dùng' }
+        { title: 'Thông tin người dùng' }
     ], []);
 
     const mealTabItems = useMemo(() => [
