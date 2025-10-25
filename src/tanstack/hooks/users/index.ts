@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import { registerService, getUsersService, updateUserStatusService } from '@/tanstack/services/users'
-import { Params, UserState } from '@/types/users'
+import { registerService, getUsersService, updateUserStatusService, getUserDetail } from '@/tanstack/services/users'
+import { Params, UserState, UserDetail } from '@/types/users'
 import { IApiResponse } from '@/shared/api/http'
 
 export const useRegisterMutation = () => 
@@ -49,5 +49,13 @@ export const useUpdateUserStatusMutation = () => {
       const errorMessage = err?.response?.data?.message || err?.message || 'Cập nhật trạng thái người dùng thất bại. Vui lòng thử lại.'
       toast.error(errorMessage)
     },
+  })
+}
+
+export const useUserDetail = (id: string) => {
+  return useQuery<IApiResponse<UserDetail>>({
+    queryKey: ['userDetail', id],
+    queryFn: () => getUserDetail(id),
+    enabled: !!id, 
   })
 }

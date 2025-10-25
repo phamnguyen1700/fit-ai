@@ -23,6 +23,21 @@ export interface UpdateUserStatusRequest {
   id: string;
 }
 
+export interface UserDetail {
+  id: string;
+  email: string;
+  username: null;
+  firstName: string;
+  lastName: string;
+  weight: number;
+  height: number;
+  gender: string;
+  dateOfBirth: string;
+  goal: string;
+  activityLevel: string;
+  isActive: boolean;
+}
+
 export interface CreateUserRequest {
   email: string;
   name: string;

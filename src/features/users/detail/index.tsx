@@ -1,49 +1,29 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Breadcrumb, Avatar, Button, Progress, Tabs, Badge, Flex, Row, Col, Input } from '@/shared/ui';
 import { Icon } from '@/shared/ui/icon';
+import { useUserDetail } from '@/tanstack/hooks/users';
 
 interface UserDetailPageProps {
-    userId?: string;
+    userId: string; // Make it required to avoid empty string issues
 }
 
 export const UserDetailPage: React.FC<UserDetailPageProps> = ({ userId }) => {
     const router = useRouter();
 
-    // Mock data - trong thực tế sẽ fetch từ API dựa trên userId
-    const userData = {
-        id: userId || '1',
-        name: 'Cameron Williamson',
-        email: 'debra.holt@example.com',
-        avatar: 'https://images.unsplash.com/photo-1547425260-76bcadfb4f2c',
-        plan: 'Free Trial',
-        birthDate: '12-12-2002',
-        gender: 'Nam',
-        height: '1m75',
-        weight: '85kg',
-        goal: 'Giảm mỡ bụng, xuống còn 75kg, tăng mỡ cơ, tăng cơ, tăng mỡ gan, giảm cholesterol',
-        diet: {
-            likes: 'Thịt gà, cá hồi',
-            avoids: 'Sữa bò, gluten',
-            mealsPerDay: 4
-        },
-        bodyFat: 24,
-        mealPlan: {
-            morning: { food: 'Cá hồi, Salad', calories: '320/500 kcal' },
-            noon: { food: 'Cá hồi, Salad', calories: '320/500 kcal' },
-            snack: { food: 'Cá hồi, Salad', calories: '320/500 kcal' }
-        }
-    };
-
-    const breadcrumbItems = [
+    // Fetch user details - hook is now always called with valid userId
+    const { data: userDetailResponse, isLoading, error } = useUserDetail(userId);
+    
+    // Memoize breadcrumb items to avoid recreation
+    const breadcrumbItems = useMemo(() => [
         { title: 'Trang chủ', href: '/admin/dashboard' },
         { title: 'Quản lý người dùng', href: '/admin/users' },
         { title: 'Thông người dùng' }
-    ];
+    ], []);
 
-    const mealTabItems = [
+    const mealTabItems = useMemo(() => [
         {
             key: 'workout',
             label: 'Workout',
@@ -52,12 +32,78 @@ export const UserDetailPage: React.FC<UserDetailPageProps> = ({ userId }) => {
             key: 'meal',
             label: 'Meal',
         },
-    ];
+    ], []);
+
+    // Transform API data to display format - memoized to avoid recalculation
+    const userData = useMemo(() => {
+        if (!userDetailResponse?.data) return null;
+        
+        const apiUserData = userDetailResponse.data;
+        
+        return {
+            id: apiUserData.id,
+            name: apiUserData.firstName && apiUserData.lastName 
+                ? `${apiUserData.firstName} ${apiUserData.lastName}` 
+                : apiUserData.username || 'N/A',
+            email: apiUserData.email,
+            avatar: 'https://images.unsplash.com/photo-1547425260-76bcadfb4f2c',
+            plan: 'Free Trial',
+            birthDate: apiUserData.dateOfBirth ? new Date(apiUserData.dateOfBirth).toLocaleDateString('vi-VN') : 'N/A',
+            gender: apiUserData.gender === 'M' ? 'Nam' : apiUserData.gender === 'F' ? 'Nữ' : 'Khác',
+            height: apiUserData.height ? `${apiUserData.height}cm` : 'N/A',
+            weight: apiUserData.weight ? `${apiUserData.weight}kg` : 'N/A',
+            goal: apiUserData.goal ? apiUserData.goal.replace(/_/g, ' ') : 'Chưa có mục tiêu',
+            isActive: apiUserData.isActive,
+            diet: {
+                likes: 'Chưa cập nhật',
+                avoids: 'Chưa cập nhật',
+                mealsPerDay: 3
+            },
+            bodyFat: 0,
+            mealPlan: {
+                morning: { food: 'Chưa có kế hoạch', calories: '0/500 kcal' },
+                noon: { food: 'Chưa có kế hoạch', calories: '0/500 kcal' },
+                snack: { food: 'Chưa có kế hoạch', calories: '0/500 kcal' }
+            }
+        };
+    }, [userDetailResponse]);
 
     const handleEdit = useCallback(() => {
-        // TODO: Implement edit functionality
-        console.log('Edit user:', userData.id);
-    }, [userData.id]);
+        if (userData?.id) {
+            console.log('Edit user:', userData.id);
+        }
+    }, [userData?.id]);
+    
+    // Handle loading state
+    if (isLoading) {
+        return (
+            <Card>
+                <div className="flex items-center justify-center h-64">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                        <p>Đang tải thông tin người dùng...</p>
+                    </div>
+                </div>
+            </Card>
+        );
+    }
+    
+    // Handle error state
+    if (error || !userDetailResponse?.success || !userData) {
+        return (
+            <Card>
+                <div className="flex items-center justify-center h-64">
+                    <div className="text-center">
+                        <Icon name="mdi:alert-circle" className="text-red-500 text-4xl mb-2" />
+                        <p className="text-red-500">Không thể tải thông tin người dùng</p>
+                        <Button onClick={() => router.back()} className="mt-2">
+                            Quay lại
+                        </Button>
+                    </div>
+                </div>
+            </Card>
+        );
+    }
 
     return (
         <Card
