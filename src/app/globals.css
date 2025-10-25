@@ -4813,3 +4813,171 @@ body {
     gap: 2px;
   }
 }
+
+/* ===== FEEDBACK PAGE STYLES ===== */
+.feedback-page {
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+  min-height: 100vh;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px var(--shadow);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Light mode (default) */
+.feedback-page {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Dark mode */
+[data-theme="dark"] .feedback-page {
+  background-color: var(--bg) !important;
+  color: #ffffff !important;
+}
+
+/* Feedback page content wrapper */
+.feedback-page-content {
+  margin-top: 16px;
+}
+
+/* Feedback page title */
+.feedback-page-title {
+  color: #000000 !important;
+  font-size: 1.5rem;
+  font-weight: 700;
+  transition: color 0.3s ease;
+}
+
+/* Dark mode for feedback page title */
+[data-theme="dark"] .feedback-page-title {
+  color: #ffffff !important;
+}
+
+/* ===== FEEDBACK CARD DETAILED STYLES ===== */
+/* Light mode feedback card */
+.feedback-card {
+  background-color: #ffffff !important;
+  border: 1px solid #f0f0f0 !important;
+  border-radius: 12px !important;
+  transition: all 0.3s ease;
+}
+
+.feedback-card:hover {
+  box-shadow: 0 6px 14px var(--primary) !important;
+  transform: translateY(-2px);
+}
+
+/* Feedback card text elements - light mode */
+.feedback-card h4 {
+  color: #1f2937 !important;
+}
+
+.feedback-card .text-gray-900 {
+  color: #1f2937 !important;
+}
+
+.feedback-card .text-gray-700 {
+  color: #374151 !important;
+}
+
+.feedback-card .text-gray-400 {
+  color: #9ca3af !important;
+}
+
+.feedback-card .text-gray-500 {
+  color: #6b7280 !important;
+}
+
+.feedback-card .border-gray-200 {
+  border-color: #e5e7eb !important;
+}
+
+.feedback-card .bg-gray-200 {
+  background-color: #e5e7eb !important;
+}
+
+/* Feedback card action area light mode */
+.feedback-card .bg-gray-50,
+.feedback-card [style*="background-color: #f8f9fa"] {
+  background-color: #f8f9fa !important;
+}
+
+/* Dark mode feedback card */
+[data-theme="dark"] .feedback-card {
+  background-color: var(--bg-secondary) !important;
+  border: 1px solid var(--border) !important;
+}
+
+[data-theme="dark"] .feedback-card:hover {
+  box-shadow: 0 6px 14px rgba(255, 140, 0, 0.4) !important;
+  transform: translateY(-2px);
+}
+
+/* Feedback card text elements - dark mode */
+[data-theme="dark"] .feedback-card h4 {
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .feedback-card .text-gray-900 {
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .feedback-card .text-gray-700 {
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .feedback-card .text-gray-400 {
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .feedback-card .text-gray-500 {
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .feedback-card .border-gray-200 {
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .feedback-card .bg-gray-200 {
+  background-color: var(--border) !important;
+}
+
+/* Feedback card action area dark mode */
+[data-theme="dark"] .feedback-card .bg-gray-50,
+[data-theme="dark"] .feedback-card [style*="background-color: #f8f9fa"] {
+  background-color: var(--bg-tertiary) !important;
+}
+
+/* Force override inline styles for dark mode */
+[data-theme="dark"] .feedback-card,
+[data-theme="dark"] .feedback-card[style*="background"],
+[data-theme="dark"] .feedback-card[style*="border"] {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border) !important;
+}
+
+/* Force override all background colors in dark mode */
+[data-theme="dark"] .feedback-card *[style*="background-color: white"],
+[data-theme="dark"] .feedback-card *[style*="background-color: #ffffff"],
+[data-theme="dark"] .feedback-card *[style*="background-color:#ffffff"] {
+  background-color: var(--bg-secondary) !important;
+}
+
+/* Force override card container background */
+[data-theme="dark"] .feedback-card .ant-card,
+[data-theme="dark"] .feedback-card .ant-card-body {
+  background-color: var(--bg-secondary) !important;
+}
+
+/* Feedback card actions styling */
+.feedback-card-actions {
+  background-color: #f8f9fa !important;
+  padding: 16px 20px !important;
+  border-radius: 12px !important;
+}
+
+[data-theme="dark"] .feedback-card-actions {
+  background-color: var(--bg-tertiary) !important;
+}

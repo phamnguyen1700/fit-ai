@@ -105,11 +105,6 @@ const FeedbackCard: React.FC<FeedbackCardProps> = ({
   return (
     <Card2 
       className={`feedback-card ${className}`}
-      style={{ 
-        border: '1px solid #f0f0f0',
-        borderRadius: '12px',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.06)'
-      }}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
@@ -171,14 +166,7 @@ const FeedbackCard: React.FC<FeedbackCardProps> = ({
       </div>
 
       {/* Action Buttons */}
-      <div 
-        className="flex items-center gap-3 pt-4"
-        style={{ 
-          backgroundColor: '#f8f9fa',
-          padding: '16px 20px',
-          borderRadius: '12px',
-        }}
-      >
+      <div className="feedback-card-actions flex items-center gap-3 pt-4">
         {renderActions()}
         <Button
           variant="solid"
