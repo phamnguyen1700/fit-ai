@@ -1017,51 +1017,6 @@ body {
     color: #6b7280;
   }
 
-  /* Content Column with Dropdown */
-  .review-feedback-table .content-column,
-  .public-feedback-table .content-column {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 8px;
-    width: 100%;
-    max-width: 280px;
-  }
-
-  .review-feedback-table .content-column .content-text,
-  .public-feedback-table .content-column .content-text {
-    flex: 1;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
-    line-height: 1.4;
-    color: #6b7280;
-  }
-
-  .review-feedback-table .content-toggle,
-  .public-feedback-table .content-toggle {
-    background: none;
-    border: none;
-    color: #6b7280;
-    cursor: pointer;
-    padding: 2px;
-    margin-left: 4px;
-    border-radius: 2px;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 20px;
-    height: 20px;
-    flex-shrink: 0;
-  }
-
-  .review-feedback-table .content-toggle:hover,
-  .public-feedback-table .content-toggle:hover {
-    background-color: #f3f4f6;
-    color: #374151;
-  }
-
   /* Review Feedback Table - Action Buttons */
   .review-feedback-table .action-buttons {
     display: flex;
@@ -1141,23 +1096,6 @@ body {
 
   [data-theme="dark"] .review-feedback-table .content-text {
     color: var(--text-secondary) !important;
-  }
-
-  /* Dark Mode Content Dropdown Styles */
-  [data-theme="dark"] .review-feedback-table .content-column .content-text,
-  [data-theme="dark"] .public-feedback-table .content-column .content-text {
-    color: var(--text-secondary) !important;
-  }
-
-  [data-theme="dark"] .review-feedback-table .content-toggle,
-  [data-theme="dark"] .public-feedback-table .content-toggle {
-    color: var(--text-secondary) !important;
-  }
-
-  [data-theme="dark"] .review-feedback-table .content-toggle:hover,
-  [data-theme="dark"] .public-feedback-table .content-toggle:hover {
-    background-color: var(--bg-tertiary) !important;
-    color: var(--text) !important;
   }
 
   [data-theme="dark"] .review-feedback-table .action-button {
