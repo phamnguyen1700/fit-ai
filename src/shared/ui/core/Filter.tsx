@@ -1,86 +1,108 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Select } from './Select';
-import { Flex } from './Flex';
-import { Button } from './Button';
 
-interface FilterOption {
-  label: string;
+export interface FilterOption {
   value: string;
+  label: string;
 }
 
-interface FilterItem {
-  label: string;
-  placeholder?: string;
+export interface FilterConfig {
+  key: string;
+  placeholder: string;
   options: FilterOption[];
-  value?: string;
-  onChange?: (value: string) => void;
+  className?: string;
+  disabled?: boolean;
 }
 
 interface FilterProps {
-  filters: FilterItem[];
-  onRefresh?: () => void;
   className?: string;
+  filters: FilterConfig[];
+  onFilterChange?: (filters: Record<string, string>) => void;
+  showResetButton?: boolean;
+  resetButtonTitle?: string;
+  initialValues?: Record<string, string>;
 }
 
-export const Filter: React.FC<FilterProps> = ({ 
-  filters, 
-  onRefresh,
-  className = '' 
+const Filter: React.FC<FilterProps> = ({ 
+  className = '', 
+  filters = [],
+  onFilterChange,
+  showResetButton = true,
+  resetButtonTitle = "Reset filters",
+  initialValues = {}
 }) => {
+  // Khởi tạo state với initial values hoặc empty strings
+  const getInitialState = () => {
+    const state: Record<string, string> = {};
+    filters.forEach(filter => {
+      state[filter.key] = initialValues[filter.key] || '';
+    });
+    return state;
+  };
+
+  const [filterValues, setFilterValues] = useState<Record<string, string>>(getInitialState);
+
+  // Cập nhật state khi initialValues thay đổi
+  useEffect(() => {
+    setFilterValues(getInitialState());
+  }, [initialValues, filters]);
+
+  const handleFilterChange = (filterKey: string, value: string) => {
+    const newFilters = {
+      ...filterValues,
+      [filterKey]: value
+    };
+    setFilterValues(newFilters);
+    onFilterChange?.(newFilters);
+  };
+
+  const handleReset = () => {
+    const resetFilters: Record<string, string> = {};
+    filters.forEach(filter => {
+      resetFilters[filter.key] = '';
+    });
+    setFilterValues(resetFilters);
+    onFilterChange?.(resetFilters);
+  };
+
   return (
-    <Flex 
-      align="center" 
-      gap={16}
-      className={`filter-container ${className}`}
-      style={{
-        padding: '16px',
-        backgroundColor: 'var(--background-color, #fff)',
-        borderRadius: '8px',
-      }}
-    >
-      {filters.map((filter, index) => (
-        <div key={index} style={{ minWidth: '200px' }}>
+    <div className={`filter-container ${className}`}>
+      {filters.map((filter) => (
+        <div key={filter.key} className="filter-select">
           <Select
-            placeholder={filter.placeholder || filter.label}
-            value={filter.value}
-            onChange={filter.onChange}
+            value={filterValues[filter.key] || ''}
+            onChange={(value) => handleFilterChange(filter.key, value)}
             options={filter.options}
-            style={{ width: '100%' }}
+            placeholder={filter.placeholder}
+            className={filter.className || "min-w-[150px]"}
+            disabled={filter.disabled}
           />
         </div>
       ))}
       
-      {onRefresh && (
-        <Button
-          onClick={onRefresh}
-          icon={
-            <svg 
-              width="20" 
-              height="20" 
-              viewBox="0 0 20 20" 
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path 
-                d="M17.5 10C17.5 14.1421 14.1421 17.5 10 17.5C5.85786 17.5 2.5 14.1421 2.5 10C2.5 5.85786 5.85786 2.5 10 2.5C12.0711 2.5 13.9461 3.38214 15.2782 4.80357M15 2.5V6.5H11" 
-                stroke="currentColor" 
-                strokeWidth="1.5" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-              />
-            </svg>
-          }
-          variant="secondary"
-          style={{
-            minWidth: '40px',
-            height: '40px',
-            padding: '8px',
-          }}
+      {/* Reset button */}
+      {showResetButton && (
+        <button
+          onClick={handleReset}
+          className="filter-reset-button"
+          title={resetButtonTitle}
         >
-          {null}
-        </Button>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+          </svg>
+        </button>
       )}
-    </Flex>
+    </div>
   );
 };
 
