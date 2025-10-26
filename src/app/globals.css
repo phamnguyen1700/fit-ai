@@ -992,7 +992,7 @@ body {
   }
 
   .review-feedback-table .star-icon {
-    color: #fbbf24;
+    color: #ffd700!important;
     font-size: 14px;
   }
 
@@ -1015,6 +1015,51 @@ body {
   /* Review Feedback Table - Content Text */
   .review-feedback-table .content-text {
     color: #6b7280;
+  }
+
+  /* Content Column with Dropdown */
+  .review-feedback-table .content-column,
+  .public-feedback-table .content-column {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .review-feedback-table .content-column .content-text,
+  .public-feedback-table .content-column .content-text {
+    flex: 1;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    line-height: 1.4;
+    color: #6b7280;
+  }
+
+  .review-feedback-table .content-toggle,
+  .public-feedback-table .content-toggle {
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 2px;
+    margin-left: 4px;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .review-feedback-table .content-toggle:hover,
+  .public-feedback-table .content-toggle:hover {
+    background-color: #f3f4f6;
+    color: #374151;
   }
 
   /* Review Feedback Table - Action Buttons */
@@ -1096,6 +1141,23 @@ body {
 
   [data-theme="dark"] .review-feedback-table .content-text {
     color: var(--text-secondary) !important;
+  }
+
+  /* Dark Mode Content Dropdown Styles */
+  [data-theme="dark"] .review-feedback-table .content-column .content-text,
+  [data-theme="dark"] .public-feedback-table .content-column .content-text {
+    color: var(--text-secondary) !important;
+  }
+
+  [data-theme="dark"] .review-feedback-table .content-toggle,
+  [data-theme="dark"] .public-feedback-table .content-toggle {
+    color: var(--text-secondary) !important;
+  }
+
+  [data-theme="dark"] .review-feedback-table .content-toggle:hover,
+  [data-theme="dark"] .public-feedback-table .content-toggle:hover {
+    background-color: var(--bg-tertiary) !important;
+    color: var(--text) !important;
   }
 
   [data-theme="dark"] .review-feedback-table .action-button {
@@ -5377,4 +5439,184 @@ body {
 
 [data-theme="dark"] .ant-select-dropdown::-webkit-scrollbar-thumb:hover {
   background: var(--primary);
+}
+
+/* ===== PUBLIC FEEDBACK TABLE STYLES (Using same styles as ReviewFeedbackTable) ===== */
+.public-feedback-table {
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px var(--shadow);
+}
+
+.public-feedback-table .ant-table-thead > tr > th {
+  background-color: #f9fafb !important;
+  font-weight: 600 !important;
+  color: #374151 !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  padding: 12px 16px !important;
+  font-size: 14px !important;
+}
+
+.public-feedback-table .ant-table-tbody > tr > td {
+  padding: 12px 16px !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  font-size: 14px !important;
+}
+
+.public-feedback-table .ant-table-tbody > tr:hover > td {
+  background-color: #f9fafb !important;
+}
+
+.public-feedback-table .ant-pagination {
+  padding: 16px !important;
+  border-top: 1px solid #f3f4f6 !important;
+  margin: 0 !important;
+  text-align: center !important;
+}
+
+.public-feedback-table .ant-table {
+  border: none !important;
+}
+
+.public-feedback-table .ant-table-container {
+  border: none !important;
+}
+
+/* Public Feedback Table - Star Rating */
+.public-feedback-table .star-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: center;
+}
+
+.public-feedback-table .star-icon {
+  color: #ffd700;
+  font-size: 14px;
+}
+
+.public-feedback-table .rating-value {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+/* Public Feedback Table - User Name */
+.public-feedback-table .user-name {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+/* Public Feedback Table - Date Text */
+.public-feedback-table .date-text {
+  color: #6b7280;
+}
+
+/* Public Feedback Table - Content Text */
+.public-feedback-table .content-text {
+  color: #6b7280;
+}
+
+/* Public Feedback Table - Action Buttons */
+.public-feedback-table .action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.public-feedback-table .action-button {
+  padding: 4px 12px !important;
+  font-size: 12px !important;
+  border-radius: 4px !important;
+  background-color: white !important;
+  border: 1px solid #d1d5db !important;
+  color: #374151 !important;
+  height: auto !important;
+  transition: all 0.2s ease !important;
+}
+
+.public-feedback-table .action-button:hover {
+  background-color: #f9fafb !important;
+  border-color: #9ca3af !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Public Feedback Table - Hide Button Specific Styles */
+.public-feedback-table .action-button.hide-btn:hover {
+  background-color: #e1eeff !important;
+  border-color: #bfdbfe !important;
+  color: #3b82f6 !important;
+}
+
+/* Public Feedback Table - Delete Button Specific Styles */
+.public-feedback-table .action-button.delete-btn:hover {
+  background-color: #fee2e2 !important;
+  border-color: #fca5a5 !important;
+  color: #dc2626 !important;
+}
+
+/* Public Feedback Table - Dark Mode Styles */
+[data-theme="dark"] .public-feedback-table {
+  background-color: var(--bg) !important;
+  box-shadow: 0 1px 3px var(--shadow-dark);
+}
+
+[data-theme="dark"] .public-feedback-table .ant-table-thead > tr > th {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text) !important;
+  border-bottom-color: var(--border) !important;
+}
+
+[data-theme="dark"] .public-feedback-table .ant-table-tbody > tr > td {
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+  border-bottom-color: var(--border) !important;
+}
+
+[data-theme="dark"] .public-feedback-table .ant-table-tbody > tr:hover > td {
+  background-color: var(--bg-secondary) !important;
+}
+
+[data-theme="dark"] .public-feedback-table .ant-pagination {
+  border-top-color: var(--border) !important;
+}
+
+[data-theme="dark"] .public-feedback-table .user-name {
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .public-feedback-table .rating-value {
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .public-feedback-table .date-text {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .public-feedback-table .content-text {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .public-feedback-table .action-button {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .public-feedback-table .action-button:hover {
+  background-color: var(--bg-tertiary) !important;
+  border-color: var(--border-secondary) !important;
+}
+
+[data-theme="dark"] .public-feedback-table .action-button.hide-btn:hover {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  border-color: rgba(59, 130, 246, 0.5) !important;
+  color: #60a5fa !important;
+}
+
+[data-theme="dark"] .public-feedback-table .action-button.delete-btn:hover {
+  background-color: rgba(220, 38, 38, 0.15) !important;
+  border-color: rgba(220, 38, 38, 0.5) !important;
+  color: #f87171 !important;
 }
