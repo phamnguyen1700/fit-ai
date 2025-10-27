@@ -1,22 +1,41 @@
 export interface User {
   id: string;
   email: string;
-  name: string;
-  avatar?: string;
-  phone?: string;
-  dateOfBirth?: string;
-  gender?: 'male' | 'female' | 'other';
-  address?: string;
-  status: 'active' | 'inactive' | 'pending' | 'banned';
-  role: 'user' | 'admin' | 'moderator';
-  planId?: string;
-  planName?: string;
-  subscriptionStart?: string;
-  subscriptionEnd?: string;
-  createdAt: string;
-  updatedAt: string;
-  lastLoginAt?: string;
-  loginCount: number;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+  isActive?: boolean;
+}
+
+export interface UserState {
+  total: number;
+  page: number;
+  pageSize: number;
+  items: User[];
+}
+
+export interface Params {
+  page?: number;
+  pageSize?: number;
+}
+
+export interface UpdateUserStatusRequest {
+  id: string;
+}
+
+export interface UserDetail {
+  id: string;
+  email: string;
+  username: null;
+  firstName: string;
+  lastName: string;
+  weight: number;
+  height: number;
+  gender: string;
+  dateOfBirth: string;
+  goal: string;
+  activityLevel: string;
+  isActive: boolean;
 }
 
 export interface CreateUserRequest {
@@ -25,9 +44,9 @@ export interface CreateUserRequest {
   password: string;
   phone?: string;
   dateOfBirth?: string;
-  gender?: 'male' | 'female' | 'other';
+  gender?: "male" | "female" | "other";
   address?: string;
-  role?: 'user' | 'admin' | 'moderator';
+  role?: "user" | "admin" | "moderator";
   planId?: string;
 }
 
@@ -37,22 +56,22 @@ export interface UpdateUserRequest {
   name?: string;
   phone?: string;
   dateOfBirth?: string;
-  gender?: 'male' | 'female' | 'other';
+  gender?: "male" | "female" | "other";
   address?: string;
-  status?: 'active' | 'inactive' | 'pending' | 'banned';
-  role?: 'user' | 'admin' | 'moderator';
+  status?: "active" | "inactive" | "pending" | "banned";
+  role?: "user" | "admin" | "moderator";
   planId?: string;
   avatar?: string;
 }
 
 export interface UserFilters {
-  status?: 'active' | 'inactive' | 'pending' | 'banned';
-  role?: 'user' | 'admin' | 'moderator';
+  status?: "active" | "inactive" | "pending" | "banned";
+  role?: "user" | "admin" | "moderator";
   planId?: string;
   search?: string;
   dateFrom?: string;
   dateTo?: string;
-  gender?: 'male' | 'female' | 'other';
+  gender?: "male" | "female" | "other";
 }
 
 export interface UserStats {
@@ -68,14 +87,13 @@ export interface UserStats {
 }
 
 export type AuthUser = {
-	id: string
-	email: string
-	name?: string
-	role?: string
-}
+  id: string;
+  email: string;
+  name?: string;
+  role?: string;
+};
 
 export type IRegister = {
-  email: string
-  password: string
-}
-
+  email: string;
+  password: string;
+};

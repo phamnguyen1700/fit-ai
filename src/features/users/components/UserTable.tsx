@@ -53,6 +53,7 @@ export const UserTable: React.FC<UserTableProps> = ({
           planLabel={item.planLabel}
           amountLabel={item.amountLabel}
           statusLabel={item.statusLabel}
+          isActive={item.isActive}
         />
         
       )}
