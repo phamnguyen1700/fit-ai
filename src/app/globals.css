@@ -6889,3 +6889,461 @@ body {
       transform: translateY(0);
     }
   }
+
+/* ===== SETTING CONTAINER STYLES ===== */
+.setting-container {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+/* Setting content areas */
+.setting-container .general-info-content,
+.setting-container .account-management-content {
+  /* background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px; */
+  /* padding: 16px; */
+  transition: all 0.3s ease;
+}
+
+/* Setting titles */
+.setting-container h2 {
+  color: var(--text);
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+/* Setting text content */
+.setting-container p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Dark mode for setting container */
+[data-theme="dark"] .setting-container {
+  background: var(--bg-secondary);
+  border-color: var(--border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .setting-container h2 {
+  color: white;
+}
+
+[data-theme="dark"] .setting-container .general-info-content,
+[data-theme="dark"] .setting-container .account-management-content {
+  /* background: var(--bg-tertiary); */
+  border-color: var(--border);
+}
+
+/* Hover effects for setting content areas */
+.setting-container .general-info-content:hover,
+.setting-container .account-management-content:hover {
+  border-color: var(--border-secondary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .setting-container .general-info-content:hover,
+[data-theme="dark"] .setting-container .account-management-content:hover {
+  border-color: var(--border-secondary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive adjustments for setting container */
+@media (max-width: 768px) {
+  .setting-container {
+    padding: 16px;
+    border-radius: 8px;
+  }
+
+  .setting-container .general-info-content,
+  .setting-container .account-management-content {
+    padding: 12px;
+    border-radius: 6px;
+  }
+}
+
+/* ===== SETTING HEADER STYLES ===== */
+.settings-page-title {
+  color: var(--text);
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+/* Dark mode for setting header */
+[data-theme="dark"] .settings-page-title {
+  color: var(--text);
+}
+
+/* Setting category tabs styling */
+.settings-category-tabs {
+  margin-top: 16px;
+}
+
+.settings-category-tabs .ant-tabs-nav {
+  margin-bottom: 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.settings-category-tabs .ant-tabs-nav-list {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.settings-category-tabs .ant-tabs-tab {
+  flex: 1;
+  text-align: center;
+  justify-content: center;
+  margin: 0;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  background: transparent;
+}
+
+.settings-category-tabs .ant-tabs-tab:hover {
+  color: var(--primary);
+  background: rgba(255, 140, 0, 0.08);
+}
+
+.settings-category-tabs .ant-tabs-tab.ant-tabs-tab-active {
+  color: var(--text-inverse);
+  background: var(--primary);
+  box-shadow: 0 2px 4px rgba(255, 140, 0, 0.3);
+}
+
+.settings-category-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--text-inverse);
+}
+
+.settings-category-tabs .ant-tabs-ink-bar {
+  display: none;
+}
+
+.settings-category-tabs .ant-tabs-nav::before {
+  display: none;
+}
+
+/* Dark mode for setting category tabs */
+[data-theme="dark"] .settings-category-tabs .ant-tabs-nav {
+  background: var(--bg-tertiary);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .settings-category-tabs .ant-tabs-tab {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .settings-category-tabs .ant-tabs-tab:hover {
+  color: var(--primary);
+  background: rgba(255, 140, 0, 0.12);
+}
+
+[data-theme="dark"] .settings-category-tabs .ant-tabs-tab.ant-tabs-tab-active {
+  color: var(--text-inverse);
+  background: var(--primary);
+  box-shadow: 0 2px 4px rgba(255, 140, 0, 0.4);
+}
+
+[data-theme="dark"] .settings-category-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--text-inverse);
+}
+
+/* Setting header action buttons and controls */
+.settings-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Override Button component height in settings header */
+.settings-header-button.ant-btn {
+  height: 44px !important;
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  padding: 0 16px !important;
+}
+
+.settings-header-button.ant-btn:hover {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: white !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(255, 140, 0, 0.3) !important;
+}
+
+.settings-header-button.ant-btn:focus {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: white !important;
+}
+
+.settings-edit-button,
+.settings-add-admin-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.settings-edit-button:hover,
+.settings-add-admin-button:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255, 140, 0, 0.3);
+}
+
+.settings-search-container {
+  flex: 1;
+  max-width: 600px;
+}
+
+.settings-search-input {
+  height: 44px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.settings-account-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+/* Dark mode for setting header controls */
+[data-theme="dark"] .settings-header-button.ant-btn {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .settings-header-button.ant-btn:hover {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: white !important;
+  box-shadow: 0 4px 8px rgba(255, 140, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .settings-header-button.ant-btn:focus {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: white !important;
+}
+
+[data-theme="dark"] .settings-edit-button,
+[data-theme="dark"] .settings-add-admin-button {
+  border-color: var(--border);
+  background: var(--bg-secondary);
+  color: var(--text);
+}
+
+[data-theme="dark"] .settings-edit-button:hover,
+[data-theme="dark"] .settings-add-admin-button:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--text-inverse);
+  box-shadow: 0 4px 8px rgba(255, 140, 0, 0.4);
+}
+
+[data-theme="dark"] .settings-search-input {
+  border-color: var(--border);
+  background: var(--bg-secondary);
+}
+
+/* Responsive adjustments for setting header */
+@media (max-width: 768px) {
+  .settings-page-title {
+    font-size: 20px;
+  }
+
+  .settings-category-tabs .ant-tabs-tab {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .settings-category-tabs .ant-tabs-nav {
+    padding: 3px;
+  }
+
+  .settings-account-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .settings-search-container {
+    max-width: none;
+  }
+
+  .settings-edit-button,
+  .settings-add-admin-button {
+    height: 44px;
+    font-size: 13px;
+    padding: 0 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-page-title {
+    font-size: 18px;
+  }
+
+  .settings-category-tabs .ant-tabs-tab {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+}
+
+/* ===== ADMIN CARD STYLES ===== */
+.admin-info-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.admin-info-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.admin-card-content {
+  padding: 0;
+}
+
+.admin-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-info-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-info-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 16px;
+  align-items: start;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-info-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.admin-info-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.admin-info-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* Dark mode for admin card */
+[data-theme="dark"] .admin-info-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .admin-info-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .admin-card-title {
+  color: var(--text);
+  border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .admin-info-row {
+  border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .admin-info-label {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .admin-info-value {
+  color: var(--text);
+}
+
+/* Responsive adjustments for admin card */
+@media (max-width: 768px) {
+  .admin-card-title {
+    font-size: 16px;
+    margin-bottom: 16px;
+  }
+
+  .admin-info-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 10px 0;
+  }
+
+  .admin-info-label {
+    font-size: 13px;
+  }
+
+  .admin-info-value {
+    font-size: 13px;
+    margin-top: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-card-title {
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+
+  .admin-info-row {
+    padding: 8px 0;
+  }
+
+  .admin-info-label,
+  .admin-info-value {
+    font-size: 12px;
+  }
+}
