@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Header from './components/header';
 import AdminCard from './components/AdminCard';
+import AdminMana from './components/AdminMana';
 
 interface SettingProps {
   className?: string;
@@ -55,9 +56,7 @@ export const SettingPage: React.FC<SettingProps> = ({ className = "" }) => {
           
           {activeTab === "account-management" && (
             <div className="account-management-content">
-              <h2 className="text-lg font-medium mb-4">Quản lý tài khoản</h2>
-              {/* Add your account management content here */}
-              <p>Nội dung quản lý tài khoản sẽ được hiển thị ở đây.</p>
+              <AdminMana />
             </div>
           )}
         </div>

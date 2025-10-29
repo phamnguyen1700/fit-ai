@@ -7309,6 +7309,293 @@ body {
   color: var(--text);
 }
 
+/* ===== ADMIN MANAGEMENT TABLE STYLES ===== */
+.admin-management-container {
+  width: 100%;
+  background: var(--bg);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.admin-table-wrapper {
+  background: var(--bg);
+  /* border: 1px solid var(--border); */
+  /* border-radius: 12px; */
+  overflow: hidden;
+}
+
+.admin-management-table {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.admin-management-table .ant-table-thead > tr > th {
+  background: #f8f9fa !important;
+  border-bottom: 1px solid #e9ecef !important;
+  color: #495057 !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  padding: 12px 16px !important;
+  text-align: left !important;
+}
+
+.admin-management-table .ant-table-thead > tr > th:first-child {
+  text-align: center !important;
+}
+
+.admin-management-table .ant-table-thead > tr > th:nth-child(4),
+.admin-management-table .ant-table-thead > tr > th:nth-child(5),
+.admin-management-table .ant-table-thead > tr > th:nth-child(6) {
+  text-align: center !important;
+}
+
+.admin-management-table .ant-table-tbody > tr > td {
+  background: var(--bg) !important;
+  border-bottom: 1px solid #f1f3f4 !important;
+  color: var(--text) !important;
+  font-size: 14px !important;
+  padding: 16px !important;
+  text-align: left !important;
+}
+
+.admin-management-table .ant-table-tbody > tr > td:first-child {
+  text-align: center !important;
+  color: #6c757d !important;
+  font-weight: 500 !important;
+}
+
+.admin-management-table .ant-table-tbody > tr > td:nth-child(4),
+.admin-management-table .ant-table-tbody > tr > td:nth-child(5),
+.admin-management-table .ant-table-tbody > tr > td:nth-child(6) {
+  text-align: center !important;
+}
+
+.admin-management-table .ant-table-tbody > tr:hover > td {
+  background: var(--bg-secondary) !important;
+}
+
+.admin-management-table .ant-table-tbody > tr:last-child > td {
+  border-bottom: none !important;
+}
+
+/* Admin table actions */
+.admin-table-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+  position: relative;
+}
+
+.status-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 6px;
+  display: inline-block;
+}
+
+.status-badge.status-active {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.status-badge.status-active::before {
+  background: #10b981;
+}
+
+.status-badge.status-paused {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.status-badge.status-paused::before {
+  background: #f59e0b;
+}
+
+.status-badge.status-stopped {
+  background: rgba(107, 114, 128, 0.1);
+  color: #6b7280;
+  border: 1px solid rgba(107, 114, 128, 0.2);
+}
+
+.status-badge.status-stopped::before {
+  background: #6b7280;
+}
+
+.status-badge.status-inactive {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.status-badge.status-inactive::before {
+  background: #ef4444;
+}
+
+.status-badge.status-default {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.status-badge.status-default::before {
+  background: var(--text-tertiary);
+}
+
+.admin-action-btn {
+  height: 32px !important;
+  padding: 0 12px !important;
+  font-size: 13px !important;
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.admin-action-btn.edit-btn {
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+.admin-action-btn.edit-btn:hover {
+  background: var(--success) !important;
+  border-color: var(--success) !important;
+  color: white !important;
+}
+
+.admin-action-btn.delete-btn {
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+.admin-action-btn.delete-btn:hover {
+  background: var(--error) !important;
+  border-color: var(--error) !important;
+  color: white !important;
+}
+
+/* Admin table pagination */
+.admin-table-pagination {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  display: flex;
+  justify-content: center;
+}
+
+.admin-pagination {
+  margin: 0;
+}
+
+/* Dark mode for admin management table */
+[data-theme="dark"] .admin-management-container {
+  background: var(--bg-secondary);
+}
+
+[data-theme="dark"] .admin-table-wrapper {
+  background: var(--bg-secondary);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .admin-management-table .ant-table-thead > tr > th {
+  background: var(--bg-tertiary) !important;
+  border-bottom-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .admin-management-table .ant-table-tbody > tr > td {
+  border-bottom-color: var(--border) !important;
+}
+
+[data-theme="dark"] .admin-management-table .ant-table-tbody > tr > td:first-child {
+  color: var(--text-secondary) !important;
+}
+
+/* Dark mode status badges */
+[data-theme="dark"] .status-badge.status-default {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .status-badge.status-default::before {
+  background: var(--text-tertiary);
+}
+
+[data-theme="dark"] .admin-management-table .ant-table-thead > tr > th {
+  background: var(--bg-tertiary) !important;
+  border-bottom-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .admin-management-table .ant-table-tbody > tr > td {
+  background: var(--bg-secondary) !important;
+  border-bottom-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .admin-management-table .ant-table-tbody > tr:hover > td {
+  background: var(--bg-tertiary) !important;
+}
+
+[data-theme="dark"] .admin-action-btn.edit-btn {
+  background: var(--bg) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .admin-action-btn.delete-btn {
+  background: var(--bg) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .admin-table-pagination {
+  background: var(--bg-secondary);
+  border-top-color: var(--border);
+}
+
+/* Responsive adjustments for admin table */
+@media (max-width: 768px) {
+  .admin-management-table .ant-table-thead > tr > th,
+  .admin-management-table .ant-table-tbody > tr > td {
+    padding: 12px 8px !important;
+    font-size: 12px !important;
+  }
+
+  .admin-table-actions {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .admin-action-btn {
+    height: 28px !important;
+    padding: 0 8px !important;
+    font-size: 11px !important;
+  }
+
+  .admin-table-pagination {
+    padding: 12px 16px;
+  }
+}
+
 /* Responsive adjustments for admin card */
 @media (max-width: 768px) {
   .admin-card-title {
