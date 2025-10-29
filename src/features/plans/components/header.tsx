@@ -1,18 +1,17 @@
 "use client";
 import React, { useState } from "react";
-import Tabs3, { Tab3Item } from "../../../shared/ui/core/Tabs3";
 import Tabs4, { Tab4Item } from "../../../shared/ui/core/Tabs4";
 import { Segmented } from "../../../shared/ui/core/Segmented";
 import { SearchInput } from "../../../shared/ui/layout/admin/components/SearchInput";
-import { Select } from "../../../shared/ui/core/Select";
 import Filter from "@/shared/ui/core/Filter";
 import { FilterConfig } from "@/shared/ui/core/Filter";
-
+import { Button } from "@/shared/ui/core/Button";
 
 interface HeaderProps {
   onDateRangeChange?: (activeKey: string) => void;
   onCategoryChange?: (activeKey: string) => void;
   onSearch?: (value: string) => void;
+  onAddPackage?: () => void;
   activeTab?: string;
   className?: string;
 }
@@ -21,15 +20,16 @@ const Header: React.FC<HeaderProps> = ({
   onDateRangeChange,
   onCategoryChange,
   onSearch,
-  activeTab = "feedback-list",
+  onAddPackage,
+  activeTab = "subscription-list",
   className = "",
 }) => {
   const [activeDateRange, setActiveDateRange] = useState<string>("day");
   const [activeCategory, setActiveCategory] = useState<string>(activeTab);
   const [filterValues, setFilterValues] = useState<Record<string, string>>({
+    packageType: '',
     status: '',
-    date: '',
-    rating: ''
+    period: ''
   });
 
   // Date range options for Segmented (Ngày, Tháng, Năm)
@@ -39,60 +39,58 @@ const Header: React.FC<HeaderProps> = ({
     { label: "Năm", value: "year" },
   ];
 
-  // Category tabs (Danh sách phản hồi, Duyệt phản hồi, Phản hồi công khai)
+  // Category tabs (Danh sách gói đăng ký, Quản lý Giá, Lịch sử Thanh toán)
   const categoryTabItems: Tab4Item[] = [
     {
-      key: "feedback-list",
-      label: "Danh sách phản hồi",
+      key: "subscription-list",
+      label: "Danh sách gói đăng ký",
     },
     {
-      key: "review-feedback",
-      label: "Duyệt phản hồi",
+      key: "price-management", 
+      label: "Quản lý Giá",
     },
     {
-      key: "public-feedback",
-      label: "Phản hồi công khai",
+      key: "payment-history",
+      label: "Lịch sử Thanh toán",
     },
   ];
 
-  // Filter configuration for feedback page
-  const feedbackFilters: FilterConfig[] = [
+  // Filter configuration for plans page
+  const plansFilters: FilterConfig[] = [
     {
-      key: "status",
-      placeholder: "Trạng thái phản hồi",
+      key: "packageType",
+      placeholder: "Loại gói",
       options: [
-        { value: "", label: "Tất cả trạng thái" },
-        { value: "pending", label: "Chưa duyệt" },
-        { value: "approved", label: "Đã duyệt" },
-        { value: "rejected", label: "Từ chối" },
-        { value: "published", label: "Công khai" },
-      ],
-      className: "min-w-[180px]"
-    },
-    {
-      key: "date",
-      placeholder: "Lọc theo ngày",
-      options: [
-        { value: "", label: "Tất cả thời gian" },
-        { value: "today", label: "Hôm nay" },
-        { value: "yesterday", label: "Hôm qua" },
-        { value: "last7days", label: "7 ngày qua" },
-        { value: "last30days", label: "30 ngày qua" },
-        { value: "thismonth", label: "Tháng này" },
-        { value: "lastmonth", label: "Tháng trước" },
+        { value: "", label: "Tất cả loại gói" },
+        { value: "basic", label: "Gói Cơ bản" },
+        { value: "premium", label: "Gói Premium" },
+        { value: "professional", label: "Gói Chuyên nghiệp" },
+        { value: "enterprise", label: "Gói Doanh nghiệp" },
       ],
       className: "min-w-[150px]"
     },
     {
-      key: "rating",
-      placeholder: "Lọc theo rating",
+      key: "status",
+      placeholder: "Trạng thái",
       options: [
-        { value: "", label: "Tất cả rating" },
-        { value: "5", label: "5 sao" },
-        { value: "4", label: "4 sao trở lên" },
-        { value: "3", label: "3 sao trở lên" },
-        { value: "2", label: "2 sao trở lên" },
-        { value: "1", label: "1 sao trở lên" },
+        { value: "", label: "Tất cả trạng thái" },
+        { value: "active", label: "Hoạt động" },
+        { value: "inactive", label: "Không hoạt động" },
+        { value: "expired", label: "Hết hạn" },
+        { value: "pending", label: "Chờ xử lý" },
+        { value: "cancelled", label: "Đã hủy" },
+      ],
+      className: "min-w-[150px]"
+    },
+    {
+      key: "period",
+      placeholder: "Thời hạn",
+      options: [
+        { value: "", label: "Tất cả thời hạn" },
+        { value: "monthly", label: "Hàng tháng" },
+        { value: "quarterly", label: "Hàng quý" },
+        { value: "yearly", label: "Hàng năm" },
+        { value: "lifetime", label: "Trọn đời" },
       ],
       className: "min-w-[150px]"
     }
@@ -120,11 +118,11 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <div className={`w-full space-y-6 ${className}`}>
+    <div className={`header-container w-full space-y-6 ${className}`}>
       {/* Title and Date Range Tabs */}
       <div className="flex items-center justify-between">
-        <h1 className="feedback-page-title">
-          Quản lý phản hồi
+        <h1 className="plans-page-title">
+          Quản lý gói đăng ký
         </h1>
         {/* Date Range Tabs */}
         <Segmented
@@ -141,33 +139,33 @@ const Header: React.FC<HeaderProps> = ({
           items={categoryTabItems}
           defaultActiveKey={activeTab}
           onChange={handleCategoryChange}
-          className="feedback-category-tabs"
+          className="plans-category-tabs"
         />
 
-        {/* Conditional Layout based on active tab */}
-        {activeCategory === "feedback-list" ? (
-          /* Layout for "Duyệt phản hồi" - Simple search only */
-          <div className="w-full">
+        {/* Search and Filter section */}
+        <div className="flex items-center gap-4">
+          {/* Add Package Button */}
+          <Button
+            variant="primary"
+            onClick={onAddPackage}
+            className="flex-shrink-0 bg-orange-500 hover:bg-orange-600 border-orange-500 hover:border-orange-600"
+          >
+            + Thêm gói
+          </Button>
+
+          {/* Search Input */}
+          <div className="search-container">
             <SearchInput
               placeholder="Tìm kiếm người dùng, kế hoạch..."
               onChange={handleSearch}
               className="w-full"
             />
           </div>
-        ) : (
-          /* Layout for other tabs - Search + Filter dropdowns */
-          <div className="flex items-center gap-4">
-            <div className="flex-1">
-              <SearchInput
-                placeholder="Tìm kiếm người dùng, kế hoạch..."
-                onChange={handleSearch}
-                className="w-full"
-              />
-            </div>
 
-            {/* Filter Dropdowns */}
+          {/* Filter Dropdowns */}
+          <div className="filter-wrapper">
             <Filter
-              filters={feedbackFilters}
+              filters={plansFilters}
               onFilterChange={handleFilterChange}
               initialValues={filterValues}
               showResetButton={true}
@@ -175,7 +173,7 @@ const Header: React.FC<HeaderProps> = ({
               className="flex-shrink-0"
             />
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
