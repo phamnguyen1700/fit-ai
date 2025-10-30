@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Layout, App } from 'antd';
 import { Sider } from '@/shared/ui/layout/advisor/Sider';
 import { HeaderBanner, SearchInput } from '@/shared/ui';
+import NotificationBell from '@/shared/ui/layout/advisor/components/NotificationBell';
 
 export default function AdvisorLayout({
   children,
@@ -31,7 +32,12 @@ export default function AdvisorLayout({
             onEditClick={() => {/* ... */ }}
             imageUrl="/img/caonguyen.png"
           />
-          <SearchInput />
+          <div className="flex gap-3 items-center">
+            <div className="flex-1">
+              <SearchInput />
+            </div>
+            <NotificationBell />
+          </div>
           {/* Main Content */}
           <main
             className="flex-1"

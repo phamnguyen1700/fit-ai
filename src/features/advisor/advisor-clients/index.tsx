@@ -2,20 +2,21 @@
 
 import React from 'react';
 import { Col, Row } from '@/shared/ui';
-import ClientsTable from './components/ClientsTable';
-import ClientsFilter from './components/ClientsFilter';
+import ClientsStats from './components/ClientsStats';
+import ClientsMonthView from './components/ClientsMonthView';
+
 
 export function AdvisorClients() {
   return (
     <Row gutter={[0, 16]}>
-      {/* Filters */}
+      {/* Statistics */}
       <Col span={24}>
-        <ClientsFilter />
+        <ClientsStats />
       </Col>
       
-      {/* Clients Table */}
+      {/* Clients Grid */}
       <Col span={24}>
-        <ClientsTable />
+        <ClientsMonthView />
       </Col>
     </Row>
   );

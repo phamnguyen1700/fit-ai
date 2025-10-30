@@ -17,11 +17,9 @@ interface SiderProps {
 }
 
 const menuItems: { key: string; label: React.ReactNode; icon?: React.ReactNode }[] = [
-  { label: 'Bảng điều khiển', key: '/advisor/dashboard', icon: <Icon name={icons.dashboard} /> },
-  { label: 'Khách hàng', key: '/advisor/clients', icon: <Icon name={icons.users} /> },
-  { label: 'Kế hoạch', key: '/advisor/plans', icon: <Icon name={icons.plans} /> },
-  { label: 'Báo cáo', key: '/advisor/reports', icon: <Icon name={icons.content} /> },
-  { label: 'Chat với khách hàng', key: '/advisor/chat', icon: <Icon name={icons.message} /> },
+  { label: 'Khách hàng trong tháng', key: '/advisor/clients', icon: <Icon name={icons.users} /> },
+  { label: 'Cần feedback', key: '/advisor/feedback', icon: <Icon name={icons.feedback} /> },
+  { label: 'Chat', key: '/advisor/chat', icon: <Icon name={icons.message} /> },
 ];
 
 export const Sider: React.FC<SiderProps> = ({
