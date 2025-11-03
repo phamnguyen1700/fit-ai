@@ -62,16 +62,23 @@ export default function ChatList({ selectedClient, onSelectClient }: ChatListPro
 
   return (
     <Card className="p-4 h-full flex flex-col">
-      <h3 className="text-xl font-semibold mb-4">Tin nhắn</h3>
+      <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--text)' }}>Tin nhắn</h3>
       
       {/* Search */}
       <div className="mb-4">
         <input
           type="text"
           placeholder="Tìm kiếm khách hàng..."
-          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2"
+          style={{
+            borderColor: 'var(--border)',
+            background: 'var(--bg)',
+            color: 'var(--text)',
+          }}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary)'}
+          onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
         />
       </div>
 
@@ -81,35 +88,63 @@ export default function ChatList({ selectedClient, onSelectClient }: ChatListPro
           <div
             key={client.id}
             onClick={() => onSelectClient(client.id)}
-            className={`p-3 rounded-lg cursor-pointer transition-colors ${
-              selectedClient === client.id
-                ? 'bg-primary bg-opacity-10 border-l-4 border-primary'
-                : 'hover:bg-gray-50'
-            }`}
+            className="p-3 rounded-lg cursor-pointer transition-colors border-l-4"
+            style={{
+              background: selectedClient === client.id ? 'rgba(255, 140, 0, 0.1)' : 'transparent',
+              borderLeftColor: selectedClient === client.id ? 'var(--primary)' : 'transparent',
+            }}
+            onMouseEnter={(e) => {
+              if (selectedClient !== client.id) {
+                e.currentTarget.style.background = 'var(--bg-secondary)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (selectedClient !== client.id) {
+                e.currentTarget.style.background = 'transparent';
+              }
+            }}
           >
             <div className="flex items-start gap-3">
               {/* Avatar */}
               <div className="relative">
-                <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-semibold">
+                <div 
+                  className="w-12 h-12 rounded-full flex items-center justify-center font-semibold"
+                  style={{
+                    background: 'var(--primary)',
+                    color: 'var(--text-inverse)',
+                  }}
+                >
                   {client.name.charAt(0)}
                 </div>
                 {client.online && (
-                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                  <div 
+                    className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2"
+                    style={{
+                      background: 'var(--success)',
+                      borderColor: 'var(--bg)',
+                    }}
+                  ></div>
                 )}
               </div>
 
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-start mb-1">
-                  <h4 className="font-semibold text-sm truncate">{client.name}</h4>
-                  <span className="text-xs text-gray-400 whitespace-nowrap ml-2">
+                  <h4 className="font-semibold text-sm truncate" style={{ color: 'var(--text)' }}>{client.name}</h4>
+                  <span className="text-xs whitespace-nowrap ml-2" style={{ color: 'var(--text-tertiary)' }}>
                     {client.timestamp}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <p className="text-sm text-gray-500 truncate">{client.lastMessage}</p>
+                  <p className="text-sm truncate" style={{ color: 'var(--text-secondary)' }}>{client.lastMessage}</p>
                   {client.unread > 0 && (
-                    <span className="ml-2 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    <span 
+                      className="ml-2 text-xs rounded-full w-5 h-5 flex items-center justify-center"
+                      style={{
+                        background: 'var(--primary)',
+                        color: 'var(--text-inverse)',
+                      }}
+                    >
                       {client.unread}
                     </span>
                   )}

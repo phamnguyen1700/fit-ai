@@ -24,8 +24,11 @@ export function AdvisorChat() {
         {selectedClient ? (
           <ChatWindow clientId={selectedClient} />
         ) : (
-          <div className="flex items-center justify-center h-full bg-white rounded-lg">
-            <p className="text-gray-400">Chọn một khách hàng để bắt đầu chat</p>
+          <div 
+            className="flex items-center justify-center h-full rounded-lg"
+            style={{ background: 'var(--bg)' }}
+          >
+            <p style={{ color: 'var(--text-tertiary)' }}>Chọn một khách hàng để bắt đầu chat</p>
           </div>
         )}
       </Col>

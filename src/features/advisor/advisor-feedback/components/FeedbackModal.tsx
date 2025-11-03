@@ -49,12 +49,15 @@ export default function FeedbackModal({ item, onClose }: FeedbackModalProps) {
           {/* Header */}
           <div className="flex justify-between items-start mb-6">
             <div>
-              <h2 className="text-2xl font-bold mb-2">Đánh giá từ {item.clientName}</h2>
-              <p className="text-sm text-gray-500">{item.uploadTime}</p>
+              <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--text)' }}>Đánh giá từ {item.clientName}</h2>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{item.uploadTime}</p>
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="transition-colors"
+              style={{ color: 'var(--text-tertiary)' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-tertiary)'}
             >
               <Icon name="mdi:close" size={24} />
             </button>
@@ -63,7 +66,10 @@ export default function FeedbackModal({ item, onClose }: FeedbackModalProps) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Media Display */}
             <div>
-              <div className="bg-gray-100 rounded-lg overflow-hidden mb-4">
+              <div 
+                className="rounded-lg overflow-hidden mb-4"
+                style={{ background: 'var(--bg-secondary)' }}
+              >
                 {item.type === 'image' ? (
                   <img
                     src={item.mediaUrl}
@@ -71,15 +77,20 @@ export default function FeedbackModal({ item, onClose }: FeedbackModalProps) {
                     className="w-full h-auto"
                   />
                 ) : (
-                  <div className="aspect-video bg-gray-900 flex items-center justify-center">
-                    <Icon name="mdi:play-circle-outline" size={64} className="text-white" />
+                  <div className="aspect-video flex items-center justify-center" style={{ background: 'var(--bg-tertiary)' }}>
+                    <div style={{ color: 'var(--text-inverse)' }}>
+                      <Icon name="mdi:play-circle-outline" size={64} />
+                    </div>
                   </div>
                 )}
               </div>
               {item.note && (
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <p className="text-sm font-medium text-gray-700">Ghi chú từ khách hàng:</p>
-                  <p className="text-gray-600 mt-1">{item.note}</p>
+                <div 
+                  className="p-4 rounded-lg"
+                  style={{ background: 'rgba(59, 130, 246, 0.05)' }}
+                >
+                  <p className="text-sm font-medium" style={{ color: 'var(--text)' }}>Ghi chú từ khách hàng:</p>
+                  <p className="mt-1" style={{ color: 'var(--text-secondary)' }}>{item.note}</p>
                 </div>
               )}
             </div>
@@ -104,13 +115,25 @@ export default function FeedbackModal({ item, onClose }: FeedbackModalProps) {
 
               {/* Quick Comments */}
               <div className="mb-6">
-                <label className="block text-sm font-semibold mb-3">Nhận xét nhanh</label>
+                <label className="block text-sm font-semibold mb-3" style={{ color: 'var(--text)' }}>Nhận xét nhanh</label>
                 <div className="flex flex-wrap gap-2">
                   {quickComments.map((qc, index) => (
                     <button
                       key={index}
                       onClick={() => setComment(qc)}
-                      className="px-3 py-2 bg-gray-100 hover:bg-primary hover:text-white rounded-lg text-sm transition-colors"
+                      className="px-3 py-2 rounded-lg text-sm transition-colors"
+                      style={{ 
+                        background: 'var(--bg-secondary)',
+                        color: 'var(--text)',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'var(--primary)';
+                        e.currentTarget.style.color = 'var(--text-inverse)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'var(--bg-secondary)';
+                        e.currentTarget.style.color = 'var(--text)';
+                      }}
                     >
                       {qc}
                     </button>
@@ -120,12 +143,19 @@ export default function FeedbackModal({ item, onClose }: FeedbackModalProps) {
 
               {/* Comment */}
               <div className="mb-6">
-                <label className="block text-sm font-semibold mb-3">Nhận xét chi tiết</label>
+                <label className="block text-sm font-semibold mb-3" style={{ color: 'var(--text)' }}>Nhận xét chi tiết</label>
                 <textarea
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   placeholder="Nhập nhận xét của bạn..."
-                  className="w-full h-32 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                  className="w-full h-32 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 resize-none"
+                  style={{
+                    borderColor: 'var(--border)',
+                    background: 'var(--bg)',
+                    color: 'var(--text)',
+                  }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary)'}
+                  onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
                 />
               </div>
 
@@ -146,8 +176,8 @@ export default function FeedbackModal({ item, onClose }: FeedbackModalProps) {
               </div>
 
               {/* Quick Actions */}
-              <div className="mt-4 pt-4 border-t">
-                <p className="text-sm font-semibold mb-2">Hành động nhanh</p>
+              <div className="mt-4 pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
+                <p className="text-sm font-semibold mb-2" style={{ color: 'var(--text)' }}>Hành động nhanh</p>
                 <div className="flex gap-2">
                   <Button variant="ghost" size="sm" className="flex-1">
                     <Icon name={icons.message} className="mr-1" />

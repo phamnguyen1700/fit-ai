@@ -19,6 +19,7 @@ interface SiderProps {
 const menuItems: { key: string; label: React.ReactNode; icon?: React.ReactNode }[] = [
   { label: 'Khách hàng trong tháng', key: '/advisor/clients', icon: <Icon name={icons.users} /> },
   { label: 'Cần feedback', key: '/advisor/feedback', icon: <Icon name={icons.feedback} /> },
+  { label: 'Duyệt plan AI', key: '/advisor/ai-plans', icon: <Icon name="mdi:robot-outline" /> },
   { label: 'Chat', key: '/advisor/chat', icon: <Icon name={icons.message} /> },
 ];
 

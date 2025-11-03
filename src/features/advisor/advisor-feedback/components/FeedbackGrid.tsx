@@ -142,41 +142,45 @@ export default function FeedbackGrid() {
         <div className="flex gap-2 mb-6 overflow-x-auto">
           <button
             onClick={() => setFilter('all')}
-            className={`px-6 py-3 rounded-lg font-medium whitespace-nowrap transition-all ${
-              filter === 'all'
-                ? 'bg-primary text-white shadow-md'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className="px-6 py-3 rounded-lg font-medium whitespace-nowrap transition-all"
+            style={{
+              background: filter === 'all' ? 'var(--primary)' : 'var(--bg-secondary)',
+              color: filter === 'all' ? 'var(--text-inverse)' : 'var(--text-secondary)',
+              boxShadow: filter === 'all' ? '0 4px 6px var(--shadow-medium)' : 'none',
+            }}
           >
             Tất cả ({feedbackItems.filter(i => i.status === 'pending').length})
           </button>
           <button
             onClick={() => setFilter('workout')}
-            className={`px-6 py-3 rounded-lg font-medium whitespace-nowrap transition-all ${
-              filter === 'workout'
-                ? 'bg-primary text-white shadow-md'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className="px-6 py-3 rounded-lg font-medium whitespace-nowrap transition-all"
+            style={{
+              background: filter === 'workout' ? 'var(--primary)' : 'var(--bg-secondary)',
+              color: filter === 'workout' ? 'var(--text-inverse)' : 'var(--text-secondary)',
+              boxShadow: filter === 'workout' ? '0 4px 6px var(--shadow-medium)' : 'none',
+            }}
           >
             💪 Tập luyện ({feedbackItems.filter(i => i.category === 'workout' && i.status === 'pending').length})
           </button>
           <button
             onClick={() => setFilter('meal')}
-            className={`px-6 py-3 rounded-lg font-medium whitespace-nowrap transition-all ${
-              filter === 'meal'
-                ? 'bg-primary text-white shadow-md'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className="px-6 py-3 rounded-lg font-medium whitespace-nowrap transition-all"
+            style={{
+              background: filter === 'meal' ? 'var(--primary)' : 'var(--bg-secondary)',
+              color: filter === 'meal' ? 'var(--text-inverse)' : 'var(--text-secondary)',
+              boxShadow: filter === 'meal' ? '0 4px 6px var(--shadow-medium)' : 'none',
+            }}
           >
             🍱 Ăn uống ({feedbackItems.filter(i => i.category === 'meal' && i.status === 'pending').length})
           </button>
           <button
             onClick={() => setFilter('progress')}
-            className={`px-6 py-3 rounded-lg font-medium whitespace-nowrap transition-all ${
-              filter === 'progress'
-                ? 'bg-primary text-white shadow-md'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className="px-6 py-3 rounded-lg font-medium whitespace-nowrap transition-all"
+            style={{
+              background: filter === 'progress' ? 'var(--primary)' : 'var(--bg-secondary)',
+              color: filter === 'progress' ? 'var(--text-inverse)' : 'var(--text-secondary)',
+              boxShadow: filter === 'progress' ? '0 4px 6px var(--shadow-medium)' : 'none',
+            }}
           >
             📊 Tiến độ ({feedbackItems.filter(i => i.category === 'progress' && i.status === 'pending').length})
           </button>
@@ -187,10 +191,14 @@ export default function FeedbackGrid() {
           {filteredItems.map((item) => (
             <div
               key={item.id}
-              className="bg-white border rounded-lg overflow-hidden hover:shadow-lg transition-all"
+              className="border rounded-lg overflow-hidden hover:shadow-lg transition-all"
+              style={{
+                background: 'var(--bg)',
+                borderColor: 'var(--border)',
+              }}
             >
               {/* Media Thumbnail */}
-              <div className="relative h-48 bg-gray-200">
+              <div className="relative h-48" style={{ background: 'var(--bg-secondary)' }}>
                 <img
                   src={item.thumbnail}
                   alt={item.note}
@@ -198,20 +206,37 @@ export default function FeedbackGrid() {
                 />
                 {item.type === 'video' && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
-                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                      <Icon name="mdi:play" size={32} className="text-primary" />
+                    <div 
+                      className="w-16 h-16 rounded-full flex items-center justify-center"
+                      style={{ background: 'var(--bg)' }}
+                    >
+                      <div style={{ color: 'var(--primary)' }}>
+                        <Icon name="mdi:play" size={32} />
+                      </div>
                     </div>
                   </div>
                 )}
                 {/* Category Badge */}
                 <div className="absolute top-3 left-3">
-                  <span className="px-3 py-1 bg-white bg-opacity-90 rounded-full text-sm font-medium">
+                  <span 
+                    className="px-3 py-1 rounded-full text-sm font-medium"
+                    style={{ 
+                      background: 'rgba(255, 255, 255, 0.9)',
+                      color: 'var(--text)',
+                    }}
+                  >
                     {getCategoryIcon(item.category)} {getCategoryLabel(item.category)}
                   </span>
                 </div>
                 {/* New Badge */}
                 <div className="absolute top-3 right-3">
-                  <span className="px-3 py-1 bg-red-500 text-white rounded-full text-xs font-bold animate-pulse">
+                  <span 
+                    className="px-3 py-1 rounded-full text-xs font-bold animate-pulse"
+                    style={{
+                      background: 'var(--error)',
+                      color: 'var(--text-inverse)',
+                    }}
+                  >
                     MỚI
                   </span>
                 </div>
@@ -220,17 +245,23 @@ export default function FeedbackGrid() {
               {/* Content */}
               <div className="p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                  <div 
+                    className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm"
+                    style={{
+                      background: 'linear-gradient(to bottom right, var(--primary), var(--primary-dark))',
+                      color: 'var(--text-inverse)',
+                    }}
+                  >
                     {item.clientName.charAt(0)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-sm truncate">{item.clientName}</h4>
-                    <p className="text-xs text-gray-500">{item.uploadTime}</p>
+                    <h4 className="font-semibold text-sm truncate" style={{ color: 'var(--text)' }}>{item.clientName}</h4>
+                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{item.uploadTime}</p>
                   </div>
                 </div>
 
                 {item.note && (
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">{item.note}</p>
+                  <p className="text-sm mb-3 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>{item.note}</p>
                 )}
 
                 <Button
@@ -248,10 +279,10 @@ export default function FeedbackGrid() {
         {filteredItems.length === 0 && (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">✅</div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">
+            <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--text)' }}>
               Không có mục nào cần đánh giá
             </h3>
-            <p className="text-gray-500">Bạn đã xem xét tất cả các bài đăng</p>
+            <p style={{ color: 'var(--text-secondary)' }}>Bạn đã xem xét tất cả các bài đăng</p>
           </div>
         )}
       </Card>

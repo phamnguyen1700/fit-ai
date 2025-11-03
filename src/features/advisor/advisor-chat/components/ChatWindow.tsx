@@ -83,14 +83,20 @@ export default function ChatWindow({ clientId }: ChatWindowProps) {
   return (
     <Card className="h-full flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b flex items-center justify-between">
+      <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--border)' }}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-semibold">
+          <div 
+            className="w-10 h-10 rounded-full flex items-center justify-center font-semibold"
+            style={{
+              background: 'var(--primary)',
+              color: 'var(--text-inverse)',
+            }}
+          >
             {clientInfo.name.charAt(0)}
           </div>
           <div>
-            <h3 className="font-semibold">{clientInfo.name}</h3>
-            <p className="text-sm text-gray-500">{clientInfo.plan}</p>
+            <h3 className="font-semibold" style={{ color: 'var(--text)' }}>{clientInfo.name}</h3>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{clientInfo.plan}</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -111,17 +117,20 @@ export default function ChatWindow({ clientId }: ChatWindowProps) {
             className={`flex ${msg.sender === 'advisor' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[70%] rounded-lg p-3 ${
-                msg.sender === 'advisor'
-                  ? 'bg-primary text-white'
-                  : 'bg-gray-100 text-gray-800'
-              }`}
+              className="max-w-[70%] rounded-lg p-3"
+              style={{
+                background: msg.sender === 'advisor' ? 'var(--primary)' : 'var(--bg-secondary)',
+                color: msg.sender === 'advisor' ? 'var(--text-inverse)' : 'var(--text)',
+              }}
             >
               <p className="text-sm">{msg.content}</p>
               <p
-                className={`text-xs mt-1 ${
-                  msg.sender === 'advisor' ? 'text-white text-opacity-70' : 'text-gray-500'
-                }`}
+                className="text-xs mt-1"
+                style={{
+                  color: msg.sender === 'advisor' 
+                    ? 'rgba(255, 255, 255, 0.7)' 
+                    : 'var(--text-secondary)',
+                }}
               >
                 {msg.timestamp}
               </p>
@@ -131,7 +140,7 @@ export default function ChatWindow({ clientId }: ChatWindowProps) {
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t">
+      <div className="p-4 border-t" style={{ borderColor: 'var(--border)' }}>
         <div className="flex gap-2">
           <Button variant="ghost" size="sm">
             <Icon name="mdi:paperclip" />
@@ -139,10 +148,17 @@ export default function ChatWindow({ clientId }: ChatWindowProps) {
           <input
             type="text"
             placeholder="Nhập tin nhắn..."
-            className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2"
+            style={{
+              borderColor: 'var(--border)',
+              background: 'var(--bg)',
+              color: 'var(--text)',
+            }}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={handleKeyPress}
+            onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary)'}
+            onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
           />
           <Button variant="primary" onClick={handleSendMessage}>
             <Icon name="mdi:send" />

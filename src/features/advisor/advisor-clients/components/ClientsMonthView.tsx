@@ -119,35 +119,35 @@ export default function ClientsMonthView() {
     <Card className="p-6">
       {/* Header with Filters */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Khách hàng tháng {new Date().getMonth() + 1}</h2>
+        <h2 className="text-2xl font-bold" style={{ color: 'var(--text)' }}>Khách hàng tháng {new Date().getMonth() + 1}</h2>
         <div className="flex gap-2">
           <button
             onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              filter === 'all'
-                ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className="px-4 py-2 rounded-lg transition-colors"
+            style={{
+              background: filter === 'all' ? 'var(--primary)' : 'var(--bg-secondary)',
+              color: filter === 'all' ? 'var(--text-inverse)' : 'var(--text-secondary)',
+            }}
           >
             Tất cả ({clients.length})
           </button>
           <button
             onClick={() => setFilter('active')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              filter === 'active'
-                ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className="px-4 py-2 rounded-lg transition-colors"
+            style={{
+              background: filter === 'active' ? 'var(--primary)' : 'var(--bg-secondary)',
+              color: filter === 'active' ? 'var(--text-inverse)' : 'var(--text-secondary)',
+            }}
           >
             Đang hoạt động ({clients.filter(c => c.status === 'active').length})
           </button>
           <button
             onClick={() => setFilter('needs-feedback')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              filter === 'needs-feedback'
-                ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className="px-4 py-2 rounded-lg transition-colors"
+            style={{
+              background: filter === 'needs-feedback' ? 'var(--primary)' : 'var(--bg-secondary)',
+              color: filter === 'needs-feedback' ? 'var(--text-inverse)' : 'var(--text-secondary)',
+            }}
           >
             Cần feedback ({clients.filter(c => c.needsFeedback > 0).length})
           </button>
@@ -160,36 +160,60 @@ export default function ClientsMonthView() {
           <div
             key={client.id}
             onClick={() => handleClientClick(client.id)}
-            className="bg-white border rounded-lg p-5 cursor-pointer hover:shadow-lg transition-all hover:scale-105"
+            className="border rounded-lg p-5 cursor-pointer hover:shadow-lg transition-all hover:scale-105"
+            style={{
+              background: 'var(--bg)',
+              borderColor: 'var(--border)',
+            }}
           >
             {/* Header with Avatar and Status */}
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                  <div 
+                    className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg"
+                    style={{
+                      background: 'linear-gradient(to bottom right, var(--primary), var(--primary-dark))',
+                      color: 'var(--text-inverse)',
+                    }}
+                  >
                     {client.name.charAt(0)}
                   </div>
                   <div
-                    className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
-                      client.status === 'active' ? 'bg-green-500' : 'bg-gray-400'
-                    }`}
+                    className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2"
+                    style={{
+                      background: client.status === 'active' ? 'var(--success)' : 'var(--text-tertiary)',
+                      borderColor: 'var(--bg)',
+                    }}
                   ></div>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg">{client.name}</h3>
-                  <p className="text-xs text-gray-500">{client.age} tuổi • {client.goal}</p>
+                  <h3 className="font-semibold text-lg" style={{ color: 'var(--text)' }}>{client.name}</h3>
+                  <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{client.age} tuổi • {client.goal}</p>
                 </div>
               </div>
               
               {/* Badges */}
               <div className="flex flex-col gap-1">
                 {client.needsFeedback > 0 && (
-                  <span className="px-2 py-1 text-xs bg-orange-100 text-orange-600 rounded-full font-medium">
+                  <span 
+                    className="px-2 py-1 text-xs rounded-full font-medium"
+                    style={{
+                      background: 'rgba(249, 115, 22, 0.1)',
+                      color: 'var(--warning)',
+                    }}
+                  >
                     {client.needsFeedback} feedback
                   </span>
                 )}
                 {client.unreadMessages > 0 && (
-                  <span className="px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded-full font-medium">
+                  <span 
+                    className="px-2 py-1 text-xs rounded-full font-medium"
+                    style={{
+                      background: 'rgba(59, 130, 246, 0.1)',
+                      color: 'var(--info)',
+                    }}
+                  >
                     {client.unreadMessages} tin nhắn
                   </span>
                 )}
@@ -199,26 +223,35 @@ export default function ClientsMonthView() {
             {/* Progress Bar */}
             <div className="mb-3">
               <div className="flex justify-between text-xs mb-1">
-                <span className="text-gray-600">Tiến độ tháng này</span>
-                <span className="font-semibold text-primary">{client.progress}%</span>
+                <span style={{ color: 'var(--text-secondary)' }}>Tiến độ tháng này</span>
+                <span className="font-semibold" style={{ color: 'var(--primary)' }}>{client.progress}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="w-full rounded-full h-2"
+                style={{ background: 'var(--bg-secondary)' }}
+              >
                 <div
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all"
-                  style={{ width: `${client.progress}%` }}
+                  className="h-2 rounded-full transition-all"
+                  style={{ 
+                    width: `${client.progress}%`,
+                    background: 'linear-gradient(to right, var(--primary), var(--primary-dark))',
+                  }}
                 ></div>
               </div>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 gap-3 pt-3 border-t">
+            <div 
+              className="grid grid-cols-2 gap-3 pt-3 border-t"
+              style={{ borderColor: 'var(--border)' }}
+            >
               <div>
-                <p className="text-xs text-gray-500">Buổi tập</p>
-                <p className="font-semibold text-sm">{client.sessionsThisMonth} buổi</p>
+                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Buổi tập</p>
+                <p className="font-semibold text-sm" style={{ color: 'var(--text)' }}>{client.sessionsThisMonth} buổi</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Hoạt động</p>
-                <p className="font-semibold text-sm">{client.lastActivity}</p>
+                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Hoạt động</p>
+                <p className="font-semibold text-sm" style={{ color: 'var(--text)' }}>{client.lastActivity}</p>
               </div>
             </div>
           </div>

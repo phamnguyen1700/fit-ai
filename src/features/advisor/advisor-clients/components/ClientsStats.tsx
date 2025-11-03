@@ -9,25 +9,25 @@ export default function ClientsStats() {
       label: 'Khách hàng tháng này', 
       value: '24', 
       change: '+3 so với tháng trước',
-      color: 'text-blue-600'
+      colorVar: 'var(--info)'
     },
     { 
       label: 'Đang tập luyện', 
       value: '18', 
       change: '75% tổng số',
-      color: 'text-green-600'
+      colorVar: 'var(--success)'
     },
     { 
       label: 'Cần feedback', 
       value: '12', 
       change: 'Upload mới hôm nay',
-      color: 'text-orange-600'
+      colorVar: 'var(--warning)'
     },
     { 
       label: 'Tin nhắn chưa đọc', 
       value: '7', 
       change: 'Từ 5 khách hàng',
-      color: 'text-purple-600'
+      colorVar: 'var(--primary)'
     },
   ];
 
@@ -37,9 +37,9 @@ export default function ClientsStats() {
         <Card key={index} className="p-6 hover:shadow-lg transition-shadow">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-sm text-gray-500 mb-2">{stat.label}</p>
-              <h3 className={`text-3xl font-bold ${stat.color} mb-1`}>{stat.value}</h3>
-              <p className="text-xs text-gray-400">{stat.change}</p>
+              <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>{stat.label}</p>
+              <h3 className="text-3xl font-bold mb-1" style={{ color: stat.colorVar }}>{stat.value}</h3>
+              <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{stat.change}</p>
             </div>
           </div>
         </Card>
