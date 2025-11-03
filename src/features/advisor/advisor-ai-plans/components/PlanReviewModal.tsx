@@ -272,21 +272,24 @@ export default function PlanReviewModal({ plan, onClose }: PlanReviewModalProps)
       <Card className="w-full max-w-6xl max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           {/* Header */}
-          <div className="flex justify-between items-start mb-6 pb-4 border-b">
+          <div className="flex justify-between items-start mb-6 pb-4 border-b" style={{ borderColor: 'var(--border)' }}>
             <div>
-              <h2 className="text-2xl font-bold mb-2">
+              <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--text)' }}>
                 🤖 Plan AI - {plan.userName}
               </h2>
               <div className="flex gap-3">
-                <span className="text-sm text-gray-500">Tạo bởi AI: {plan.generatedAt}</span>
-                <span className="text-sm font-semibold text-primary">
+                <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Tạo bởi AI: {plan.generatedAt}</span>
+                <span className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>
                   Độ tin cậy: {plan.aiConfidence}%
                 </span>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="transition-colors"
+              style={{ color: 'var(--text-tertiary)' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-tertiary)'}
             >
               <Icon name="mdi:close" size={28} />
             </button>
@@ -298,17 +301,17 @@ export default function PlanReviewModal({ plan, onClose }: PlanReviewModalProps)
               {/* Summary Cards - Meal Plans */}
               {plan.planCategory === 'meal' && (
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-blue-50 p-4 rounded-lg text-center">
-                    <p className="text-sm text-gray-600 mb-1">Calories/ngày</p>
-                    <p className="text-2xl font-bold text-blue-600">{plan.totalCalories}</p>
+                  <div className="p-4 rounded-lg text-center" style={{ background: 'rgba(59, 130, 246, 0.05)' }}>
+                    <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>Calories/ngày</p>
+                    <p className="text-2xl font-bold" style={{ color: 'var(--info)' }}>{plan.totalCalories}</p>
                   </div>
-                  <div className="bg-green-50 p-4 rounded-lg text-center">
-                    <p className="text-sm text-gray-600 mb-1">Protein</p>
-                    <p className="text-2xl font-bold text-green-600">{plan.macros?.protein}g</p>
+                  <div className="p-4 rounded-lg text-center" style={{ background: 'rgba(34, 197, 94, 0.05)' }}>
+                    <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>Protein</p>
+                    <p className="text-2xl font-bold" style={{ color: 'var(--success)' }}>{plan.macros?.protein}g</p>
                   </div>
-                  <div className="bg-yellow-50 p-4 rounded-lg text-center">
-                    <p className="text-sm text-gray-600 mb-1">Carbs</p>
-                    <p className="text-2xl font-bold text-yellow-600">{plan.macros?.carbs}g</p>
+                  <div className="p-4 rounded-lg text-center" style={{ background: 'rgba(234, 179, 8, 0.05)' }}>
+                    <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>Carbs</p>
+                    <p className="text-2xl font-bold" style={{ color: 'var(--warning)' }}>{plan.macros?.carbs}g</p>
                   </div>
                 </div>
               )}
@@ -316,24 +319,24 @@ export default function PlanReviewModal({ plan, onClose }: PlanReviewModalProps)
               {/* Summary Cards - Workout Plans */}
               {plan.planCategory === 'workout' && (
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-orange-50 p-4 rounded-lg text-center">
-                    <p className="text-sm text-gray-600 mb-1">Buổi tập/tuần</p>
-                    <p className="text-2xl font-bold text-orange-600">{plan.workoutsPerWeek}</p>
+                  <div className="p-4 rounded-lg text-center" style={{ background: 'rgba(249, 115, 22, 0.05)' }}>
+                    <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>Buổi tập/tuần</p>
+                    <p className="text-2xl font-bold" style={{ color: 'var(--warning)' }}>{plan.workoutsPerWeek}</p>
                   </div>
-                  <div className="bg-red-50 p-4 rounded-lg text-center">
-                    <p className="text-sm text-gray-600 mb-1">Bài tập/buổi</p>
-                    <p className="text-2xl font-bold text-red-600">{plan.sessionsPerWorkout}</p>
+                  <div className="p-4 rounded-lg text-center" style={{ background: 'rgba(239, 68, 68, 0.05)' }}>
+                    <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>Bài tập/buổi</p>
+                    <p className="text-2xl font-bold" style={{ color: 'var(--error)' }}>{plan.sessionsPerWorkout}</p>
                   </div>
-                  <div className="bg-purple-50 p-4 rounded-lg text-center">
-                    <p className="text-sm text-gray-600 mb-1">Nhóm cơ</p>
-                    <p className="text-xl font-bold text-purple-600">{plan.focusAreas?.length || 0}</p>
+                  <div className="p-4 rounded-lg text-center" style={{ background: 'rgba(168, 85, 247, 0.05)' }}>
+                    <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>Nhóm cơ</p>
+                    <p className="text-xl font-bold" style={{ color: 'var(--primary)' }}>{plan.focusAreas?.length || 0}</p>
                   </div>
                 </div>
               )}
 
               {/* Day Selector */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm font-semibold mb-3">
+              <div className="p-4 rounded-lg" style={{ background: 'var(--bg-secondary)' }}>
+                <p className="text-sm font-semibold mb-3" style={{ color: 'var(--text)' }}>
                   {plan.planCategory === 'meal' ? 'Xem thực đơn theo ngày:' : 'Xem lịch tập theo ngày:'}
                 </p>
                 <div className="flex gap-2 overflow-x-auto">
@@ -341,11 +344,12 @@ export default function PlanReviewModal({ plan, onClose }: PlanReviewModalProps)
                     <button
                       key={day}
                       onClick={() => setSelectedDay(day)}
-                      className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all ${
-                        selectedDay === day
-                          ? 'bg-primary text-white shadow-md'
-                          : 'bg-white text-gray-600 hover:bg-gray-100'
-                      }`}
+                      className="px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all"
+                      style={{
+                        background: selectedDay === day ? 'var(--primary)' : 'var(--bg)',
+                        color: selectedDay === day ? 'var(--text-inverse)' : 'var(--text-secondary)',
+                        boxShadow: selectedDay === day ? '0 4px 6px var(--shadow-medium)' : 'none',
+                      }}
                     >
                       Ngày {day}
                     </button>
@@ -356,52 +360,75 @@ export default function PlanReviewModal({ plan, onClose }: PlanReviewModalProps)
               {/* Meals for Selected Day - Món ăn AI đã gen */}
               {plan.planCategory === 'meal' && (
                 <div className="space-y-3">
-                  <h3 className="font-bold text-lg flex items-center gap-2">
-                    <Icon name="mdi:food-apple" className="text-green-600" />
+                  <h3 className="font-bold text-lg flex items-center gap-2" style={{ color: 'var(--text)' }}>
+                    <div style={{ color: 'var(--success)' }}>
+                      <Icon name="mdi:food-apple" />
+                    </div>
                     Thực đơn AI đã gen - Ngày {selectedDay}
                   </h3>
                   {sampleMeals.map((meal, idx) => (
-                    <Card key={idx} className="p-4 bg-gradient-to-r from-white to-green-50 border-2 border-green-200">
+                    <Card 
+                      key={idx} 
+                      className="p-4 border-2"
+                      style={{
+                        background: 'linear-gradient(to right, var(--bg), rgba(34, 197, 94, 0.05))',
+                        borderColor: 'var(--success)',
+                      }}
+                    >
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-bold text-lg">{meal.dishName}</h4>
-                            <span className="px-2 py-1 bg-green-500 text-white text-xs rounded-full">AI Gen</span>
+                            <h4 className="font-bold text-lg" style={{ color: 'var(--text)' }}>{meal.dishName}</h4>
+                            <span 
+                              className="px-2 py-1 text-xs rounded-full"
+                              style={{ background: 'var(--success)', color: 'var(--text-inverse)' }}
+                            >
+                              AI Gen
+                            </span>
                           </div>
-                          <p className="text-sm text-gray-600 mb-1">⏰ {meal.meal} - {meal.time}</p>
-                          <p className="text-sm text-gray-500 italic">{meal.description}</p>
+                          <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>⏰ {meal.meal} - {meal.time}</p>
+                          <p className="text-sm italic" style={{ color: 'var(--text-secondary)' }}>{meal.description}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm text-gray-500">Tổng calo</p>
-                          <p className="font-bold text-green-600 text-xl">
+                          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Tổng calo</p>
+                          <p className="font-bold text-xl" style={{ color: 'var(--success)' }}>
                             {meal.items.reduce((sum, item) => sum + item.calories, 0)} kcal
                           </p>
                         </div>
                       </div>
                       
                       {/* Dish Image Preview */}
-                      <div className="bg-gray-100 rounded-lg p-2 mb-3 text-center">
-                        <div className="w-full h-32 bg-gradient-to-br from-gray-200 to-gray-300 rounded flex items-center justify-center">
-                          <Icon name="mdi:image" size={48} className="text-gray-400" />
-                          <span className="ml-2 text-sm text-gray-500">Ảnh món ăn tham khảo</span>
+                      <div className="rounded-lg p-2 mb-3 text-center" style={{ background: 'var(--bg-secondary)' }}>
+                        <div 
+                          className="w-full h-32 rounded flex items-center justify-center"
+                          style={{ background: 'linear-gradient(to bottom right, var(--bg-secondary), var(--bg-tertiary))' }}
+                        >
+                          <div style={{ color: 'var(--text-tertiary)' }}>
+                            <Icon name="mdi:image" size={48} />
+                          </div>
+                          <span className="ml-2 text-sm" style={{ color: 'var(--text-secondary)' }}>Ảnh món ăn tham khảo</span>
                         </div>
                       </div>
 
                       {/* Ingredients */}
-                      <div className="bg-white rounded-lg p-3 border">
-                        <p className="text-sm font-semibold mb-2">🥗 Thành phần món ăn:</p>
+                      <div className="rounded-lg p-3 border" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}>
+                        <p className="text-sm font-semibold mb-2" style={{ color: 'var(--text)' }}>🥗 Thành phần món ăn:</p>
                         <div className="space-y-2">
                           {meal.items.map((item, itemIdx) => (
-                            <div key={itemIdx} className="flex justify-between items-center bg-gray-50 p-2 rounded">
+                            <div 
+                              key={itemIdx} 
+                              className="flex justify-between items-center p-2 rounded"
+                              style={{ background: 'var(--bg-secondary)' }}
+                            >
                               <div className="flex-1">
-                                <span className="font-medium text-sm">{item.name}</span>
-                                <span className="text-xs text-gray-500 ml-2">({item.amount})</span>
+                                <span className="font-medium text-sm" style={{ color: 'var(--text)' }}>{item.name}</span>
+                                <span className="text-xs ml-2" style={{ color: 'var(--text-secondary)' }}>({item.amount})</span>
                               </div>
                               <div className="flex gap-3 text-xs">
-                                <span className="text-blue-600">P: {item.protein}g</span>
-                                <span className="text-yellow-600">C: {item.carbs}g</span>
-                                <span className="text-orange-600">F: {item.fat}g</span>
-                                <span className="font-semibold">{item.calories} kcal</span>
+                                <span style={{ color: 'var(--info)' }}>P: {item.protein}g</span>
+                                <span style={{ color: 'var(--warning)' }}>C: {item.carbs}g</span>
+                                <span style={{ color: 'var(--warning)' }}>F: {item.fat}g</span>
+                                <span className="font-semibold" style={{ color: 'var(--text)' }}>{item.calories} kcal</span>
                               </div>
                             </div>
                           ))}
@@ -419,10 +446,10 @@ export default function PlanReviewModal({ plan, onClose }: PlanReviewModalProps)
 
                 if ('isRestDay' in dayWorkout && dayWorkout.isRestDay) {
                   return (
-                    <div className="text-center py-12 bg-gray-50 rounded-xl">
+                    <div className="text-center py-12 rounded-xl" style={{ background: 'var(--bg-secondary)' }}>
                       <div className="text-6xl mb-4">😴</div>
-                      <h3 className="text-2xl font-bold text-gray-700 mb-2">Ngày nghỉ</h3>
-                      <p className="text-gray-500">Cơ thể cần thời gian phục hồi</p>
+                      <h3 className="text-2xl font-bold mb-2" style={{ color: 'var(--text)' }}>Ngày nghỉ</h3>
+                      <p style={{ color: 'var(--text-secondary)' }}>Cơ thể cần thời gian phục hồi</p>
                     </div>
                   );
                 }
@@ -430,12 +457,20 @@ export default function PlanReviewModal({ plan, onClose }: PlanReviewModalProps)
                 return (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-bold text-lg flex items-center gap-2">
-                        <Icon name="mdi:weight-lifter" className="text-orange-600" />
+                      <h3 className="font-bold text-lg flex items-center gap-2" style={{ color: 'var(--text)' }}>
+                        <div style={{ color: 'var(--warning)' }}>
+                          <Icon name="mdi:weight-lifter" />
+                        </div>
                         Bài tập AI đã gen - Ngày {selectedDay}
                       </h3>
                       {'focus' in dayWorkout && (
-                        <span className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full font-semibold">
+                        <span 
+                          className="px-4 py-2 rounded-full font-semibold"
+                          style={{
+                            background: 'var(--warning)',
+                            color: 'var(--text-inverse)',
+                          }}
+                        >
                           🎯 {dayWorkout.focus}
                         </span>
                       )}
@@ -497,36 +532,42 @@ export default function PlanReviewModal({ plan, onClose }: PlanReviewModalProps)
             {/* Right: Review Panel */}
             <div className="space-y-4">
               {/* Action Buttons */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="font-semibold mb-3">Quyết định của bạn:</p>
+              <div className="p-4 rounded-lg" style={{ background: 'var(--bg-secondary)' }}>
+                <p className="font-semibold mb-3" style={{ color: 'var(--text)' }}>Quyết định của bạn:</p>
                 <div className="space-y-2">
                   <button
                     onClick={() => handleAction('approve')}
-                    className={`w-full px-4 py-3 rounded-lg font-medium transition-all ${
-                      action === 'approve'
-                        ? 'bg-green-500 text-white shadow-lg'
-                        : 'bg-white text-gray-700 hover:bg-green-50 border'
-                    }`}
+                    className="w-full px-4 py-3 rounded-lg font-medium transition-all border"
+                    style={{
+                      background: action === 'approve' ? 'var(--success)' : 'var(--bg)',
+                      color: action === 'approve' ? 'var(--text-inverse)' : 'var(--text)',
+                      borderColor: action === 'approve' ? 'transparent' : 'var(--border)',
+                      boxShadow: action === 'approve' ? '0 8px 16px var(--shadow-dark)' : 'none',
+                    }}
                   >
                     ✅ Duyệt plan
                   </button>
                   <button
                     onClick={() => handleAction('revise')}
-                    className={`w-full px-4 py-3 rounded-lg font-medium transition-all ${
-                      action === 'revise'
-                        ? 'bg-blue-500 text-white shadow-lg'
-                        : 'bg-white text-gray-700 hover:bg-blue-50 border'
-                    }`}
+                    className="w-full px-4 py-3 rounded-lg font-medium transition-all border"
+                    style={{
+                      background: action === 'revise' ? 'var(--info)' : 'var(--bg)',
+                      color: action === 'revise' ? 'var(--text-inverse)' : 'var(--text)',
+                      borderColor: action === 'revise' ? 'transparent' : 'var(--border)',
+                      boxShadow: action === 'revise' ? '0 8px 16px var(--shadow-dark)' : 'none',
+                    }}
                   >
                     ✏️ Yêu cầu chỉnh sửa
                   </button>
                   <button
                     onClick={() => handleAction('reject')}
-                    className={`w-full px-4 py-3 rounded-lg font-medium transition-all ${
-                      action === 'reject'
-                        ? 'bg-red-500 text-white shadow-lg'
-                        : 'bg-white text-gray-700 hover:bg-red-50 border'
-                    }`}
+                    className="w-full px-4 py-3 rounded-lg font-medium transition-all border"
+                    style={{
+                      background: action === 'reject' ? 'var(--error)' : 'var(--bg)',
+                      color: action === 'reject' ? 'var(--text-inverse)' : 'var(--text)',
+                      borderColor: action === 'reject' ? 'transparent' : 'var(--border)',
+                      boxShadow: action === 'reject' ? '0 8px 16px var(--shadow-dark)' : 'none',
+                    }}
                   >
                     ❌ Từ chối plan
                   </button>
@@ -535,14 +576,27 @@ export default function PlanReviewModal({ plan, onClose }: PlanReviewModalProps)
 
               {/* Quick Comments */}
               {action && (
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="font-semibold mb-3">Nhận xét nhanh:</p>
+                <div className="p-4 rounded-lg" style={{ background: 'var(--bg-secondary)' }}>
+                  <p className="font-semibold mb-3" style={{ color: 'var(--text)' }}>Nhận xét nhanh:</p>
                   <div className="space-y-2">
                     {quickComments[action].map((comment, idx) => (
                       <button
                         key={idx}
                         onClick={() => setComments(comment)}
-                        className="w-full text-left px-3 py-2 bg-white rounded border hover:bg-primary hover:text-white transition-colors text-sm"
+                        className="w-full text-left px-3 py-2 rounded border transition-colors text-sm"
+                        style={{
+                          background: 'var(--bg)',
+                          color: 'var(--text)',
+                          borderColor: 'var(--border)',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'var(--primary)';
+                          e.currentTarget.style.color = 'var(--text-inverse)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'var(--bg)';
+                          e.currentTarget.style.color = 'var(--text)';
+                        }}
                       >
                         {comment}
                       </button>
@@ -553,20 +607,33 @@ export default function PlanReviewModal({ plan, onClose }: PlanReviewModalProps)
 
               {/* Comments */}
               <div>
-                <label className="block font-semibold mb-2">Nhận xét chi tiết:</label>
+                <label className="block font-semibold mb-2" style={{ color: 'var(--text)' }}>Nhận xét chi tiết:</label>
                 <textarea
                   value={comments}
                   onChange={(e) => setComments(e.target.value)}
                   placeholder="Nhập nhận xét của bạn về plan này..."
-                  className="w-full h-32 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                  className="w-full h-32 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 resize-none"
+                  style={{
+                    borderColor: 'var(--border)',
+                    background: 'var(--bg)',
+                    color: 'var(--text)',
+                  }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary)'}
+                  onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
                 />
               </div>
 
               {/* Special Notes */}
               {plan.specialNotes && (
-                <div className="bg-purple-50 border-l-4 border-purple-400 p-3">
-                  <p className="text-sm font-semibold mb-1">Ghi chú đặc biệt:</p>
-                  <p className="text-sm text-gray-700">{plan.specialNotes}</p>
+                <div 
+                  className="border-l-4 p-3"
+                  style={{
+                    background: 'rgba(168, 85, 247, 0.05)',
+                    borderLeftColor: 'var(--primary)',
+                  }}
+                >
+                  <p className="text-sm font-semibold mb-1" style={{ color: 'var(--text)' }}>Ghi chú đặc biệt:</p>
+                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{plan.specialNotes}</p>
                 </div>
               )}
 
