@@ -2,7 +2,6 @@
 import React, { useState } from 'react'
 import Header from './components/header'
 import ExerciseTab from './components/tabs/ExerciseTab'
-import NutritionTab from './components/tabs/NutritionTab'
 import ArchiveTab from './components/tabs/ArchiveTab'
 
 export default function Content() {
@@ -12,8 +11,6 @@ export default function Content() {
     switch (activeTab) {
       case 'exercise':
         return <ExerciseTab />;
-      case 'nutrition':
-        return <NutritionTab />;
       case 'history':
         return <ArchiveTab />;
       default:
