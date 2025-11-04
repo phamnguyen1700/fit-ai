@@ -77,20 +77,20 @@ export const TabsHeader: React.FC<TabsHeaderProps> = ({
 
   return (
     <Card className={`${className}`} styles={{ body: { padding: 0 } }}>
-      <div className="flex items-center gap-4 w-full p-4">
+      <div className="flex items-center gap-3 w-full p-4">
         {/* Add Button */}
         <Button
           variant="secondary"
           size="md"
           onClick={onAddNew}
-          className="tabs-header-button flex items-center gap-2 px-4 rounded-lg font-medium whitespace-nowrap"
+          className="tabs-header-button flex items-center gap-2 px-4 rounded-lg font-medium whitespace-nowrap flex-shrink-0"
         >
           <Icon name={addButtonIcon} size={16} color="currentColor" />
           {addButtonText}
         </Button>
 
-        {/* Search Input - takes most space */}
-        <div className="flex-1 max-w-4xl tabs-header-input">
+        {/* Search Input - takes available space */}
+        <div className="flex-1 tabs-header-input">
           <SearchInput
             placeholder={searchPlaceholder}
             onChange={(e) => onSearch?.(e.target.value)}
@@ -99,7 +99,7 @@ export const TabsHeader: React.FC<TabsHeaderProps> = ({
         </div>
 
         {/* Level Filter */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <Filter
             filters={levelFilters}
             onFilterChange={handleFilterChange}
