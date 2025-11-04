@@ -4522,6 +4522,34 @@ body {
   border-color: var(--primary) !important;
 }
 
+/* Advisor card styling */
+.advisor-card {
+  transition: all 0.2s ease;
+}
+
+.advisor-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode advisor cards */
+[data-theme="dark"] .advisor-card {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .advisor-card .font-medium {
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .advisor-card .text-gray-500 {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .advisor-card .text-gray-400 {
+  color: var(--text-tertiary) !important;
+}
+
 /* Mobile Pagination Dark Mode */
 [data-theme="dark"] .custom-table-wrapper .mobile-pagination button {
   border-color: var(--primary-dark) !important;
@@ -4604,6 +4632,64 @@ body {
   box-shadow: 0 0 0 2px var(--primary) !important;
 }
 
+/* ===== ADD ADVISOR BUTTON ===== */
+.btn-add-advisor {
+  height: 45px !important;
+  min-height: 45px !important;
+  padding: 0 16px !important;
+  border-radius: 6px !important;
+  border: 1px solid var(--border) !important;
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.btn-add-advisor:hover {
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  background: var(--bg) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 8px rgba(255, 140, 0, 0.15) !important;
+}
+
+.btn-add-advisor:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 1px 4px rgba(255, 140, 0, 0.2) !important;
+}
+
+.btn-add-advisor:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2) !important;
+}
+
+/* Dark mode for add advisor button */
+[data-theme="dark"] .btn-add-advisor {
+  border-color: var(--border) !important;
+  background: var(--bg-secondary) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .btn-add-advisor:hover {
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  background: var(--bg-secondary) !important;
+  box-shadow: 0 2px 8px var(--primary) !important;
+}
+
+[data-theme="dark"] .btn-add-advisor:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px var(--primary) !important;
+}
+
 /* ===== FILTER COMPONENTS DARK MODE ===== */
 /* Filter dropdown buttons dark mode */
 [data-theme="dark"] .user-filter-dropdown {
@@ -4626,6 +4712,32 @@ body {
 }
 
 [data-theme="dark"] .user-filter-more:hover {
+  background: var(--bg-tertiary) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* Advisor filter dropdown buttons dark mode */
+[data-theme="dark"] .advisor-filter-dropdown {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .advisor-filter-dropdown:hover {
+  background: var(--bg-tertiary) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* Advisor filter more options button dark mode */
+[data-theme="dark"] .advisor-filter-more {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border) !important;
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .advisor-filter-more:hover {
   background: var(--bg-tertiary) !important;
   border-color: var(--border) !important;
   color: var(--text) !important;
@@ -5628,6 +5740,34 @@ body {
     border-color: var(--border) !important;
   }
 
+  /* Advisor Card Styling */
+  .advisor-card {
+    transition: all 0.2s ease;
+  }
+
+  .advisor-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Dark mode advisor cards */
+  [data-theme="dark"] .advisor-card {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border) !important;
+  }
+
+  [data-theme="dark"] .advisor-card .font-medium {
+    color: var(--text) !important;
+  }
+
+  [data-theme="dark"] .advisor-card .text-gray-500 {
+    color: var(--text-secondary) !important;
+  }
+
+  [data-theme="dark"] .advisor-card .text-gray-400 {
+    color: var(--text-tertiary) !important;
+  }
+
   [data-theme="dark"] .user-card .bg-orange-50 {
     background-color: var(--primary) !important;
     color: white !important;
@@ -5717,6 +5857,64 @@ body {
     box-shadow: 0 0 0 2px var(--primary) !important;
   }
 
+  /* ===== ADD ADVISOR BUTTON ===== */
+  .btn-add-advisor {
+    height: 45px !important;
+    min-height: 45px !important;
+    padding: 0 16px !important;
+    border-radius: 6px !important;
+    border: 1px solid var(--border) !important;
+    background: var(--bg) !important;
+    color: var(--text) !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+
+  .btn-add-advisor:hover {
+    border-color: var(--primary) !important;
+    color: var(--primary) !important;
+    background: var(--bg) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 8px rgba(255, 140, 0, 0.15) !important;
+  }
+
+  .btn-add-advisor:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 1px 4px rgba(255, 140, 0, 0.2) !important;
+  }
+
+  .btn-add-advisor:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2) !important;
+  }
+
+  /* Dark mode for add advisor button */
+  [data-theme="dark"] .btn-add-advisor {
+    border-color: var(--border) !important;
+    background: var(--bg-secondary) !important;
+    color: var(--text) !important;
+  }
+
+  [data-theme="dark"] .btn-add-advisor:hover {
+    border-color: var(--primary) !important;
+    color: var(--primary) !important;
+    background: var(--bg-secondary) !important;
+    box-shadow: 0 2px 8px var(--primary) !important;
+  }
+
+  [data-theme="dark"] .btn-add-advisor:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 2px var(--primary) !important;
+  }
+
   /* ===== FILTER COMPONENTS DARK MODE ===== */
   /* Filter dropdown buttons dark mode */
   [data-theme="dark"] .user-filter-dropdown {
@@ -5739,6 +5937,32 @@ body {
   }
 
   [data-theme="dark"] .user-filter-more:hover {
+    background: var(--bg-tertiary) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+  }
+
+  /* Advisor filter dropdown buttons dark mode */
+  [data-theme="dark"] .advisor-filter-dropdown {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+  }
+
+  [data-theme="dark"] .advisor-filter-dropdown:hover {
+    background: var(--bg-tertiary) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+  }
+
+  /* Advisor filter more options button dark mode */
+  [data-theme="dark"] .advisor-filter-more {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border) !important;
+    color: var(--text-secondary) !important;
+  }
+
+  [data-theme="dark"] .advisor-filter-more:hover {
     background: var(--bg-tertiary) !important;
     border-color: var(--border) !important;
     color: var(--text) !important;

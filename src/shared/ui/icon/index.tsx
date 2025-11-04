@@ -20,6 +20,7 @@ export const icons = {
   feedback: 'mdi:message-text-outline',
   plans: 'mdi:clipboard-text-outline',
   payment: 'mdi:credit-card-outline',
+  advisors: 'mdi:account-tie-outline',
   settings: 'mdi:cog-outline',
   logout: 'majesticons:logout',
   home: 'mdi:home-outline',
