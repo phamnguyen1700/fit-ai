@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { Icon } from "../icon";
 import { Button } from "../core/Button";
+import { useUpdateExerciseMutation } from "@/tanstack/hooks/exercise";
+import { UpdateExerciseData } from "@/types/exercise";
 
 interface EditExercisePopupProps {
   isOpen: boolean;
@@ -11,10 +13,11 @@ interface EditExercisePopupProps {
     title: string;
     videoThumbnail: string;
     muscleGroup: string;
+    categoryId: string; // Thêm categoryId
     difficulty: string;
     description: string;
   } | null;
-  onSave: (updatedExercise: any) => void;
+  onSave?: (updatedExercise: any) => void; // Optional callback
 }
 
 export const EditExercisePopup: React.FC<EditExercisePopupProps> = ({
@@ -23,9 +26,12 @@ export const EditExercisePopup: React.FC<EditExercisePopupProps> = ({
   exercise,
   onSave,
 }) => {
+  const updateMutation = useUpdateExerciseMutation();
+  const [videoFile, setVideoFile] = useState<File | undefined>(undefined);
   const [formData, setFormData] = useState({
     title: "",
     videoThumbnail: "",
+    categoryId: "",
     muscleGroup: "",
     difficulty: "Beginner" as "Beginner" | "Intermediate" | "Advanced",
     description: "",
@@ -37,10 +43,12 @@ export const EditExercisePopup: React.FC<EditExercisePopupProps> = ({
       setFormData({
         title: exercise.title,
         videoThumbnail: exercise.videoThumbnail,
+        categoryId: exercise.categoryId,
         muscleGroup: exercise.muscleGroup,
         difficulty: exercise.difficulty as "Beginner" | "Intermediate" | "Advanced",
         description: exercise.description,
       });
+      setVideoFile(undefined); // Reset video file
     }
   }, [exercise]);
 
@@ -54,14 +62,46 @@ export const EditExercisePopup: React.FC<EditExercisePopupProps> = ({
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (exercise) {
-      onSave({
-        ...exercise,
-        ...formData,
-      });
+  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate video file
+      if (!file.type.startsWith('video/')) {
+        alert('Vui lòng chọn file video hợp lệ');
+        return;
+      }
+      setVideoFile(file);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!exercise) return;
+
+    // Prepare update data
+    const updateData: UpdateExerciseData = {
+      name: formData.title,
+      description: formData.description,
+      categoryId: formData.categoryId,
+      level: formData.difficulty,
+      videoUrl: formData.videoThumbnail,
+      video: videoFile,
+    };
+
+    // Call API update
+    updateMutation.mutate(
+      { id: exercise.id, data: updateData },
+      {
+        onSuccess: () => {
+          // Call optional callback
+          onSave?.({
+            ...exercise,
+            ...formData,
+          });
+          onClose();
+        },
+      }
+    );
   };
 
   if (!isOpen || !exercise) return null;
@@ -165,10 +205,10 @@ export const EditExercisePopup: React.FC<EditExercisePopupProps> = ({
               </div>
             </div>
 
-            {/* Video URL */}
+            {/* Video URL - hiển thị video hiện tại */}
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-                Video URL <span className="text-red-500">*</span>
+                Video hiện tại
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
@@ -179,10 +219,84 @@ export const EditExercisePopup: React.FC<EditExercisePopupProps> = ({
                   name="videoThumbnail"
                   value={formData.videoThumbnail}
                   onChange={handleInputChange}
-                  required
-                  className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                  placeholder="https://www.youtube.com/watch?v=..."
+                  disabled
+                  className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 text-gray-600 outline-none"
+                  placeholder="Chưa có video"
                 />
+              </div>
+            </div>
+
+            {/* Upload Video mới */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                Tải lên Video mới (tùy chọn)
+              </label>
+              
+              {/* Custom File Upload Button */}
+              <div className="relative">
+                <input
+                  type="file"
+                  id="video-upload"
+                  accept="video/*"
+                  onChange={handleVideoChange}
+                  className="hidden"
+                />
+                <label
+                  htmlFor="video-upload"
+                  className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary hover:bg-primary/5 transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-all">
+                      <Icon name="mdi:cloud-upload" size={20} className="text-primary" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-sm font-semibold text-gray-700 group-hover:text-primary transition-colors">
+                        {videoFile ? 'Chọn video khác' : 'Chọn video từ máy'}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        MP4, MOV, AVI - Tối đa 100MB
+                      </p>
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              {/* Selected File Display */}
+              {videoFile && (
+                <div className="mt-2.5 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Icon name="mdi:video-check" size={18} color="white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-green-800 truncate">
+                        {videoFile.name}
+                      </p>
+                      <p className="text-xs text-green-600">
+                        {(videoFile.size / (1024 * 1024)).toFixed(2)} MB
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setVideoFile(undefined)}
+                      className="w-6 h-6 bg-green-100 hover:bg-green-200 rounded-full flex items-center justify-center transition-all flex-shrink-0"
+                      title="Xóa file"
+                    >
+                      <Icon name="mdi:close" size={14} className="text-green-700" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Helper Text */}
+              <div className="mt-2 flex items-start gap-1.5">
+                <Icon name="mdi:information" size={14} className="text-blue-500 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  {videoFile 
+                    ? 'Video này sẽ thay thế video hiện tại khi bạn lưu thay đổi.'
+                    : 'Bỏ trống để giữ nguyên video hiện tại. Chỉ upload khi muốn thay đổi video.'
+                  }
+                </p>
               </div>
             </div>
 
@@ -208,17 +322,28 @@ export const EditExercisePopup: React.FC<EditExercisePopupProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 text-sm font-semibold hover:bg-gray-100 transition-all"
+            disabled={updateMutation.isPending}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 text-sm font-semibold hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Hủy
           </button>
           <button
             type="submit"
             onClick={handleSubmit}
-            className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary-dark transition-all shadow-lg hover:shadow-xl flex items-center gap-1.5"
+            disabled={updateMutation.isPending}
+            className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary-dark transition-all shadow-lg hover:shadow-xl flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Icon name="mdi:content-save" size={16} />
-            <span>Lưu thay đổi</span>
+            {updateMutation.isPending ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                <span>Đang lưu...</span>
+              </>
+            ) : (
+              <>
+                <Icon name="mdi:content-save" size={16} />
+                <span>Lưu thay đổi</span>
+              </>
+            )}
           </button>
         </div>
       </div>

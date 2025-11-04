@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ExerciseCard, Card, Pagination, EditExercisePopup } from '@/shared/ui';
 import { Row, Col } from '@/shared/ui';
 import { useGetExercises } from '@/tanstack/hooks/exercise';
@@ -7,6 +7,8 @@ import { Exercise } from '@/types/exercise';
 
 interface ExerciseCardsProps {
   className?: string;
+  searchQuery?: string;
+  levelFilter?: string;
 }
 
 /**
@@ -31,28 +33,57 @@ const convertExerciseToUIFormat = (exercise: Exercise) => ({
   id: exercise.id,
   title: exercise.name,
   videoThumbnail: exercise.videoUrl,
+  categoryId: exercise.categoryId, // Thêm categoryId cho edit
   muscleGroup: exercise.categoryName,
   difficulty: exercise.level,
   description: exercise.description,
 });
 
-const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
+const ExerciseCards: React.FC<ExerciseCardsProps> = ({ 
+  className,
+  searchQuery = '',
+  levelFilter = ''
+}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState<any>(null);
   const itemsPerPage = 8;
 
-  // Fetch exercises from API
-  const { data: exercisesResponse, isLoading, error } = useGetExercises();
+  // Fetch exercises from API with filters
+  const { data: exercisesResponse, isLoading, error } = useGetExercises({
+    level: levelFilter ? (levelFilter as "Beginner" | "Intermediate" | "Advanced") : undefined,
+    search: searchQuery || undefined
+  });
   
   // Get exercises array from API response and convert to UI format
-  const allExerciseData = (exercisesResponse?.data || []).map(convertExerciseToUIFormat);
+  const allExerciseData = useMemo(() => {
+    const exercises = (exercisesResponse?.data || []).map(convertExerciseToUIFormat);
+    
+    // Client-side filtering nếu API không support
+    return exercises.filter(exercise => {
+      // Filter by search query
+      const matchesSearch = !searchQuery || 
+        exercise.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        exercise.muscleGroup.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        exercise.description.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      // Filter by level
+      const matchesLevel = !levelFilter || exercise.difficulty === levelFilter;
+      
+      return matchesSearch && matchesLevel;
+    });
+  }, [exercisesResponse?.data, searchQuery, levelFilter]);
 
   // Calculate pagination
   const totalPages = Math.ceil(allExerciseData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentExercises = allExerciseData.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, levelFilter]);
 
   // Pagination handlers
   const handlePageChange = (page: number) => {
@@ -94,8 +125,8 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
 
   const handleSaveExercise = (updatedExercise: any) => {
     console.log('Save exercise:', updatedExercise);
-    // TODO: Call API to update exercise
-    // updateExerciseService(updatedExercise.id, updatedExercise)
+    // API call được xử lý trong EditExercisePopup component
+    // Callback này chỉ để log hoặc xử lý UI nếu cần
     handleCloseEditPopup();
   };
 

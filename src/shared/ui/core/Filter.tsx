@@ -32,20 +32,22 @@ const Filter: React.FC<FilterProps> = ({
   initialValues = {}
 }) => {
   // Khởi tạo state với initial values hoặc empty strings
-  const getInitialState = () => {
+  const getInitialState = React.useCallback(() => {
     const state: Record<string, string> = {};
     filters.forEach(filter => {
       state[filter.key] = initialValues[filter.key] || '';
     });
     return state;
-  };
+  }, [filters, initialValues]);
 
-  const [filterValues, setFilterValues] = useState<Record<string, string>>(getInitialState);
+  const [filterValues, setFilterValues] = useState<Record<string, string>>(() => getInitialState());
 
   // Cập nhật state khi initialValues thay đổi
   useEffect(() => {
-    setFilterValues(getInitialState());
-  }, [initialValues, filters]);
+    if (Object.keys(initialValues).length > 0) {
+      setFilterValues(getInitialState());
+    }
+  }, [initialValues, getInitialState]);
 
   const handleFilterChange = (filterKey: string, value: string) => {
     const newFilters = {

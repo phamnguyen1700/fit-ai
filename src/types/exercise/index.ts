@@ -17,3 +17,12 @@ export interface ExerciseParams {
   level?: "Beginner" | "Intermediate" | "Advanced";
   search?: string;
 }
+
+export interface UpdateExerciseData {
+  name: string; // Required - không được bỏ trống
+  description: string; // Required - không được bỏ trống
+  categoryId: string; // Required - không được bỏ trống
+  level: "Beginner" | "Intermediate" | "Advanced"; // Required - không được bỏ trống
+  videoUrl?: string; // Optional - URL video hiện tại, để hiển thị
+  video?: File; // Optional - chỉ gửi khi muốn thay đổi video
+}

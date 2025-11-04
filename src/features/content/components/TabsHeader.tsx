@@ -4,6 +4,7 @@ import { Button } from '../../../shared/ui/core/Button';
 import { SearchInput } from '../../../shared/ui/layout/admin/components/SearchInput';
 import { Icon, icons } from '../../../shared/ui/icon';
 import { Card } from '../../../shared/ui/core/Card';
+import Filter, { FilterConfig } from '../../../shared/ui/core/Filter';
 import Dropdown from './Dropdown';
 
 interface DropdownOption {
@@ -19,6 +20,7 @@ interface TabsHeaderProps {
   onImportExport?: () => void;
   onEdit?: () => void;
   onDropdownSelect?: (option: DropdownOption) => void;
+  onLevelFilter?: (level: string) => void;
   addButtonText?: string;
   importExportButtonText?: string;
   addButtonIcon?: string;
@@ -34,6 +36,7 @@ export const TabsHeader: React.FC<TabsHeaderProps> = ({
   onImportExport,
   onEdit,
   onDropdownSelect,
+  onLevelFilter,
   addButtonText = "Thêm bài tập",
   importExportButtonText = "Nhập/ Xuất dữ liệu",
   addButtonIcon = "mdi:plus",
@@ -53,6 +56,25 @@ export const TabsHeader: React.FC<TabsHeaderProps> = ({
     setActiveOption(option.key);
     onDropdownSelect?.(option);
   };
+
+  // Filter configuration for level - memoize to prevent recreation
+  const levelFilters: FilterConfig[] = React.useMemo(() => [
+    {
+      key: 'level',
+      placeholder: 'Mức độ',
+      options: [
+        { value: '', label: 'Tất cả mức độ' },
+        { value: 'Beginner', label: 'Beginner - Người mới' },
+        { value: 'Intermediate', label: 'Intermediate - Trung bình' },
+        { value: 'Advanced', label: 'Advanced - Nâng cao' }
+      ]
+    }
+  ], []);
+
+  const handleFilterChange = React.useCallback((filters: Record<string, string>) => {
+    onLevelFilter?.(filters.level || '');
+  }, [onLevelFilter]);
+
   return (
     <Card className={`${className}`} styles={{ body: { padding: 0 } }}>
       <div className="flex items-center gap-4 w-full p-4">
@@ -68,7 +90,7 @@ export const TabsHeader: React.FC<TabsHeaderProps> = ({
         </Button>
 
         {/* Search Input - takes most space */}
-        <div className="flex-1 max-w-6xl tabs-header-input">
+        <div className="flex-1 max-w-4xl tabs-header-input">
           <SearchInput
             placeholder={searchPlaceholder}
             onChange={(e) => onSearch?.(e.target.value)}
@@ -76,8 +98,17 @@ export const TabsHeader: React.FC<TabsHeaderProps> = ({
           />
         </div>
 
+        {/* Level Filter */}
+        <div className="flex items-center gap-2">
+          <Filter
+            filters={levelFilters}
+            onFilterChange={handleFilterChange}
+            showResetButton={false}
+          />
+        </div>
+
         {/* Edit Icon Button with Dropdown */}
-        <Dropdown
+        {/* <Dropdown
           trigger={
             <Button
               variant="ghost"
@@ -89,7 +120,7 @@ export const TabsHeader: React.FC<TabsHeaderProps> = ({
           }
           options={dropdownOptions}
           onSelect={handleDropdownSelect}
-        />
+        /> */}
       </div>
     </Card>
   );

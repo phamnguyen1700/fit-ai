@@ -18,6 +18,38 @@ interface ExerciseCardProps {
   className?: string;
 }
 
+// Helper function to get YouTube thumbnail
+const getYouTubeThumbnail = (url: string): string | null => {
+  try {
+    const videoIdMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+    if (videoIdMatch && videoIdMatch[1]) {
+      return `https://img.youtube.com/vi/${videoIdMatch[1]}/maxresdefault.jpg`;
+    }
+  } catch (e) {
+    return null;
+  }
+  return null;
+}
+
+// Helper function to check if URL is an image
+const isImageUrl = (url: string): boolean => {
+  return /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(url);
+}
+
+// Get appropriate thumbnail for video URL
+const getVideoThumbnail = (videoUrl: string): string => {
+  // Check if it's YouTube URL
+  const youtubeThumbnail = getYouTubeThumbnail(videoUrl);
+  if (youtubeThumbnail) return youtubeThumbnail;
+  
+  // Check if it's already an image URL
+  if (isImageUrl(videoUrl)) return videoUrl;
+  
+  // Default: use data URI placeholder (1px transparent gif)
+  // This prevents network requests to non-existent files
+  return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="640" height="360"%3E%3Crect fill="%231f2937" width="640" height="360"/%3E%3C/svg%3E';
+}
+
 export const ExerciseCard: React.FC<ExerciseCardProps> = ({
   title,
   videoThumbnail,
@@ -30,6 +62,8 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
   className,
 }) => {
   const [isContentHovered, setIsContentHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const thumbnailUrl = getVideoThumbnail(videoThumbnail);
 
   return (
     <Card
@@ -42,15 +76,22 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
           {/* Video thumbnail with aspect ratio */}
           <div className="relative h-full flex items-center justify-center overflow-hidden">
             {/* Video thumbnail image */}
-            <img
-              src={videoThumbnail}
-              alt={title}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                // Fallback nếu image load fail
-                e.currentTarget.src = 'https://via.placeholder.com/640x360/1f2937/ffffff?text=Video+Thumbnail';
-              }}
-            />
+            {!imageError ? (
+              <img
+                src={thumbnailUrl}
+                alt={title}
+                className="w-full h-full object-cover"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              // Fallback placeholder khi image load fail
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
+                <div className="text-center">
+                  <Icon name="mdi:video-off" size={48} color="rgba(255,255,255,0.3)" />
+                  <p className="text-white/50 text-sm mt-2">Video Thumbnail</p>
+                </div>
+              </div>
+            )}
             
             {/* Gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>

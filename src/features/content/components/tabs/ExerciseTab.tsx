@@ -7,9 +7,22 @@ import TabsHeader from "../TabsHeader";
 import ExerciseCards from "../ExerciseCards";
 
 const ExerciseTab = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [levelFilter, setLevelFilter] = useState("");
+
   const handleDropdownSelect = (option: any) => {
     console.log("Selected exercise option:", option);
     // Xử lý logic cho exercise categories
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    console.log("Search:", value);
+  };
+
+  const handleLevelFilter = (level: string) => {
+    setLevelFilter(level);
+    console.log("Filter by level:", level);
   };
 
   const exerciseDropdownOptions = [
@@ -29,12 +42,16 @@ const ExerciseTab = () => {
           addButtonText="Thêm bài tập"
           searchPlaceholder="Tìm kiếm bài tập..."
           onAddNew={() => console.log("Add new exercise")}
-          onSearch={(value) => console.log("Search:", value)}
+          onSearch={handleSearch}
           onDropdownSelect={handleDropdownSelect}
+          onLevelFilter={handleLevelFilter}
           dropdownOptions={exerciseDropdownOptions}
           defaultActiveOption="muscle-group"
         />
-        <ExerciseCards />
+        <ExerciseCards 
+          searchQuery={searchQuery}
+          levelFilter={levelFilter}
+        />
       </div>
     </Card>
   );
