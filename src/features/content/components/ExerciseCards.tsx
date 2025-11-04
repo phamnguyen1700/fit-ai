@@ -1,153 +1,52 @@
 "use client";
 import React, { useState } from 'react';
-import { ExerciseCard, Card, Pagination, PopupContent } from '@/shared/ui';
+import { ExerciseCard, Card, Pagination, EditExercisePopup } from '@/shared/ui';
 import { Row, Col } from '@/shared/ui';
+import { useGetExercises } from '@/tanstack/hooks/exercise';
+import { Exercise } from '@/types/exercise';
 
 interface ExerciseCardsProps {
   className?: string;
 }
 
+/**
+ * Helper function để convert API Exercise data sang UI format
+ * 
+ * API Exercise structure (chỉ những field có thực sự):
+ * {
+ *   id: string,
+ *   name: string,
+ *   description: string,
+ *   categoryId: string,
+ *   categoryName: string,
+ *   videoUrl: string,
+ *   level: "Beginner" | "Intermediate" | "Advanced",
+ *   lastCreate: string,
+ *   lastUpdate: string
+ * }
+ * 
+ * Chỉ map những field có trong API
+ */
+const convertExerciseToUIFormat = (exercise: Exercise) => ({
+  id: exercise.id,
+  title: exercise.name,
+  videoThumbnail: exercise.videoUrl,
+  muscleGroup: exercise.categoryName,
+  difficulty: exercise.level,
+  description: exercise.description,
+});
+
 const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState<any>(null);
   const itemsPerPage = 8;
 
-  // Sample data for exercise cards
-  const allExerciseData = [
-    {
-      id: 1,
-      title: "Bài tập Squat - cơ mông",
-      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
-      muscleGroup: "Chân, Mông",
-      exerciseType: "Strength",
-      difficulty: "Trung bình",
-      duration: "15 phút",
-      equipment: "Tạ đơn (Dumbbell)",
-      calories: "~100 kcal"
-    },
-    {
-      id: 2,
-      title: "Bài tập Squat - cơ mông",
-      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
-      muscleGroup: "Chân, Mông",
-      exerciseType: "Strength",
-      difficulty: "Trung bình",
-      duration: "15 phút",
-      equipment: "Tạ đơn (Dumbbell)",
-      calories: "~100 kcal"
-    },
-    {
-      id: 3,
-      title: "Bài tập Squat - cơ mông",
-      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
-      muscleGroup: "Chân, Mông",
-      exerciseType: "Strength",
-      difficulty: "Trung bình",
-      duration: "15 phút",
-      equipment: "Tạ đơn (Dumbbell)",
-      calories: "~100 kcal"
-    },
-    {
-      id: 4,
-      title: "Bài tập Squat - cơ mông",
-      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
-      muscleGroup: "Chân, Mông",
-      exerciseType: "Strength",
-      difficulty: "Trung bình",
-      duration: "15 phút",
-      equipment: "Tạ đơn (Dumbbell)",
-      calories: "~100 kcal"
-    },
-    {
-      id: 5,
-      title: "Bài tập Squat - cơ mông",
-      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
-      muscleGroup: "Chân, Mông",
-      exerciseType: "Strength",
-      difficulty: "Trung bình",
-      duration: "15 phút",
-      equipment: "Tạ đơn (Dumbbell)",
-      calories: "~100 kcal"
-    },
-    {
-      id: 6,
-      title: "Bài tập Squat - cơ mông",
-      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
-      muscleGroup: "Chân, Mông",
-      exerciseType: "Strength",
-      difficulty: "Trung bình",
-      duration: "15 phút",
-      equipment: "Tạ đơn (Dumbbell)",
-      calories: "~100 kcal"
-    },
-    {
-      id: 7,
-      title: "Bài tập Squat - cơ mông",
-      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
-      muscleGroup: "Chân, Mông",
-      exerciseType: "Strength",
-      difficulty: "Trung bình",
-      duration: "15 phút",
-      equipment: "Tạ đơn (Dumbbell)",
-      calories: "~100 kcal"
-    },
-    {
-      id: 8,
-      title: "Bài tập Squat - cơ mông",
-      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
-      muscleGroup: "Chân, Mông",
-      exerciseType: "Strength",
-      difficulty: "Trung bình",
-      duration: "15 phút",
-      equipment: "Tạ đơn (Dumbbell)",
-      calories: "~100 kcal"
-    },
-    {
-      id: 9,
-      title: "Bài tập Push-up - cơ ngực",
-      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
-      muscleGroup: "Ngực, Cánh tay",
-      exerciseType: "Strength",
-      difficulty: "Dễ",
-      duration: "10 phút",
-      equipment: "Không cần dụng cụ",
-      calories: "~80 kcal"
-    },
-    {
-      id: 10,
-      title: "Bài tập Deadlift - cơ lưng",
-      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
-      muscleGroup: "Lưng, Chân",
-      exerciseType: "Strength",
-      difficulty: "Khó",
-      duration: "20 phút",
-      equipment: "Barbell",
-      calories: "~120 kcal"
-    },
-    {
-      id: 11,
-      title: "Bài tập Plank - cơ bụng",
-      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
-      muscleGroup: "Bụng, Core",
-      exerciseType: "Stability",
-      difficulty: "Trung bình",
-      duration: "8 phút",
-      equipment: "Không cần dụng cụ",
-      calories: "~60 kcal"
-    },
-    {
-      id: 12,
-      title: "Bài tập Lunge - cơ đùi",
-      videoThumbnail: "https://i.pinimg.com/736x/0b/4f/9c/0b4f9c1e3a44a110a809aa8c27ea4a15.jpg",
-      muscleGroup: "Chân, Mông",
-      exerciseType: "Strength",
-      difficulty: "Trung bình",
-      duration: "12 phút",
-      equipment: "Tạ đơn (Dumbbell)",
-      calories: "~90 kcal"
-    }
-  ];
+  // Fetch exercises from API
+  const { data: exercisesResponse, isLoading, error } = useGetExercises();
+  
+  // Get exercises array from API response and convert to UI format
+  const allExerciseData = (exercisesResponse?.data || []).map(convertExerciseToUIFormat);
 
   // Calculate pagination
   const totalPages = Math.ceil(allExerciseData.length / itemsPerPage);
@@ -172,73 +71,87 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
     }
   };
 
-  const handlePlay = (exerciseId: number) => {
+  const handlePlay = (exerciseId: string) => {
+    // Open video in new tab or play inline
     const exercise = allExerciseData.find(ex => ex.id === exerciseId);
-    if (exercise) {
-      const exerciseData = {
-        id: exercise.id,
-        title: exercise.title,
-        image: exercise.videoThumbnail,
-        type: 'exercise' as const,
-        muscleGroup: exercise.muscleGroup,
-        exerciseType: exercise.exerciseType,
-        difficulty: exercise.difficulty,
-        duration: exercise.duration,
-        equipment: exercise.equipment,
-        calories: exercise.calories,
-      };
-      setSelectedExercise(exerciseData);
-      setIsPopupVisible(true);
+    if (exercise && exercise.videoThumbnail) {
+      window.open(exercise.videoThumbnail, '_blank');
     }
   };
 
-  const handleEdit = (exerciseId: number) => {
-    console.log('Edit exercise:', exerciseId);
-  };
-
-  const handleView = (exerciseId: number) => {
+  const handleEdit = (exerciseId: string) => {
     const exercise = allExerciseData.find(ex => ex.id === exerciseId);
     if (exercise) {
-      const exerciseData = {
-        id: exercise.id,
-        title: exercise.title,
-        image: exercise.videoThumbnail,
-        type: 'exercise' as const,
-        muscleGroup: exercise.muscleGroup,
-        exerciseType: exercise.exerciseType,
-        difficulty: exercise.difficulty,
-        duration: exercise.duration,
-        equipment: exercise.equipment,
-        calories: exercise.calories,
-      };
-      setSelectedExercise(exerciseData);
-      setIsPopupVisible(true);
+      setSelectedExercise(exercise);
+      setIsEditPopupOpen(true);
     }
   };
 
-  const handleDelete = (exerciseId: number) => {
-    console.log('Delete exercise:', exerciseId);
-  };
-
-  const handleClosePopup = () => {
-    setIsPopupVisible(false);
+  const handleCloseEditPopup = () => {
+    setIsEditPopupOpen(false);
     setSelectedExercise(null);
   };
 
-  const handlePopupEdit = (exerciseId: number) => {
-    console.log('Edit exercise from popup:', exerciseId);
-    handleClosePopup();
+  const handleSaveExercise = (updatedExercise: any) => {
+    console.log('Save exercise:', updatedExercise);
+    // TODO: Call API to update exercise
+    // updateExerciseService(updatedExercise.id, updatedExercise)
+    handleCloseEditPopup();
   };
 
-  const handlePopupSave = (exerciseId: number) => {
-    console.log('Save exercise from popup:', exerciseId);
-    handleClosePopup();
+  const handleView = (exerciseId: string) => {
+    // Ghim bài tập
+    console.log('Pin exercise:', exerciseId);
   };
 
-  const handlePopupDelete = (exerciseId: number) => {
-    console.log('Delete exercise from popup:', exerciseId);
-    handleClosePopup();
+  const handleDelete = (exerciseId: string) => {
+    // TODO: Show confirm dialog then delete
+    if (confirm('Bạn có chắc muốn xóa bài tập này?')) {
+      console.log('Delete exercise:', exerciseId);
+      // Call delete API here
+    }
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className={`exercise-cards-container ${className || ''}`}>
+        <div className="flex justify-center items-center py-20">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-gray-500">Đang tải exercises...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className={`exercise-cards-container ${className || ''}`}>
+        <div className="flex justify-center items-center py-20">
+          <div className="text-center">
+            <p className="text-red-500 mb-4">⚠️ Không thể tải exercises</p>
+            <p className="text-gray-500 text-sm">Vui lòng thử lại sau</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (allExerciseData.length === 0) {
+    return (
+      <div className={`exercise-cards-container ${className || ''}`}>
+        <div className="flex justify-center items-center py-20">
+          <div className="text-center">
+            <p className="text-gray-500">📭 Chưa có exercises nào</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`exercise-cards-container ${className || ''}`}>
@@ -249,11 +162,7 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
               title={exercise.title}
               videoThumbnail={exercise.videoThumbnail}
               muscleGroup={exercise.muscleGroup}
-              exerciseType={exercise.exerciseType}
               difficulty={exercise.difficulty}
-              duration={exercise.duration}
-              equipment={exercise.equipment}
-              calories={exercise.calories}
               onPlay={() => handlePlay(exercise.id)}
               onEdit={() => handleEdit(exercise.id)}
               onView={() => handleView(exercise.id)}
@@ -278,17 +187,13 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({ className }) => {
         </div>
       )}
 
-      {/* Exercise Details Popup */}
-      {selectedExercise && (
-        <PopupContent
-          isVisible={isPopupVisible}
-          onClose={handleClosePopup}
-          data={selectedExercise}
-          onEdit={handlePopupEdit}
-          onSave={handlePopupSave}
-          onDelete={handlePopupDelete}
-        />
-      )}
+      {/* Edit Exercise Popup */}
+      <EditExercisePopup
+        isOpen={isEditPopupOpen}
+        onClose={handleCloseEditPopup}
+        exercise={selectedExercise}
+        onSave={handleSaveExercise}
+      />
     </div>
   );
 };

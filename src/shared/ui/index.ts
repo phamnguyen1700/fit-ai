@@ -22,6 +22,7 @@ export { Breadcrumb } from './core/Breadcrumb';
 export { FeedbackCard } from './common/FeedbackCard';
 export { PaidCard } from './common/PaidCard';
 export { ExerciseCard } from './common/ExerciseCard';
+export { EditExercisePopup } from './common/EditExercisePopup';
 export { MealCard } from './common/MealCard';
 export { PopupContent } from './common/PopupContent';
 export { UserCard } from './common/UserCard';
