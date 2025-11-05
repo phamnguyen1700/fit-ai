@@ -5,6 +5,8 @@ import { Badge } from "@/shared/ui/core/Badge";
 import { Button } from "@/shared/ui/core/Button";
 import { Pagination } from "@/shared/ui/core/Pagination";
 import Dropdown from "@/features/content/components/Dropdown";
+import { useGetActiveProducts } from "@/tanstack/hooks/subscription";
+import { SubscriptionProduct } from "@/types/subscription";
 
 // Types
 export interface PackageData {
@@ -17,8 +19,6 @@ export interface PackageData {
 }
 
 interface PackageListTableProps {
-  packages?: PackageData[];
-  loading?: boolean;
   onEdit?: (packageData: PackageData) => void;
   onDelete?: (packageData: PackageData) => void;
   onStatusChange?: (packageData: PackageData, newStatus: string) => void;
@@ -26,8 +26,6 @@ interface PackageListTableProps {
 }
 
 const PackageListTable: React.FC<PackageListTableProps> = ({
-  packages = [],
-  loading = false,
   onEdit,
   onDelete,
   onStatusChange,
@@ -35,108 +33,42 @@ const PackageListTable: React.FC<PackageListTableProps> = ({
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  
+  // Fetch subscription data from API
+  const { data: subscriptionData, isLoading } = useGetActiveProducts();
 
-  // Default sample data for demonstration
-  const defaultPackages: PackageData[] = [
-    {
-      id: "1",
-      key: "1",
-      name: "Gói Basic",
-      duration: "1 tháng",
-      price: 99000,
-      status: "active",
-    },
-    {
-      id: "2", 
-      key: "2",
-      name: "Gói Pro",
-      duration: "6 tháng",
-      price: 499000,
-      status: "active",
-    },
-    {
-      id: "3",
-      key: "3", 
-      name: "Gói Premium",
-      duration: "12 tháng",
-      price: 899000,
-      status: "suspended",
-    },
-    {
-      id: "4",
-      key: "4",
-      name: "Gói Starter",
-      duration: "2 tuần",
-      price: 49000,
-      status: "active",
-    },
-    {
-      id: "5",
-      key: "5",
-      name: "Gói Advanced",
-      duration: "3 tháng",
-      price: 299000,
-      status: "active",
-    },
-    {
-      id: "6",
-      key: "6",
-      name: "Gói Enterprise",
-      duration: "24 tháng",
-      price: 1599000,
-      status: "inactive",
-    },
-    {
-      id: "7",
-      key: "7",
-      name: "Gói Trial",
-      duration: "7 ngày",
-      price: 0,
-      status: "active",
-    },
-    {
-      id: "8",
-      key: "8",
-      name: "Gói Professional",
-      duration: "18 tháng",
-      price: 1199000,
-      status: "active",
-    },
-    {
-      id: "9",
-      key: "9",
-      name: "Gói Student",
-      duration: "4 tháng",
-      price: 199000,
-      status: "active",
-    },
-    {
-      id: "10",
-      key: "10",
-      name: "Gói VIP",
-      duration: "36 tháng",
-      price: 2199000,
-      status: "suspended",
-    },
-    {
-      id: "11",
-      key: "11",
-      name: "Gói Family",
-      duration: "12 tháng",
-      price: 999000,
-      status: "active",
-    },
-    {
-      id: "12",
-      key: "12",
-      name: "Gói Corporate",
-      duration: "24 tháng",
-      price: 1799000,
-      status: "inactive",
-    },
-  ];
+  // Debug log
+  React.useEffect(() => {
+    console.log('Subscription Data Full:', subscriptionData);
+    console.log('Subscription Data.data:', subscriptionData?.data);
+    console.log('Is Loading:', isLoading);
+  }, [subscriptionData, isLoading]);
 
-  const dataSource = packages.length > 0 ? packages : defaultPackages;
+  // Transform API data to PackageData format
+  const dataSource: PackageData[] = React.useMemo(() => {
+    console.log('Processing data in useMemo:', subscriptionData);
+    
+    if (!subscriptionData?.data || !Array.isArray(subscriptionData.data)) {
+      console.log('No data available or not an array');
+      return [];
+    }
+    
+    const products = subscriptionData.data;
+    console.log('Products array:', products);
+    
+    // Map array of products to PackageData format
+    const result = products.map((product: any) => ({
+      id: product.id || '',
+      key: product.id || '',
+      name: product.name || '',
+      duration: product.interval || '',
+      price: product.amount || 0,
+      status: product.isActive ? 'active' : 'inactive' as 'active' | 'inactive' | 'suspended'
+    }));
+    
+    console.log('Transformed result:', result);
+    return result;
+  }, [subscriptionData]);
 
   // Pagination logic
   const totalPages = Math.ceil(dataSource.length / pageSize);
@@ -316,7 +248,7 @@ const getStatusBadge = (status: string) => {
       <Table2<PackageData>
         columns={columns}
         dataSource={currentData}
-        loading={loading}
+        loading={isLoading}
         rowKey="id"
         pagination={false}
         scroll={{ x: 800 }}
