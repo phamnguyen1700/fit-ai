@@ -40,6 +40,7 @@ export const icons = {
   password: 'mdi:lock-outline',
   phone: 'mdi:phone-outline',
   file : 'mdi:file-outline',
+  workoutPlans: 'mdi:dumbbell',
 };
 
 // Usage: <Icon name={icons.dashboard} />

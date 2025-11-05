@@ -7858,3 +7858,48 @@ body {
     font-size: 12px;
   }
 }
+
+/* ===== WORKOUT PLAN MODAL STYLES ===== */
+/* Custom orange tabs for workout plan modal */
+.custom-orange-tabs .ant-tabs-tab {
+  color: #6b7280;
+}
+
+.custom-orange-tabs .ant-tabs-tab:hover {
+  color: #f97316;
+}
+
+.custom-orange-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #f97316;
+  font-weight: 600;
+}
+
+.custom-orange-tabs .ant-tabs-ink-bar {
+  background: #f97316;
+}
+
+/* Modal content scrollable area */
+.workout-plan-modal .modal-content-scroll {
+  max-height: calc(80vh - 200px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+}
+
+.workout-plan-modal .modal-content-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.workout-plan-modal .modal-content-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.workout-plan-modal .modal-content-scroll::-webkit-scrollbar-thumb {
+  background: #f97316;
+  border-radius: 10px;
+}
+
+.workout-plan-modal .modal-content-scroll::-webkit-scrollbar-thumb:hover {
+  background: #ea580c;
+}
