@@ -7903,3 +7903,72 @@ body {
 .workout-plan-modal .modal-content-scroll::-webkit-scrollbar-thumb:hover {
   background: #ea580c;
 }
+
+/* ===== CUSTOM PAGINATION STYLES ===== */
+.pagination-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.pagination-button {
+  min-width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background-color: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+}
+
+.pagination-button:hover:not(.disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+  background-color: var(--primay-extralight);
+}
+
+.pagination-button.active {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: white;
+  font-weight: 600;
+}
+
+.pagination-button.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination-numbers {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination-arrow {
+  padding: 0 10px;
+}
+
+.pagination-arrow svg {
+  display: block;
+}
+
+/* ===== PLAN CARD STYLES ===== */
+.plan-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 100%;
+}
+
+.plan-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px var(--shadow);
+}
