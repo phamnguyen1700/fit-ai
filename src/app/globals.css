@@ -7634,3 +7634,376 @@ body {
     font-size: 12px;
   }
 }
+
+/* ===== ADD EXERCISE MODAL STYLES ===== */
+/* Scoped with .add-exercise-modal prefix to prevent conflicts with other modals */
+.add-exercise-modal .exercise-modal-header-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 12px;
+  background: linear-gradient(to right, rgba(255, 140, 0, 0.1), rgba(255, 140, 0, 0.05), transparent);
+  border-radius: 6px;
+  border-left: 3px solid var(--primary);
+}
+
+.add-exercise-modal .exercise-modal-header-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
+}
+
+.add-exercise-modal .exercise-modal-header-text {
+  flex: 1;
+}
+
+.add-exercise-modal .exercise-modal-header-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 3px 0;
+}
+
+.add-exercise-modal .exercise-modal-header-subtitle {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.add-exercise-modal .exercise-modal-form-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.add-exercise-modal .exercise-modal-form-label .required {
+  color: var(--error);
+}
+
+.add-exercise-modal .exercise-modal-form-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--text);
+  transition: all 0.2s ease;
+}
+
+.add-exercise-modal .exercise-modal-form-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.add-exercise-modal .exercise-modal-form-input:hover {
+  border-color: var(--primary);
+}
+
+.add-exercise-modal .exercise-modal-form-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
+}
+
+.add-exercise-modal .exercise-modal-form-select {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-exercise-modal .exercise-modal-form-select:hover {
+  border-color: var(--primary);
+}
+
+.add-exercise-modal .exercise-modal-form-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
+}
+
+.add-exercise-modal .exercise-modal-form-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--text);
+  resize: none;
+  transition: all 0.2s ease;
+}
+
+.add-exercise-modal .exercise-modal-form-textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+.add-exercise-modal .exercise-modal-form-textarea:hover {
+  border-color: var(--primary);
+}
+
+.add-exercise-modal .exercise-modal-form-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
+}
+
+.add-exercise-modal .exercise-modal-form-error {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--error);
+  margin-top: 4px;
+}
+
+.add-exercise-modal .exercise-modal-video-upload {
+  position: relative;
+  border: 2px dashed var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  background: rgba(245, 245, 245, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.add-exercise-modal .exercise-modal-video-upload:hover {
+  border-color: var(--primary);
+  background: rgba(255, 140, 0, 0.02);
+}
+
+.add-exercise-modal .exercise-modal-video-upload-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.add-exercise-modal .exercise-modal-video-upload-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 140, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-exercise-modal .exercise-modal-video-upload-text {
+  text-align: center;
+}
+
+.add-exercise-modal .exercise-modal-video-upload-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 3px 0;
+}
+
+.add-exercise-modal .exercise-modal-video-upload-subtitle {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.add-exercise-modal .exercise-modal-video-upload-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(255, 140, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.add-exercise-modal .exercise-modal-video-upload-button:hover {
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+  transform: translateY(-1px);
+}
+
+.add-exercise-modal .exercise-modal-video-upload-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  text-align: center;
+}
+
+.add-exercise-modal .exercise-modal-video-error-box {
+  padding: 10px;
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 6px;
+}
+
+.add-exercise-modal .exercise-modal-video-error-text {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--error);
+}
+
+.add-exercise-modal .exercise-modal-video-preview-card {
+  padding: 12px;
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  border: 2px solid rgba(255, 140, 0, 0.2);
+  border-radius: 6px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.add-exercise-modal .exercise-modal-video-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.add-exercise-modal .exercise-modal-video-preview-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.add-exercise-modal .exercise-modal-video-preview-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.add-exercise-modal .exercise-modal-video-preview-close:hover {
+  color: var(--error);
+}
+
+.add-exercise-modal .exercise-modal-video-preview-player {
+  width: 100%;
+  max-height: 220px;
+  border-radius: 6px;
+  border: 2px solid var(--border);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.add-exercise-modal .exercise-modal-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 18px;
+  border-top: 2px solid var(--border);
+}
+
+.add-exercise-modal .exercise-modal-cancel-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border: 2px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-exercise-modal .exercise-modal-cancel-button:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  border-color: var(--border-secondary);
+}
+
+.add-exercise-modal .exercise-modal-cancel-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.add-exercise-modal .exercise-modal-submit-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 20px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(255, 140, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.add-exercise-modal .exercise-modal-submit-button:hover:not(:disabled) {
+  background: var(--primary-dark);
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
+  transform: translateY(-1px);
+}
+
+.add-exercise-modal .exercise-modal-submit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Dark mode styles for add exercise modal */
+[data-theme="dark"] .add-exercise-modal .exercise-modal-video-upload {
+  background: rgba(42, 42, 42, 0.3);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .add-exercise-modal .exercise-modal-video-upload:hover {
+  background: rgba(255, 140, 0, 0.05);
+}
+
+[data-theme="dark"] .add-exercise-modal .exercise-modal-video-error-box {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+[data-theme="dark"] .add-exercise-modal .exercise-modal-video-preview-card {
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  border-color: rgba(255, 140, 0, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .add-exercise-modal .exercise-modal-cancel-button:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+}

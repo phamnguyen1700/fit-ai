@@ -26,3 +26,11 @@ export interface UpdateExerciseData {
   videoUrl?: string; // Optional - URL video hiện tại, để hiển thị
   video?: File; // Optional - chỉ gửi khi muốn thay đổi video
 }
+
+export interface CreateExerciseData {
+  name: string; // Required
+  description: string; // Required
+  categoryId: string; // Required
+  level: "Beginner" | "Intermediate" | "Advanced"; // Required
+  video: File; // Required - file video
+}

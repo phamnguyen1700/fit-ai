@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { getExercisesService, updateExerciseService } from '@/tanstack/services/exercise'
-import { Exercise, ExerciseParams, ExerciseState, UpdateExerciseData } from '@/types/exercise'
+import { getExercisesService, createExerciseService, updateExerciseService } from '@/tanstack/services/exercise'
+import { Exercise, ExerciseParams, ExerciseState, UpdateExerciseData, CreateExerciseData } from '@/types/exercise'
 import { IApiResponse } from '@/shared/api/http'
 import toast from 'react-hot-toast'
 
@@ -9,6 +9,32 @@ export const useGetExercises = (params?: ExerciseParams) => {
     queryKey: ['exercises', params], // Cache key - thay đổi khi params thay đổi
     queryFn: () => getExercisesService(params || {}),
     staleTime: 5 * 60 * 1000, // Cache 5 phút - exercises ít thay đổi
+  })
+}
+
+export const useCreateExercise = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: (data: CreateExerciseData) => {
+      console.log('Creating exercise:', data);
+      return createExerciseService(data);
+    },
+    onSuccess: (response) => {
+      console.log('Create success:', response);
+      if (response.success) {
+        toast.success('Tạo bài tập thành công! 🎉')
+        // Invalidate và refetch exercises
+        queryClient.invalidateQueries({ queryKey: ['exercises'] })
+      } else {
+        toast.error(response.message || 'Tạo bài tập thất bại')
+      }
+    },
+    onError: (error: any) => {
+      console.error('Create exercise error:', error)
+      const errorMessage = error?.response?.data?.message || error?.message || 'Tạo bài tập thất bại. Vui lòng thử lại.'
+      toast.error(errorMessage)
+    },
   })
 }
 

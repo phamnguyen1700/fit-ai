@@ -5,10 +5,16 @@ import React, { useState } from "react";
 import { Card } from "@/shared/ui";
 import TabsHeader from "../TabsHeader";
 import ExerciseCards from "../ExerciseCards";
+import AddExerciseModal from "../AddExerciseModal";
+import { useCreateExercise } from "@/tanstack/hooks/exercise";
+import { CreateExerciseData } from "@/types/exercise";
 
 const ExerciseTab = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [levelFilter, setLevelFilter] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const createExerciseMutation = useCreateExercise();
 
   const handleDropdownSelect = (option: any) => {
     console.log("Selected exercise option:", option);
@@ -25,11 +31,33 @@ const ExerciseTab = () => {
     console.log("Filter by level:", level);
   };
 
+  const handleAddExercise = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleSubmitExercise = (data: CreateExerciseData) => {
+    createExerciseMutation.mutate(data, {
+      onSuccess: () => {
+        setIsModalOpen(false);
+      },
+    });
+  };
+
   const exerciseDropdownOptions = [
     { key: "all", label: "Tất cả" },
     { key: "muscle-group", label: "Nhóm cơ" },
     { key: "exercise-type", label: "Loại bài tập" },
     { key: "difficulty", label: "Mức độ" }
+  ];
+
+  // Mock categories - trong thực tế sẽ fetch từ API
+  const mockCategories = [
+    { id: "chest", name: "Ngực" },
+    { id: "back", name: "Lưng" },
+    { id: "shoulders", name: "Vai" },
+    { id: "arms", name: "Tay" },
+    { id: "legs", name: "Chân" },
+    { id: "core", name: "Bụng" },
   ];
 
   return (
@@ -41,7 +69,7 @@ const ExerciseTab = () => {
         <TabsHeader
           addButtonText="Thêm bài tập"
           searchPlaceholder="Tìm kiếm bài tập..."
-          onAddNew={() => console.log("Add new exercise")}
+          onAddNew={handleAddExercise}
           onSearch={handleSearch}
           onDropdownSelect={handleDropdownSelect}
           onLevelFilter={handleLevelFilter}
@@ -53,6 +81,14 @@ const ExerciseTab = () => {
           levelFilter={levelFilter}
         />
       </div>
+
+      <AddExerciseModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleSubmitExercise}
+        isLoading={createExerciseMutation.isPending}
+        categories={mockCategories}
+      />
     </Card>
   );
 };
