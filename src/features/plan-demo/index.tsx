@@ -134,7 +134,7 @@ export const PlanDemoPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ padding: '24px', backgroundColor: '#ffffff', minHeight: '100vh', borderRadius: '12px' }}>
       <PlanHeader
         activeTab={activeTab}
         onTabChange={handleTabChange}
