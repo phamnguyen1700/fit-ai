@@ -2,8 +2,13 @@
 
 import React, { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Breadcrumb, Avatar, Button, Progress, Tabs, Badge, Flex, Row, Col, Input } from '@/shared/ui';
+import { Card, Breadcrumb, Button, Flex, Row, Col } from '@/shared/ui';
 import { Icon } from '@/shared/ui/icon';
+import { AdvisorProfile } from './components/AdvisorProfile';
+import { AdvisorStats } from './components/AdvisorStats';
+import { AdvisorSpecialty } from './components/AdvisorSpecialty';
+import { AdvisorAchievements } from './components/AdvisorAchievements';
+import { ManagedClientsList } from './components/ManagedClientsList';
 
 interface AdvisorDetailPageProps {
     advisorId?: string;
@@ -127,21 +132,6 @@ export const AdvisorDetailPage: React.FC<AdvisorDetailPageProps> = ({ advisorId 
         { title: 'Thông tin advisor' }
     ];
 
-    const tabItems = [
-        {
-            key: 'clients',
-            label: 'Khách hàng',
-        },
-        {
-            key: 'programs',
-            label: 'Chương trình',
-        },
-        {
-            key: 'schedule',
-            label: 'Lịch làm việc',
-        },
-    ];
-
     const handleEdit = useCallback(() => {
         console.log('Edit advisor:', advisorData.id);
     }, [advisorData.id]);
@@ -172,244 +162,15 @@ export const AdvisorDetailPage: React.FC<AdvisorDetailPageProps> = ({ advisorId 
             <Row gutter={[24, 24]}>
                 {/* Left Column - Hồ sơ Advisor */}
                 <Col xs={24} lg={12}>
-                    <Card title="Hồ sơ Advisor" className="h-fit">
-                        <Flex align="flex-start" gap={16}>
-                            <Avatar size={120} src={advisorData.avatar}>
-                                {advisorData.name[0]}
-                            </Avatar>
-                            <Flex vertical flex={1} gap={8}>
-                                <Input
-                                    value={advisorData.name}
-                                    readOnly
-                                    style={{
-                                        fontSize: '18px',
-                                        fontWeight: '600',
-                                        border: 'none',
-                                        backgroundColor: 'transparent',
-                                        padding: '5px 0 5px 10px',
-                                        boxShadow: 'none'
-                                    }}
-                                />
-                                <Input
-                                    value={advisorData.email}
-                                    readOnly
-                                    style={{
-                                        fontSize: '14px',
-                                        border: 'none',
-                                        backgroundColor: 'transparent',
-                                        padding: '5px 0 5px 10px',
-                                        boxShadow: 'none'
-                                    }}
-                                />
-                                <Badge
-                                    count={advisorData.status}
-                                    style={{
-                                        backgroundColor: advisorData.status === 'Hoạt động' ? '#52c41a' : '#fa8c16',
-                                        color: 'white',
-                                        fontSize: '12px',
-                                        fontWeight: '500',
-                                        borderRadius: '12px',
-                                        alignSelf: 'flex-start',
-                                    }}
-                                />
-                            </Flex>
-                        </Flex>
-
-                        <Row gutter={[16, 16]} className="mt-3">
-                            <Col span={8}>
-                                <span className="text-[var(--text-secondary)]">Số điện thoại:</span>
-                            </Col>
-                            <Col span={16}>
-                                <Input value={advisorData.phone} readOnly />
-                            </Col>
-
-                            <Col span={8}>
-                                <span className="text-[var(--text-secondary)]">Ngày sinh:</span>
-                            </Col>
-                            <Col span={16}>
-                                <Input value={advisorData.birthDate} readOnly />
-                            </Col>
-
-                            <Col span={8}>
-                                <span className="text-[var(--text-secondary)]">Giới tính:</span>
-                            </Col>
-                            <Col span={16}>
-                                <Input value={advisorData.gender} readOnly />
-                            </Col>
-
-                            <Col span={8}>
-                                <span className="text-[var(--text-secondary)]">Ngày tham gia:</span>
-                            </Col>
-                            <Col span={16}>
-                                <Input value={advisorData.joinDate} readOnly />
-                            </Col>
-
-                            <Col span={8}>
-                                <span className="text-[var(--text-secondary)]">Chuyên môn:</span>
-                            </Col>
-                            <Col span={16}>
-                                <Input value={advisorData.specialty} readOnly />
-                            </Col>
-
-                            <Col span={8}>
-                                <span className="text-[var(--text-secondary)]">Kinh nghiệm:</span>
-                            </Col>
-                            <Col span={16}>
-                                <Input value={advisorData.experience} readOnly />
-                            </Col>
-
-                            <Col span={8}>
-                                <span className="text-[var(--text-secondary)]">Giới thiệu:</span>
-                            </Col>
-                            <Col span={16}>
-                                <Input.TextArea value={advisorData.bio} readOnly rows={3} />
-                            </Col>
-                        </Row>
-                    </Card>
+                    <AdvisorProfile advisorData={advisorData} />
                 </Col>
 
                 {/* Right Column - Thống kê & Thông tin chuyên môn */}
                 <Col xs={24} lg={12}>
                     <Flex vertical gap={24}>
-                        {/* Thống kê */}
-                        <Card title="Thống kê" className="h-fit">
-                            <Row gutter={[16, 16]}>
-                                {/* Row 1 - 3 cột số liệu chính */}
-                                <Col xs={24} sm={8}>
-                                    <div className="text-center p-4 bg-[var(--bg-secondary)] rounded-lg">
-                                        <div className="text-4xl font-bold text-[var(--primary)] mb-2">
-                                            {advisorData.totalClients}
-                                        </div>
-                                        <div className="text-sm text-[var(--text-secondary)]">
-                                            Tổng khách hàng
-                                        </div>
-                                    </div>
-                                </Col>
-
-                                <Col xs={24} sm={8}>
-                                    <div className="text-center p-4 bg-[var(--bg-secondary)] rounded-lg">
-                                        <div className="text-4xl font-bold text-[#52c41a] mb-2">
-                                            {advisorData.activeClients}
-                                        </div>
-                                        <div className="text-sm text-[var(--text-secondary)]">
-                                            Đang theo dõi
-                                        </div>
-                                    </div>
-                                </Col>
-
-                                <Col xs={24} sm={8}>
-                                    <div className="text-center p-4 bg-[var(--bg-secondary)] rounded-lg">
-                                        <div className="text-4xl font-bold text-[#1890ff] mb-2">
-                                            {advisorData.completedPrograms}
-                                        </div>
-                                        <div className="text-sm text-[var(--text-secondary)]">
-                                            Hoàn thành
-                                        </div>
-                                    </div>
-                                </Col>
-
-                                {/* Row 2 - 3 cột thống kê bổ sung */}
-                                <Col xs={24} sm={8}>
-                                    <div className="p-3 bg-[var(--bg-secondary)] rounded-lg">
-                                        <div className="text-sm text-[var(--text-secondary)] mb-2">Đánh giá</div>
-                                        <Flex align="center" gap={8}>
-                                            <span className="text-xl">⭐</span>
-                                            <span className="text-xl font-bold text-[var(--primary)]">
-                                                {advisorData.rating}/5
-                                            </span>
-                                        </Flex>
-                                    </div>
-                                </Col>
-
-                                <Col xs={24} sm={8}>
-                                    <div className="p-3 bg-[var(--bg-secondary)] rounded-lg">
-                                        <div className="text-sm text-[var(--text-secondary)] mb-2">Buổi/tuần</div>
-                                        <div className="text-xl font-bold text-[var(--text)]">
-                                            {advisorData.stats.avgSessionsPerWeek}
-                                        </div>
-                                    </div>
-                                </Col>
-
-                                <Col xs={24} sm={8}>
-                                    <div className="p-3 bg-[var(--bg-secondary)] rounded-lg">
-                                        <div className="text-sm text-[var(--text-secondary)] mb-2">Hoàn thành</div>
-                                        <Progress
-                                            percent={advisorData.stats.programCompletionRate}
-                                            size="small"
-                                            strokeColor="var(--primary)"
-                                            showInfo={true}
-                                        />
-                                    </div>
-                                </Col>
-                            </Row>
-                        </Card>
-
-                        {/* Chuyên môn */}
-                        <Card title="Chuyên môn & Chứng chỉ" className="h-fit">
-                            <Row gutter={[16, 16]}>
-                                <Col span={24}>
-                                    <h4 className="text-[var(--text-secondary)] mb-2">Lĩnh vực chuyên môn</h4>
-                                    <Flex gap={8} wrap="wrap">
-                                        {advisorData.specializations.map((spec, index) => (
-                                            <Badge
-                                                key={index}
-                                                count={spec}
-                                                style={{
-                                                    backgroundColor: 'var(--bg-tertiary)',
-                                                    color: 'var(--primary)',
-                                                    border: '1px solid var(--primary)',
-                                                    fontSize: '12px',
-                                                    fontWeight: '500',
-                                                    borderRadius: '12px',
-                                                }}
-                                            />
-                                        ))}
-                                    </Flex>
-                                </Col>
-
-                                <Col span={24}>
-                                    <h4 className="text-[var(--text-secondary)] mb-2">Chứng chỉ</h4>
-                                    <Flex vertical gap={8}>
-                                        {advisorData.certifications.map((cert, index) => (
-                                            <div
-                                                key={index}
-                                                className="flex items-center gap-2 p-2 bg-[var(--bg-secondary)] rounded"
-                                            >
-                                                <Icon name="mdi:certificate-outline" className="text-[var(--primary)]" />
-                                                <span className="text-[var(--text)]">{cert}</span>
-                                            </div>
-                                        ))}
-                                    </Flex>
-                                </Col>
-
-                                <Col span={24}>
-                                    <h4 className="text-[var(--text-secondary)] mb-2">Giờ làm việc</h4>
-                                    <Input.TextArea value={advisorData.workingHours} readOnly rows={2} />
-                                </Col>
-                            </Row>
-                        </Card>
-
-                        {/* Thành tích */}
-                        <Card title="Thành tích nổi bật" className="h-fit">
-                            <Flex vertical gap={12}>
-                                {advisorData.achievements.map((achievement, index) => (
-                                    <div
-                                        key={index}
-                                        className="flex items-start gap-3 p-3 bg-[var(--bg-secondary)] rounded-lg"
-                                    >
-                                        <Icon name="mdi:trophy-outline" size={24} className="text-[var(--primary)]" />
-                                        <div>
-                                            <div className="font-semibold text-[var(--text)]">
-                                                {achievement.title}
-                                            </div>
-                                            <div className="text-sm text-[var(--text-secondary)]">
-                                                {achievement.organization} • {achievement.year}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </Flex>
-                        </Card>
+                        <AdvisorStats advisorData={advisorData} />
+                        <AdvisorSpecialty advisorData={advisorData} />
+                        <AdvisorAchievements achievements={advisorData.achievements} />
                     </Flex>
                 </Col>
             </Row>
@@ -417,108 +178,7 @@ export const AdvisorDetailPage: React.FC<AdvisorDetailPageProps> = ({ advisorId 
             {/* Bottom Section - Quản lý khách hàng */}
             <Row gutter={[24, 24]} className="mt-6">
                 <Col span={24}>
-                    <Card title="Khách hàng đang quản lý" className="h-fit">
-                        <div className="mb-4">
-                            <Flex justify="space-between" align="center">
-                                <span className="text-[var(--text-secondary)]">
-                                    Tổng số: <span className="font-semibold text-[var(--text)]">{managedClients.length} khách hàng</span>
-                                </span>
-                                <Input.Search 
-                                    placeholder="Tìm kiếm khách hàng..." 
-                                    style={{ width: 300 }}
-                                />
-                            </Flex>
-                        </div>
-
-                        <Row gutter={[16, 16]}>
-                            {managedClients.map((client) => (
-                                <Col xs={24} sm={12} lg={8} key={client.id}>
-                                    <Card className="h-full hover:shadow-lg transition-shadow">
-                                        <Flex align="flex-start" gap={12}>
-                                            <Avatar size={56} src={client.avatar}>
-                                                {client.name[0]}
-                                            </Avatar>
-                                            <Flex vertical flex={1} gap={8}>
-                                                <div className="font-semibold text-[var(--text)] text-base">
-                                                    {client.name}
-                                                </div>
-                                                <div className="text-sm text-[var(--text-secondary)]">
-                                                    {client.email}
-                                                </div>
-                                            </Flex>
-                                            <Badge
-                                                count={client.status}
-                                                style={{
-                                                    backgroundColor: client.status === 'Đang hoạt động' ? '#52c41a' : '#1890ff',
-                                                    fontSize: '10px',
-                                                    padding: '0 8px',
-                                                    height: '20px',
-                                                    lineHeight: '20px'
-                                                }}
-                                            />
-                                        </Flex>
-
-                                        <div className="mt-4 space-y-3">
-                                            <div>
-                                                <Flex justify="space-between" className="mb-1">
-                                                    <span className="text-sm text-[var(--text-secondary)]">Chương trình:</span>
-                                                    <span className="text-sm font-semibold text-[var(--primary)]">
-                                                        {client.program}
-                                                    </span>
-                                                </Flex>
-                                            </div>
-
-                                            <div>
-                                                <Flex justify="space-between" className="mb-1">
-                                                    <span className="text-sm text-[var(--text-secondary)]">Ngày bắt đầu:</span>
-                                                    <span className="text-sm text-[var(--text)]">
-                                                        {client.startDate}
-                                                    </span>
-                                                </Flex>
-                                            </div>
-
-                                            <div>
-                                                <Flex justify="space-between" className="mb-1">
-                                                    <span className="text-sm text-[var(--text-secondary)]">Tiến độ:</span>
-                                                    <span className="text-sm font-semibold text-[var(--text)]">
-                                                        {client.sessionsCompleted}/{client.totalSessions} buổi
-                                                    </span>
-                                                </Flex>
-                                                <Progress
-                                                    percent={client.progress}
-                                                    size="small"
-                                                    strokeColor={
-                                                        client.progress >= 80 ? '#52c41a' : 
-                                                        client.progress >= 50 ? '#1890ff' : 
-                                                        '#fa8c16'
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <Flex gap={8} className="mt-4">
-                                            <Button 
-                                                size="md" 
-                                                style={{ flex: 1, minHeight: '40px' }}
-                                                onClick={() => router.push(`/admin/users/${client.id}`)}
-                                            >
-                                                <Icon name="mdi:account-details" />
-                                                Chi tiết
-                                            </Button>
-                                            <Button 
-                                                size="md" 
-                                                variant="ghost"
-                                                style={{ minHeight: '40px', minWidth: '40px' }}
-                                                onClick={() => console.log('Schedule session for', client.id)}
-                                            >
-                                                <Icon name="mdi:calendar-plus" />
-                                            </Button>
-                                        </Flex>
-                                    </Card>
-                                </Col>
-                            ))}
-                        </Row>
-                    </Card>
+                    <ManagedClientsList clients={managedClients} />
                 </Col>
             </Row>
         </Card>

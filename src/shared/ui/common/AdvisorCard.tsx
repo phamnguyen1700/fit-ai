@@ -107,9 +107,6 @@ export const AdvisorCard: React.FC<AdvisorCardProps> = ({
                 </Flex>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2">
-                    <div style={{ color: 'var(--text-secondary)' }}>Chuyên môn:</div>
-                    <div className="md:col-span-3 text-right" style={{ color: '#fa8c16', fontWeight: 600 }}>{specialty}</div>
-
                     <div style={{ color: 'var(--text-secondary)' }}>Kinh nghiệm:</div>
                     <div className="md:col-span-3 text-right" style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{experience}</div>
 
