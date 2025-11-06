@@ -62,6 +62,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     loginMutate(values, {
       onSuccess: (response) => {
         if (response.success && response.data) {
+          // Lưu token vào localStorage
+          if (response.data.token) {
+            localStorage.setItem('authToken', response.data.token);
+          }
           onClose()
           router.push('/admin/home')
         } else if (response.success === false && response.data === undefined && response.message) {

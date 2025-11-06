@@ -1,11 +1,12 @@
 'use client';
 
 import React from 'react';
-import { Grid, Layout } from 'antd';
+import { Grid, Layout, App } from 'antd';
 import { Menu } from '@/shared/ui/core/Menu';
 import { Icon, icons } from '@/shared/ui/icon';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/stores';
+import toast from 'react-hot-toast';
 
 const { Sider: AntSider } = Layout;
 
@@ -35,6 +36,7 @@ export const Sider: React.FC<SiderProps> = ({
   const router = useRouter();
   const pathname = usePathname();
   const screens = Grid.useBreakpoint();
+  const { modal } = App.useApp();
 
   const isMobile = !screens.md; 
   // Responsive widths (lg / md / <md)
@@ -45,11 +47,31 @@ export const Sider: React.FC<SiderProps> = ({
   const resolvedCollapsed = computedCollapsedWidth || collapsedWidth;
   const siderWidth = effectiveCollapsed ? resolvedCollapsed : resolvedWidth;
 
+  const handleLogout = () => {
+    // Xóa token khỏi localStorage
+    localStorage.removeItem('authToken');
+    // Logout từ auth store
+    useAuthStore.getState().logout();
+    // Hiển thị thông báo
+    toast.success('Đăng xuất thành công!');
+    // Redirect về trang home
+    router.push('/home');
+  };
+
   const handleMenuClick = ({ key }: { key: string }) => {
     if (key === 'logout') {
-      // Logout logic
-      useAuthStore.getState().logout();
-      router.push('/');
+      // Hiển thị modal confirm
+      modal.confirm({
+        title: 'Xác nhận đăng xuất',
+        content: 'Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?',
+        okText: 'Đăng xuất',
+        cancelText: 'Hủy',
+        okButtonProps: {
+          danger: true,
+        },
+        onOk: handleLogout,
+        centered: true,
+      });
       return;
     }
     router.push(key);

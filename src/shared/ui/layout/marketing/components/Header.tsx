@@ -3,12 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { Button } from 'antd';
+import { LoginModal } from './LoginModal';
 
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const [activeSection, setActiveSection] = useState('#top');
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const navigation = [
     { name: 'Trang Chủ', href: '#top' },
@@ -143,8 +146,8 @@ export default function Header() {
           {/* User Login Button */}
           <div className="hidden md:flex items-center">
             <button
-              onClick={() => router.push('/login')}
-              className="relative group px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 overflow-hidden"
+              onClick={() => setIsLoginModalOpen(true)}
+              className="relative group px-6 py-2.5 rounded-lg font-medium text-sm transition-all duration-300 overflow-hidden"
               style={{
                 color: 'white',
                 background: 'var(--primary)',
@@ -205,6 +208,12 @@ export default function Header() {
           </div>
         </div>
       </div>
+
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={isLoginModalOpen} 
+        onClose={() => setIsLoginModalOpen(false)} 
+      />
     </header>
   );
 }
