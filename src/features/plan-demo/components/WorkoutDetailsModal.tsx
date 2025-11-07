@@ -22,6 +22,7 @@ export const WorkoutDetailsModal: React.FC<WorkoutDetailsModalProps> = ({
 }) => {
   const [activeDay, setActiveDay] = useState<number>(1);
   const [dayWorkouts, setDayWorkouts] = useState<Record<number, WorkoutExercise[]>>({});
+  const [dayNames, setDayNames] = useState<Record<number, string>>({});
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(undefined);
   const [form] = Form.useForm();
 
@@ -32,10 +33,13 @@ export const WorkoutDetailsModal: React.FC<WorkoutDetailsModalProps> = ({
       setSelectedCategoryId(undefined);
       // Initialize empty workouts for each day
       const initialWorkouts: Record<number, WorkoutExercise[]> = {};
+      const initialDayNames: Record<number, string> = {};
       for (let i = 1; i <= planData.totalDays; i++) {
         initialWorkouts[i] = [];
+        initialDayNames[i] = '';
       }
       setDayWorkouts(initialWorkouts);
+      setDayNames(initialDayNames);
     }
   }, [open, planData]);
 
@@ -78,6 +82,7 @@ export const WorkoutDetailsModal: React.FC<WorkoutDetailsModalProps> = ({
   const handleSubmitAll = () => {
     const workouts: DayWorkout[] = Object.entries(dayWorkouts).map(([day, exercises]) => ({
       day: parseInt(day),
+      dayName: dayNames[parseInt(day)] || undefined,
       exercises,
     }));
     onSubmit(workouts);
@@ -86,8 +91,16 @@ export const WorkoutDetailsModal: React.FC<WorkoutDetailsModalProps> = ({
   const handleCancel = () => {
     form.resetFields();
     setDayWorkouts({});
+    setDayNames({});
     setSelectedCategoryId(undefined);
     onCancel();
+  };
+
+  const handleDayNameChange = (value: string) => {
+    setDayNames(prev => ({
+      ...prev,
+      [activeDay]: value,
+    }));
   };
 
   if (!planData) return null;
@@ -137,7 +150,40 @@ export const WorkoutDetailsModal: React.FC<WorkoutDetailsModalProps> = ({
 
       <div style={{ marginBottom: 24 }}>
         <h4 style={{ marginBottom: 16, fontSize: 16, fontWeight: 600 }}>
-          Thêm bài tập cho ngày {activeDay}
+          Thông tin ngày {activeDay}
+        </h4>
+
+        {/* Day Name Field */}
+        <div style={{ marginBottom: 24 }}>
+          <label style={{ 
+            display: 'block', 
+            marginBottom: 8, 
+            fontSize: 14, 
+            fontWeight: 500,
+            color: 'var(--text)'
+          }}>
+            Tên ngày tập
+          </label>
+          <Input
+            placeholder="Ví dụ: Tập giãn cơ, Tập ngực, Tập chân..."
+            size="large"
+            value={dayNames[activeDay] || ''}
+            onChange={(e) => handleDayNameChange(e.target.value)}
+            prefix={<Icon name="mdi:calendar-text" size={18} color="var(--text-secondary)" />}
+          />
+          <div style={{ 
+            marginTop: 6, 
+            fontSize: 13, 
+            color: 'var(--text-secondary)' 
+          }}>
+            Đặt tên cho ngày tập này để dễ phân biệt
+          </div>
+        </div>
+
+        <Divider style={{ margin: '24px 0' }} />
+
+        <h4 style={{ marginBottom: 16, fontSize: 16, fontWeight: 600 }}>
+          Thêm bài tập
         </h4>
 
         <Form form={form} layout="vertical">
@@ -255,9 +301,24 @@ export const WorkoutDetailsModal: React.FC<WorkoutDetailsModalProps> = ({
 
       {/* List of exercises for current day */}
       <div style={{ marginBottom: 24 }}>
-        <h4 style={{ marginBottom: 16, fontSize: 16, fontWeight: 600 }}>
-          Danh sách bài tập ngày {activeDay} ({currentDayExercises.length})
-        </h4>
+        <Flex justify="space-between" align="center" style={{ marginBottom: 16 }}>
+          <h4 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
+            Danh sách bài tập ({currentDayExercises.length})
+          </h4>
+          {dayNames[activeDay] && (
+            <div style={{ 
+              fontSize: 14, 
+              color: 'var(--primary)',
+              fontWeight: 500,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6
+            }}>
+              <Icon name="mdi:label" size={16} />
+              {dayNames[activeDay]}
+            </div>
+          )}
+        </Flex>
 
         {currentDayExercises.length === 0 ? (
           <div

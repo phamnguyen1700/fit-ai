@@ -9,8 +9,9 @@ import { MealDetailsModal } from './components/MealDetailsModal';
 import { mockPlans } from './data/mockPlans';
 import type { CreatePlanFormData, DayWorkout, CreateMealPlanFormData, DayMeal } from '@/types/plan';
 import FeedbackTab from './components/tabs/FeedbackTab';
-import WorkoutTab from './components/tabs/WorkoutTab';
+
 import MealTab from './components/tabs/MealTab';
+import WorkoutTab from './components/tabs/WorkoutTab';
 
 export const PlanDemoPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('workout');
@@ -80,9 +81,9 @@ export const PlanDemoPage: React.FC = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'workout':
-        return <WorkoutTab plans={mockPlans} onView={handleViewPlan} onEdit={handleEditPlan} onDelete={handleDeletePlan} />;
+        return <WorkoutTab />;
       case 'meal':
-        return <MealTab plans={mockPlans} onView={handleViewPlan} onEdit={handleEditPlan} onDelete={handleDeletePlan} />;
+        return <MealTab/>;
       case 'feedback':
         return <FeedbackTab plans={mockPlans} onView={handleViewPlan} onEdit={handleEditPlan} onDelete={handleDeletePlan} />;
       default:

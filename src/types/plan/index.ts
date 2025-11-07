@@ -79,6 +79,7 @@ export interface WorkoutExercise {
 
 export interface DayWorkout {
   day: number;
+  dayName?: string;
   exercises: WorkoutExercise[];
 }
 
@@ -133,4 +134,15 @@ export interface DayMeal {
 
 export interface MealPlanCreation extends CreateMealPlanFormData {
   menus: DayMeal[];
+}
+
+export interface MealPlanDetail {
+  id: string;
+  planName: string;
+  goal: string;
+  totalCaloriesPerDay: number;
+  totalMenus: number;
+  menus: DayMeal[];
+  description?: string;
+  createdAt?: string;
 }
