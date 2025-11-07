@@ -20,6 +20,7 @@ export const icons = {
   feedback: 'mdi:message-text-outline',
   plans: 'mdi:clipboard-text-outline',
   payment: 'mdi:credit-card-outline',
+  advisors: 'mdi:account-tie-outline',
   settings: 'mdi:cog-outline',
   logout: 'majesticons:logout',
   home: 'mdi:home-outline',
@@ -39,6 +40,7 @@ export const icons = {
   password: 'mdi:lock-outline',
   phone: 'mdi:phone-outline',
   file : 'mdi:file-outline',
+  workoutPlans: 'mdi:dumbbell',
 };
 
 // Usage: <Icon name={icons.dashboard} />

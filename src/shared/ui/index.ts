@@ -26,6 +26,7 @@ export { EditExercisePopup } from './common/EditExercisePopup';
 export { MealCard } from './common/MealCard';
 export { PopupContent } from './common/PopupContent';
 export { UserCard } from './common/UserCard';
+export { AdvisorCard } from './common/AdvisorCard';
 export { Flex } from './core/Flex';
 export { TabsHeader } from '../../features/content/components/TabsHeader';
 export { PopupImport } from '../../features/content/components/PopupImport';

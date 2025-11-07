@@ -21,9 +21,11 @@ const menuItems: { key: string; label: React.ReactNode; icon?: React.ReactNode }
   { label: 'Trang chủ', key: '/admin/home', icon: <Icon name={icons.home} /> },
   { label: 'Bảng điều khiển', key: '/admin/dashboard', icon: <Icon name={icons.dashboard} /> },
   { label: 'Quản lý người dùng', key: '/admin/users', icon: <Icon name={icons.users} /> },
-{ label: 'Quản lý nội dung', key: '/admin/content', icon: <Icon name={icons.content} /> },  { label: 'Quản lý phản hồi', key: '/admin/feedback', icon: <Icon name={icons.feedback} /> },
+  { label: 'Quản lý nội dung', key: '/admin/content', icon: <Icon name={icons.content} /> },
+  { label: 'Quản lý phản hồi', key: '/admin/feedback', icon: <Icon name={icons.feedback} /> },
   { label: 'Quản lý gói', key: '/admin/plans', icon: <Icon name={icons.plans} /> },
-  { label: 'Thanh toán', key: '/admin/payment', icon: <Icon name={icons.payment} /> },
+  { label: 'Quản lý Plan Demo', key: '/admin/plan-demo', icon: <Icon name={icons.plans} /> },
+  { label: 'Quản lý Advisor', key: '/admin/advisors', icon: <Icon name={icons.advisors} /> },
   { label: 'Cài đặt', key: '/admin/settings', icon: <Icon name={icons.settings} /> },
 ];
 
