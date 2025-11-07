@@ -6,9 +6,9 @@ import toast from 'react-hot-toast'
 
 export const useGetExercises = (params?: ExerciseParams) => {
   return useQuery<IApiResponse<Exercise[]>>({
-    queryKey: ['exercises', params], // Cache key - thay đổi khi params thay đổi
+    queryKey: ['exercises', params],
     queryFn: () => getExercisesService(params || {}),
-    staleTime: 5 * 60 * 1000, // Cache 5 phút - exercises ít thay đổi
+    staleTime: 5 * 60 * 1000, 
   })
 }
 

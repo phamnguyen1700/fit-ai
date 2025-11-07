@@ -16,6 +16,7 @@ interface ExerciseCardProps {
   onView?: () => void;
   onDelete?: () => void;
   className?: string;
+  isPinned?: boolean;      // Trạng thái ghim
 }
 
 // Helper function to get YouTube thumbnail
@@ -60,6 +61,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
   onView,
   onDelete,
   className,
+  isPinned = false,
 }) => {
   const [isContentHovered, setIsContentHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -221,10 +223,10 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                 <div className="flex gap-3">
                   <button
                     onClick={onView}
-                    className="flex-1 bg-white text-gray-900 hover:bg-gray-100 px-4 py-3 rounded-lg font-semibold text-sm shadow-md transform hover:scale-105 transition-all flex items-center justify-center gap-2"
+                    className={`flex-1 ${isPinned ? 'bg-orange-500 hover:bg-orange-600' : 'bg-white hover:bg-gray-100'} ${isPinned ? 'text-white' : 'text-gray-900'} px-4 py-3 rounded-lg font-semibold text-sm shadow-md transform hover:scale-105 transition-all flex items-center justify-center gap-2`}
                   >
-                    <Icon name="mdi:pin" size={18} />
-                    <span>Ghim</span>
+                    <Icon name={isPinned ? "mdi:pin-off" : "mdi:pin"} size={18} />
+                    <span>{isPinned ? 'Bỏ ghim' : 'Ghim'}</span>
                   </button>
                   <button
                     onClick={onDelete}

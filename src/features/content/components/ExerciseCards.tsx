@@ -47,7 +47,24 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState<any>(null);
+  
+  // Load pinned exercises from localStorage
+  const [pinnedExerciseIds, setPinnedExerciseIds] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pinnedExercises');
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+  
   const itemsPerPage = 8;
+
+  // Save to localStorage whenever pinnedExerciseIds changes
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pinnedExercises', JSON.stringify(pinnedExerciseIds));
+    }
+  }, [pinnedExerciseIds]);
 
   // Fetch exercises from API with filters
   const { data: exercisesResponse, isLoading, error } = useGetExercises({
@@ -60,7 +77,6 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({
     console.log('=== EXERCISE RESPONSE DEBUG ===');
     console.log('Full response:', exercisesResponse);
     console.log('exercisesResponse?.data:', exercisesResponse?.data);
-    console.log('exercisesResponse?.data?.data:', exercisesResponse?.data?.data);
     console.log('Is loading:', isLoading);
     console.log('Error:', error);
   }, [exercisesResponse, isLoading, error]);
@@ -88,7 +104,7 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({
     console.log('Converted exercises:', exercises);
     
     // Client-side filtering nếu API không support
-    return exercises.filter(exercise => {
+    const filteredExercises = exercises.filter(exercise => {
       // Filter by search query
       const matchesSearch = !searchQuery || 
         exercise.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -100,7 +116,14 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({
       
       return matchesSearch && matchesLevel;
     });
-  }, [exercisesResponse?.data, searchQuery, levelFilter]);
+
+    // Separate pinned and unpinned exercises
+    const pinned = filteredExercises.filter(ex => pinnedExerciseIds.includes(ex.id));
+    const unpinned = filteredExercises.filter(ex => !pinnedExerciseIds.includes(ex.id));
+    
+    // Return pinned first, then unpinned
+    return [...pinned, ...unpinned];
+  }, [exercisesResponse?.data, searchQuery, levelFilter, pinnedExerciseIds]);
 
   // Calculate pagination
   const totalPages = Math.ceil(allExerciseData.length / itemsPerPage);
@@ -153,14 +176,22 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({
 
   const handleSaveExercise = (updatedExercise: any) => {
     console.log('Save exercise:', updatedExercise);
-    // API call được xử lý trong EditExercisePopup component
-    // Callback này chỉ để log hoặc xử lý UI nếu cần
     handleCloseEditPopup();
   };
 
   const handleView = (exerciseId: string) => {
-    // Ghim bài tập
-    console.log('Pin exercise:', exerciseId);
+    // Toggle pin exercise - chỉ cho phép pin tối đa 2 cards
+    if (pinnedExerciseIds.includes(exerciseId)) {
+      // Unpin
+      setPinnedExerciseIds(prev => prev.filter(id => id !== exerciseId));
+    } else {
+      // Pin
+      if (pinnedExerciseIds.length >= 2) {
+        alert('Chỉ được ghim tối đa 2 bài tập! Vui lòng bỏ ghim bài tập khác trước.');
+        return;
+      }
+      setPinnedExerciseIds(prev => [...prev, exerciseId]);
+    }
   };
 
   const handleDelete = (exerciseId: string) => {
@@ -215,20 +246,47 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({
   return (
     <div className={`exercise-cards-container ${className || ''}`}>
       <Row gutter={[24, 24]}>
-        {currentExercises.map((exercise) => (
-          <Col span={12} key={exercise.id}>
-            <ExerciseCard
-              title={exercise.title}
-              videoThumbnail={exercise.videoThumbnail}
-              muscleGroup={exercise.muscleGroup}
-              difficulty={exercise.difficulty}
-              onPlay={() => handlePlay(exercise.id)}
-              onEdit={() => handleEdit(exercise.id)}
-              onView={() => handleView(exercise.id)}
-              onDelete={() => handleDelete(exercise.id)}
-            />
-          </Col>
-        ))}
+        {currentExercises.map((exercise) => {
+          const isPinned = pinnedExerciseIds.includes(exercise.id);
+          return (
+            <Col span={12} key={exercise.id}>
+              <div style={{ position: 'relative' }}>
+                {/* Pin badge */}
+                {isPinned && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 8,
+                    right: 8,
+                    zIndex: 10,
+                    backgroundColor: 'var(--primary)',
+                    color: 'white',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                  }}>
+                    📌 Đã ghim
+                  </div>
+                )}
+                <ExerciseCard
+                  title={exercise.title}
+                  videoThumbnail={exercise.videoThumbnail}
+                  muscleGroup={exercise.muscleGroup}
+                  difficulty={exercise.difficulty}
+                  isPinned={isPinned}
+                  onPlay={() => handlePlay(exercise.id)}
+                  onEdit={() => handleEdit(exercise.id)}
+                  onView={() => handleView(exercise.id)}
+                  onDelete={() => handleDelete(exercise.id)}
+                />
+              </div>
+            </Col>
+          );
+        })}
       </Row>
       
       {/* Pagination Navigation */}
