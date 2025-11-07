@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useMemo } from 'react';
-import { ExerciseCard, Card, Pagination, EditExercisePopup } from '@/shared/ui';
+import { ExerciseCard, Card, Pagination, EditExercisePopup, Modal } from '@/shared/ui';
 import { Row, Col } from '@/shared/ui';
-import { useGetExercises } from '@/tanstack/hooks/exercise';
+import { useGetExercises, useDeleteExerciseMutation } from '@/tanstack/hooks/exercise';
 import { Exercise } from '@/types/exercise';
 
 interface ExerciseCardsProps {
@@ -47,6 +47,8 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState<any>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [exerciseToDelete, setExerciseToDelete] = useState<{ id: string; name: string } | null>(null);
   
   // Load pinned exercises from localStorage
   const [pinnedExerciseIds, setPinnedExerciseIds] = useState<string[]>(() => {
@@ -58,6 +60,9 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({
   });
   
   const itemsPerPage = 8;
+
+  // Delete mutation
+  const deleteMutation = useDeleteExerciseMutation();
 
   // Save to localStorage whenever pinnedExerciseIds changes
   React.useEffect(() => {
@@ -195,11 +200,30 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({
   };
 
   const handleDelete = (exerciseId: string) => {
-    // TODO: Show confirm dialog then delete
-    if (confirm('Bạn có chắc muốn xóa bài tập này?')) {
-      console.log('Delete exercise:', exerciseId);
-      // Call delete API here
+    // Find exercise to show its name in confirmation modal
+    const exercise = allExerciseData.find(ex => ex.id === exerciseId);
+    if (exercise) {
+      setExerciseToDelete({ id: exerciseId, name: exercise.title });
+      setIsDeleteModalOpen(true);
     }
+  };
+
+  const handleConfirmDelete = () => {
+    if (exerciseToDelete) {
+      deleteMutation.mutate(exerciseToDelete.id, {
+        onSuccess: () => {
+          // Remove from pinned list if it was pinned
+          setPinnedExerciseIds(prev => prev.filter(id => id !== exerciseToDelete.id));
+          setIsDeleteModalOpen(false);
+          setExerciseToDelete(null);
+        }
+      });
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteModalOpen(false);
+    setExerciseToDelete(null);
   };
 
   // Loading state
@@ -311,6 +335,73 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({
         exercise={selectedExercise}
         onSave={handleSaveExercise}
       />
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCancelDelete}
+        title="Xác nhận xóa bài tập"
+        width="500px"
+      >
+        <div className="space-y-6">
+          {/* Warning Icon */}
+          <div className="flex justify-center">
+            <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Message */}
+          <div className="text-center space-y-2">
+            <p className="text-gray-800 font-semibold text-lg">
+              Bạn có chắc chắn muốn xóa bài tập này?
+            </p>
+            {exerciseToDelete && (
+              <p className="text-gray-600">
+                <span className="font-semibold text-red-600">"{exerciseToDelete.name}"</span>
+              </p>
+            )}
+            <p className="text-sm text-gray-500">
+              Hành động này không thể hoàn tác!
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-2">
+            <button
+              onClick={handleCancelDelete}
+              disabled={deleteMutation.isPending}
+              className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Hủy
+            </button>
+            <button
+              onClick={handleConfirmDelete}
+              disabled={deleteMutation.isPending}
+              className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {deleteMutation.isPending ? (
+                <>
+                  <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Đang xóa...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Xóa bài tập
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

@@ -40,3 +40,7 @@ export interface CreateExerciseData {
   level: "Beginner" | "Intermediate" | "Advanced"; // Required
   video: File; // Required - file video
 }
+
+export interface DeleteExerciseData {
+  id: string; // Required - ID của bài tập cần xóa
+}

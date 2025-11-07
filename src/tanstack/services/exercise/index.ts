@@ -1,4 +1,4 @@
-import { get, post, put } from "@/shared/api/http";
+import { get, post, put, del } from "@/shared/api/http";
 import { Exercise, ExerciseParams, UpdateExerciseData, CreateExerciseData } from "@/types/exercise";
 
 export const getExercisesService = (params: ExerciseParams) => 
@@ -44,4 +44,7 @@ export const updateExerciseService = (id: string, data: UpdateExerciseData) => {
       'Content-Type': 'multipart/form-data',
     },
   });
-};  
+};
+
+export const deleteExerciseService = (id: string) => 
+  del(`fitness/api/exercise/${id}`);

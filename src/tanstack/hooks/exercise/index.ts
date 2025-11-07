@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { getExercisesService, createExerciseService, updateExerciseService } from '@/tanstack/services/exercise'
+import { getExercisesService, createExerciseService, updateExerciseService, deleteExerciseService } from '@/tanstack/services/exercise'
 import { Exercise, ExerciseParams, ExerciseState, UpdateExerciseData, CreateExerciseData } from '@/types/exercise'
 import { IApiResponse } from '@/shared/api/http'
 import toast from 'react-hot-toast'
@@ -59,6 +59,32 @@ export const useUpdateExerciseMutation = () => {
     onError: (error: any) => {
       console.error('Update exercise error:', error)
       const errorMessage = error?.response?.data?.message || error?.message || 'Cập nhật bài tập thất bại. Vui lòng thử lại.'
+      toast.error(errorMessage)
+    },
+  })
+}
+
+export const useDeleteExerciseMutation = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: (id: string) => {
+      console.log('Deleting exercise:', id);
+      return deleteExerciseService(id);
+    },
+    onSuccess: (response) => {
+      console.log('Delete success:', response);
+      if (response.success) {
+        toast.success('Xóa bài tập thành công! 🗑️')
+        // Invalidate và refetch exercises
+        queryClient.invalidateQueries({ queryKey: ['exercises'] })
+      } else {
+        toast.error(response.message || 'Xóa bài tập thất bại')
+      }
+    },
+    onError: (error: any) => {
+      console.error('Delete exercise error:', error)
+      const errorMessage = error?.response?.data?.message || error?.message || 'Xóa bài tập thất bại. Vui lòng thử lại.'
       toast.error(errorMessage)
     },
   })
