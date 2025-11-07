@@ -50,16 +50,6 @@ const ExerciseTab = () => {
     { key: "difficulty", label: "Mức độ" }
   ];
 
-  // Mock categories - trong thực tế sẽ fetch từ API
-  const mockCategories = [
-    { id: "chest", name: "Ngực" },
-    { id: "back", name: "Lưng" },
-    { id: "shoulders", name: "Vai" },
-    { id: "arms", name: "Tay" },
-    { id: "legs", name: "Chân" },
-    { id: "core", name: "Bụng" },
-  ];
-
   return (
     <Card className="exercise-tab-container">
       <header className="mb-4">
@@ -87,7 +77,6 @@ const ExerciseTab = () => {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmitExercise}
         isLoading={createExerciseMutation.isPending}
-        categories={mockCategories}
       />
     </Card>
   );

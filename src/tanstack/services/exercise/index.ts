@@ -1,7 +1,8 @@
 import { get, post, put } from "@/shared/api/http";
 import { Exercise, ExerciseParams, UpdateExerciseData, CreateExerciseData } from "@/types/exercise";
 
-export const getExercisesService = (params: ExerciseParams) => get<Exercise[]>(`fitness/api/exercise`, { params });
+export const getExercisesService = (params: ExerciseParams) => 
+  get<Exercise[]>(`fitness/api/exercise`, { params });
 
 export const createExerciseService = (data: CreateExerciseData) => {
   const formData = new FormData();

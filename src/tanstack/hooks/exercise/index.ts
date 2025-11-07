@@ -5,7 +5,7 @@ import { IApiResponse } from '@/shared/api/http'
 import toast from 'react-hot-toast'
 
 export const useGetExercises = (params?: ExerciseParams) => {
-  return useQuery<IApiResponse<ExerciseState>>({
+  return useQuery<IApiResponse<Exercise[]>>({
     queryKey: ['exercises', params], // Cache key - thay đổi khi params thay đổi
     queryFn: () => getExercisesService(params || {}),
     staleTime: 5 * 60 * 1000, // Cache 5 phút - exercises ít thay đổi

@@ -10,7 +10,13 @@ export interface Exercise {
   lastUpdate: string;
 }
 
-export type ExerciseState = Exercise[];
+// API Response structure - based on actual API response
+export interface ExerciseListResponse {
+  data: Exercise[];
+}
+
+// For backward compatibility
+export type ExerciseState = ExerciseListResponse;
 
 export interface ExerciseParams {
   categoryId?: string;

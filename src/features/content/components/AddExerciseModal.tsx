@@ -3,13 +3,13 @@ import React, { useState } from "react";
 import { Modal } from "@/shared/ui/core/Modal";
 import { Icon } from "@/shared/ui/icon";
 import { CreateExerciseData } from "@/types/exercise";
+import { useGetExerciseCategories } from "@/tanstack/hooks/exercisecategory";
 
 interface AddExerciseModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: CreateExerciseData) => void;
   isLoading?: boolean;
-  categories?: Array<{ id: string; name: string }>;
 }
 
 const INITIAL_FORM = { name: "", description: "", categoryId: "", level: "Beginner" as const, video: null };
@@ -20,11 +20,21 @@ export const AddExerciseModal: React.FC<AddExerciseModalProps> = ({
   onClose,
   onSubmit,
   isLoading = false,
-  categories = [],
 }) => {
   const [formData, setFormData] = useState<Omit<CreateExerciseData, 'video'> & { video: File | null }>(INITIAL_FORM);
   const [errors, setErrors] = useState<Partial<Record<keyof CreateExerciseData, string>>>({});
   const [videoPreview, setVideoPreview] = useState<string>("");
+
+  // Fetch exercise categories
+  const { data: categoriesResponse, isLoading: isCategoriesLoading } = useGetExerciseCategories();
+
+  // Debug: Log the response
+  React.useEffect(() => {
+    if (categoriesResponse) {
+      console.log('Categories Response:', categoriesResponse);
+      console.log('Categories Data:', categoriesResponse?.data);
+    }
+  }, [categoriesResponse]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -164,11 +174,18 @@ export const AddExerciseModal: React.FC<AddExerciseModalProps> = ({
               value={formData.categoryId}
               onChange={handleInputChange}
               className="exercise-modal-form-select"
+              disabled={isCategoriesLoading}
             >
-              <option value="" className="text-[var(--text-secondary)]">Chọn danh mục bài tập</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>{category.name}</option>
-              ))}
+              <option value="" className="text-[var(--text-secondary)]">
+                {isCategoriesLoading ? 'Đang tải danh mục...' : 'Chọn danh mục bài tập'}
+              </option>
+              {categoriesResponse?.data && Array.isArray(categoriesResponse.data) && 
+                categoriesResponse.data.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))
+              }
             </select>
             {errors.categoryId && (
               <p className="exercise-modal-form-error">

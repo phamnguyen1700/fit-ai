@@ -54,10 +54,38 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({
     level: levelFilter ? (levelFilter as "Beginner" | "Intermediate" | "Advanced") : undefined,
     search: searchQuery || undefined
   });
+
+  // Debug: Log response structure
+  React.useEffect(() => {
+    console.log('=== EXERCISE RESPONSE DEBUG ===');
+    console.log('Full response:', exercisesResponse);
+    console.log('exercisesResponse?.data:', exercisesResponse?.data);
+    console.log('exercisesResponse?.data?.data:', exercisesResponse?.data?.data);
+    console.log('Is loading:', isLoading);
+    console.log('Error:', error);
+  }, [exercisesResponse, isLoading, error]);
   
   // Get exercises array from API response and convert to UI format
   const allExerciseData = useMemo(() => {
-    const exercises = (exercisesResponse?.data || []).map(convertExerciseToUIFormat);
+    // Access data directly - API returns IApiResponse<Exercise[]> not IApiResponse<ExerciseListResponse>
+    const rawExercises = exercisesResponse?.data || [];
+    
+    console.log('Raw exercises:', rawExercises);
+    console.log('Is array?', Array.isArray(rawExercises));
+    console.log('Length:', rawExercises.length);
+    
+    // Sort by creation date - newest first (item mới tạo sẽ hiển thị đầu tiên)
+    const sortedExercises = [...rawExercises].sort((a, b) => {
+      const dateA = a.lastCreate;
+      const dateB = b.lastCreate;
+      if (!dateA || !dateB) return 0;
+      return new Date(dateB).getTime() - new Date(dateA).getTime();
+    });
+    
+    // Convert to UI format
+    const exercises = sortedExercises.map(convertExerciseToUIFormat);
+    
+    console.log('Converted exercises:', exercises);
     
     // Client-side filtering nếu API không support
     return exercises.filter(exercise => {
