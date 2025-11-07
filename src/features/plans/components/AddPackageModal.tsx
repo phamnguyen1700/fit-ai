@@ -22,7 +22,7 @@ export const AddPackageModal: React.FC<AddPackageModalProps> = ({
     description: "",
     amount: 0,
     currency: "VND",
-    interval: "monthly",
+    interval: "month",
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof CreateSubscriptionRequest, string>>>({});
@@ -91,7 +91,7 @@ export const AddPackageModal: React.FC<AddPackageModalProps> = ({
       description: "",
       amount: 0,
       currency: "VND",
-      interval: "monthly",
+      interval: "month",
     });
     setErrors({});
     onClose();
@@ -267,10 +267,10 @@ export const AddPackageModal: React.FC<AddPackageModalProps> = ({
                   errors.interval ? "border-red-500" : "border-gray-300"
                 }`}
               >
-                <option value="monthly">1 tháng</option>
-                <option value="quarterly">3 tháng</option>
-                <option value="half-yearly">6 tháng</option>
-                <option value="yearly">1 năm</option>
+                <option value="day">Theo ngày</option>
+                <option value="week">Theo tuần</option>
+                <option value="month">Theo tháng</option>
+                <option value="year">Theo năm</option>
               </select>
               <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                 <Icon name="mdi:chevron-down" size={18} className="text-gray-400" />
