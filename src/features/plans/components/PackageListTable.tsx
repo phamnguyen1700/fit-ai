@@ -5,8 +5,11 @@ import { Badge } from "@/shared/ui/core/Badge";
 import { Button } from "@/shared/ui/core/Button";
 import { Pagination } from "@/shared/ui/core/Pagination";
 import Dropdown from "@/features/content/components/Dropdown";
-import { useGetActiveProducts } from "@/tanstack/hooks/subscription";
-import { SubscriptionProduct } from "@/types/subscription";
+import { useGetActiveProducts, useUpdateSubscriptionProduct, useDeleteSubscriptionProduct } from "@/tanstack/hooks/subscription";
+import { SubscriptionProduct, UpdateSubscriptionRequest } from "@/types/subscription";
+import EditPackageModal from "./EditPackageModal";
+import { Modal } from "@/shared/ui/core/Modal";
+import { Icon } from "@/shared/ui/icon";
 
 // Types
 export interface PackageData {
@@ -33,9 +36,19 @@ const PackageListTable: React.FC<PackageListTableProps> = ({
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<PackageData | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [packageToDelete, setPackageToDelete] = useState<PackageData | null>(null);
   
   // Fetch subscription data from API
   const { data: subscriptionData, isLoading } = useGetActiveProducts();
+  
+  // Update mutation
+  const updateMutation = useUpdateSubscriptionProduct();
+  
+  // Delete mutation
+  const deleteMutation = useDeleteSubscriptionProduct();
 
   // Debug log
   React.useEffect(() => {
@@ -143,6 +156,52 @@ const getStatusBadge = (status: string) => {
     onStatusChange?.(packageData, newStatus);
   };
 
+  // Handle edit button click
+  const handleEditClick = (packageData: PackageData) => {
+    setSelectedPackage(packageData);
+    setIsEditModalOpen(true);
+    onEdit?.(packageData);
+  };
+
+  // Handle edit modal close
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false);
+    setSelectedPackage(null);
+  };
+
+  // Handle edit form submit
+  const handleEditSubmit = (id: string, data: UpdateSubscriptionRequest) => {
+    updateMutation.mutate({ id, data }, {
+      onSuccess: () => {
+        handleEditModalClose();
+      }
+    });
+  };
+
+  // Handle delete button click
+  const handleDelete = (packageData: PackageData) => {
+    setPackageToDelete(packageData);
+    setIsDeleteModalOpen(true);
+  };
+
+  // Handle confirm delete
+  const handleConfirmDelete = () => {
+    if (packageToDelete) {
+      deleteMutation.mutate(packageToDelete.id, {
+        onSuccess: () => {
+          setIsDeleteModalOpen(false);
+          setPackageToDelete(null);
+        }
+      });
+    }
+  };
+
+  // Handle cancel delete
+  const handleCancelDelete = () => {
+    setIsDeleteModalOpen(false);
+    setPackageToDelete(null);
+  };
+
   // Status dropdown options
   const getStatusDropdownOptions = (currentStatus: string) => [
     {
@@ -225,7 +284,7 @@ const getStatusBadge = (status: string) => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onEdit?.(record)}
+            onClick={() => handleEditClick(record)}
             className="text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
           >
             Sửa
@@ -233,7 +292,7 @@ const getStatusBadge = (status: string) => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onDelete?.(record)}
+            onClick={() => handleDelete(record)}
             className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
           >
             Xóa
@@ -270,6 +329,68 @@ const getStatusBadge = (status: string) => {
           />
         </div>
       )}
+
+      {/* Edit Package Modal */}
+      <EditPackageModal
+        isOpen={isEditModalOpen}
+        onClose={handleEditModalClose}
+        onSubmit={handleEditSubmit}
+        isLoading={updateMutation.isPending}
+        packageData={selectedPackage}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCancelDelete}
+        title="Xác nhận xóa gói subscription"
+        className="max-w-md"
+      >
+        <div className="space-y-4">
+          {/* Warning Icon and Message */}
+          <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+            <div className="flex-shrink-0 mt-0.5">
+              <Icon 
+                name="alert-triangle" 
+                className="w-5 h-5 text-red-600 dark:text-red-400"
+              />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm text-red-800 dark:text-red-200">
+                Bạn có chắc chắn muốn xóa gói subscription này không?
+              </p>
+              {packageToDelete && (
+                <p className="mt-2 text-sm font-medium text-red-900 dark:text-red-100">
+                  Gói: <span className="font-semibold">{packageToDelete.name}</span>
+                </p>
+              )}
+              <p className="mt-2 text-xs text-red-700 dark:text-red-300">
+                Hành động này không thể hoàn tác!
+              </p>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3 pt-2">
+            <Button
+              variant="ghost"
+              onClick={handleCancelDelete}
+              disabled={deleteMutation.isPending}
+              className="border-gray-300 hover:bg-gray-50"
+            >
+              Hủy
+            </Button>
+            <Button
+              variant="danger"
+              onClick={handleConfirmDelete}
+              disabled={deleteMutation.isPending}
+              className="bg-red-600 hover:bg-red-700 text-white border-red-600"
+            >
+              {deleteMutation.isPending ? 'Đang xóa...' : 'Xóa'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

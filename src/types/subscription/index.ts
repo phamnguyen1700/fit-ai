@@ -26,6 +26,14 @@ export interface CreateSubscriptionRequest {
   interval: string;
 }
 
+export interface UpdateSubscriptionRequest {
+  name: string;
+  description: string;
+  amount: number;
+  currency: string;
+  interval: string;
+}
+
 export interface CreateSubscriptionResponse {
   productId: string;
   priceId: string;
