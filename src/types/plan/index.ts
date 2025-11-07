@@ -1,5 +1,6 @@
 export type PlanType = 'workout' | 'meal' | 'combined';
 export type PlanStatus = 'active' | 'completed' | 'pending' | 'cancelled';
+export type Gender = 'male' | 'female' | 'other';
 
 export interface Plan {
   id: string;
@@ -7,6 +8,7 @@ export interface Plan {
   userName: string;
   userEmail: string;
   userAvatar?: string;
+  userGender?: Gender;
   planName: string;
   planType: PlanType;
   goal?: string;
@@ -19,6 +21,10 @@ export interface Plan {
   totalDays: number;
   completedDays: number;
   progress: number; // 0-100
+  
+  // Weight goals
+  startWeight?: number; // in kg
+  targetWeight?: number; // in kg
   
   // Metadata
   generatedBy: 'ai' | 'manual';
@@ -36,7 +42,6 @@ export interface PlanCardProps extends Plan {
 }
 
 // Workout Plan Creation Types
-export type Gender = 'male' | 'female' | 'other';
 export type ExerciseType = 'cardio' | 'strength';
 
 export interface CreatePlanFormData {
