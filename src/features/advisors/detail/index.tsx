@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useCallback, useMemo } from 'react';
 import { Card, Breadcrumb, Button, Flex, Row, Col } from '@/shared/ui';
 import { Icon } from '@/shared/ui/icon';
 import { AdvisorProfile } from './components/AdvisorProfile';
@@ -9,46 +8,90 @@ import { AdvisorStats } from './components/AdvisorStats';
 import { AdvisorSpecialty } from './components/AdvisorSpecialty';
 import { AdvisorAchievements } from './components/AdvisorAchievements';
 import { ManagedClientsList } from './components/ManagedClientsList';
+import { useAdvisorDetail } from '@/tanstack/hooks/advisor';
+import { AdvisorDetail, Achievement } from '@/types/advisor';
+import { Skeleton } from 'antd';
+
+const resolveAvatarUrl = (avatar?: string) => {
+    if (!avatar) return undefined;
+    if (avatar.startsWith('http')) return avatar;
+    const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || '';
+    const normalized = avatar.replace(/^\/+/, '');
+    return base ? `${base}/${normalized}` : avatar;
+};
+
+type AdvisorDetailView = {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    avatar: string;
+    specialty: string;
+    experience: string;
+    rating: number;
+    totalClients: number;
+    activeClients: number;
+    completedPrograms: number;
+    status: string;
+    certifications: string[];
+    birthDate: string;
+    gender: string;
+    joinDate: string;
+    workingHours: string;
+    bio: string;
+    achievements: Achievement[];
+};
+
+const formatDate = (value?: string) => {
+    if (!value) return 'Chưa cập nhật';
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+        return value;
+    }
+    return parsed.toLocaleDateString('vi-VN');
+};
+
+const mapAdvisorDetailToProfile = (advisor?: AdvisorDetail): AdvisorDetailView | null => {
+    if (!advisor) return null;
+
+    const fullName = `${advisor.firstName ?? ''} ${advisor.lastName ?? ''}`.trim();
+    const certifications = Array.isArray(advisor.certifications)
+        ? advisor.certifications
+    : typeof advisor.certifications === 'string'
+    ? advisor.certifications.split(',').map((item: string) => item.trim()).filter(Boolean)
+        : [];
+
+    return {
+        id: advisor.id,
+        name: fullName || advisor.email,
+        email: advisor.email,
+        phone: advisor.phone || 'Chưa cập nhật',
+        avatar: resolveAvatarUrl(advisor.profilePicture) || 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5',
+        specialty: advisor.specialties || 'Chưa cập nhật',
+        experience: typeof advisor.yearsExperience === 'number' ? `${advisor.yearsExperience} năm` : 'Chưa cập nhật',
+        rating: typeof advisor.rating === 'number' ? advisor.rating : 0,
+        totalClients: advisor.totalClients ?? 0,
+        activeClients: advisor.activeClients ?? 0,
+        completedPrograms: advisor.completedPrograms ?? 0,
+        status: advisor.isActive ? 'Hoạt động' : 'Ngưng hoạt động',
+        certifications,
+        birthDate: formatDate(advisor.birthDate),
+        gender: advisor.gender || 'Chưa cập nhật',
+        joinDate: formatDate(advisor.lastCreate),
+        workingHours: advisor.workingHours || 'Chưa cập nhật',
+        bio: advisor.bio || 'Chưa có mô tả',
+        achievements: advisor.achievements || [],
+    };
+};
 
 interface AdvisorDetailPageProps {
     advisorId?: string;
 }
 
 export const AdvisorDetailPage: React.FC<AdvisorDetailPageProps> = ({ advisorId }) => {
-    const router = useRouter();
+    const { data, isLoading, isError } = useAdvisorDetail(advisorId);
 
-    // Mock data - trong thực tế sẽ fetch từ API dựa trên advisorId
-    const advisorData = {
-        id: advisorId || '1',
-        name: 'Nguyễn Văn Mạnh',
-        email: 'nguyen.van.manh@fitai.com',
-        phone: '0901234567',
-        avatar: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5',
-        specialty: 'Thể hình',
-        experience: '8 năm',
-        rating: 4.8,
-        totalClients: 145,
-        activeClients: 98,
-        completedPrograms: 67,
-        status: 'Hoạt động',
-        certifications: ['PT Certified', 'Nutrition Specialist', 'CrossFit Level 2'],
-        birthDate: '15-03-1990',
-        gender: 'Nam',
-        joinDate: '01-01-2020',
-        specializations: ['Giảm cân', 'Tăng cơ', 'Thể hình thi đấu'],
-        workingHours: 'Thứ 2 - Thứ 6: 6:00 - 22:00\nThứ 7 - CN: 8:00 - 18:00',
-        bio: 'Huấn luyện viên có hơn 8 năm kinh nghiệm trong lĩnh vực thể hình và dinh dưỡng. Chuyên về xây dựng chương trình tập luyện và kế hoạch dinh dưỡng cá nhân hóa.',
-        achievements: [
-            { year: '2023', title: 'Best Trainer Award', organization: 'FitAI' },
-            { year: '2022', title: 'Top Performer', organization: 'FitAI' },
-            { year: '2021', title: 'Excellence in Training', organization: 'FitAI' }
-        ],
-        stats: {
-            avgSessionsPerWeek: 25,
-            clientSatisfaction: 96,
-            programCompletionRate: 78
-        }
-    };
+    const advisorDetail = useMemo(() => mapAdvisorDetailToProfile(data?.data as AdvisorDetail | undefined), [data?.data]);
 
     // Mock data khách hàng đang quản lý
     const managedClients = [
@@ -133,12 +176,32 @@ export const AdvisorDetailPage: React.FC<AdvisorDetailPageProps> = ({ advisorId 
     ];
 
     const handleEdit = useCallback(() => {
-        console.log('Edit advisor:', advisorData.id);
-    }, [advisorData.id]);
+        if (!advisorDetail) return;
+        console.log('Edit advisor:', advisorDetail.id);
+    }, [advisorDetail?.id]);
 
     const handleDeactivate = useCallback(() => {
-        console.log('Deactivate advisor:', advisorData.id);
-    }, [advisorData.id]);
+        if (!advisorDetail) return;
+        console.log('Deactivate advisor:', advisorDetail.id);
+    }, [advisorDetail?.id]);
+
+    if (isLoading) {
+        return (
+            <Card title={<span className="text text-base sm:text-lg font-semibold">Chi tiết Advisor</span>}>
+                <Skeleton active paragraph={{ rows: 8 }} />
+            </Card>
+        );
+    }
+
+    if (isError || !advisorDetail) {
+        return (
+            <Card title={<span className="text text-base sm:text-lg font-semibold">Chi tiết Advisor</span>}>
+                <div className="py-12 text-center text-sm text-[var(--error)]">
+                    Không tìm thấy thông tin advisor. Vui lòng kiểm tra lại.
+                </div>
+            </Card>
+        );
+    }
 
     return (
         <Card
@@ -162,15 +225,15 @@ export const AdvisorDetailPage: React.FC<AdvisorDetailPageProps> = ({ advisorId 
             <Row gutter={[24, 24]}>
                 {/* Left Column - Hồ sơ Advisor */}
                 <Col xs={24} lg={12}>
-                    <AdvisorProfile advisorData={advisorData} />
+                    <AdvisorProfile advisorData={advisorDetail} />
                 </Col>
 
                 {/* Right Column - Thống kê & Thông tin chuyên môn */}
                 <Col xs={24} lg={12}>
                     <Flex vertical gap={24}>
-                        <AdvisorStats advisorData={advisorData} />
-                        <AdvisorSpecialty advisorData={advisorData} />
-                        <AdvisorAchievements achievements={advisorData.achievements} />
+                        <AdvisorStats advisorData={advisorDetail} />
+                        <AdvisorSpecialty advisorData={advisorDetail} />
+                        <AdvisorAchievements achievements={advisorDetail.achievements?.length ? advisorDetail.achievements : []} />
                     </Flex>
                 </Col>
             </Row>

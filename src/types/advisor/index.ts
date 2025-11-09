@@ -25,3 +25,21 @@ export interface AdvisorParams {
 }
 
 export type AdvisorListResponse = Advisor[];
+
+export interface AdvisorDetail extends Omit<Advisor, 'certifications'> {
+  certifications?: string[] | string;
+  workingHours?: string;
+  totalClients?: number;
+  activeClients?: number;
+  completedPrograms?: number;
+  bio?: string;
+  birthDate?: string;
+  gender?: string;
+  achievements?: Achievement[];
+}
+
+export interface Achievement {
+  year: string;
+  title: string;
+  organization: string;
+}
