@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { createWorkoutDemoService, deleteWorkoutDemoService, getWorkoutDemoDetailService, getWorkoutDemoListService, updateWorkoutDemoDetailService, hardDeleteWorkoutDemoService } from '@/tanstack/services/workoutdemo'
-import { WorkoutDemoDetailResponse, WorkoutDemoListParams, WorkoutDemoListResponse, CreateWorkoutDemoPayload, CreateWorkoutDemoResponse, UpdateWorkoutDemoDetailPayload, UpdateWorkoutDemoDetailResponse } from '@/types/workoutdemo'
+import { createWorkoutDemoService, deleteWorkoutDemoService, getWorkoutDemoDetailService, getWorkoutDemoListService, updateWorkoutDemoDetailService, hardDeleteWorkoutDemoService, updateWorkoutDemoService } from '@/tanstack/services/workoutdemo'
+import { WorkoutDemoDetailResponse, WorkoutDemoListParams, WorkoutDemoListResponse, CreateWorkoutDemoPayload, CreateWorkoutDemoResponse, UpdateWorkoutDemoDetailPayload, UpdateWorkoutDemoDetailResponse, UpdateWorkoutDemoPayload, UpdateWorkoutDemoResponse } from '@/types/workoutdemo'
 import { IApiResponse } from '@/shared/api/http'
 import toast from 'react-hot-toast'
 
@@ -76,6 +76,27 @@ export const useUpdateWorkoutDemoDetail = () => {
     },
     onError: (error: any) => {
       const message = error?.response?.data?.message || error?.message || 'Cập nhật chi tiết kế hoạch thất bại. Vui lòng thử lại.'
+      toast.error(message)
+    },
+  })
+}
+
+export const useUpdateWorkoutDemo = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<IApiResponse<UpdateWorkoutDemoResponse>, unknown, { workoutDemoId: string; payload: UpdateWorkoutDemoPayload }>({
+    mutationFn: ({ workoutDemoId, payload }) => updateWorkoutDemoService(workoutDemoId, payload),
+    onSuccess: (response, variables) => {
+      if (response.success) {
+        toast.success('Cập nhật kế hoạch luyện tập thành công!')
+        queryClient.invalidateQueries({ queryKey: [WORKOUT_DEMO_QUERY_KEY] })
+        queryClient.invalidateQueries({ queryKey: [WORKOUT_DEMO_DETAIL_QUERY_KEY, variables.workoutDemoId] })
+      } else {
+        toast.error(response.message || 'Cập nhật kế hoạch luyện tập thất bại')
+      }
+    },
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Cập nhật kế hoạch luyện tập thất bại. Vui lòng thử lại.'
       toast.error(message)
     },
   })

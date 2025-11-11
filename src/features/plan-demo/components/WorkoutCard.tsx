@@ -6,6 +6,7 @@ import WorkoutDetailModal from './WorkoutDetailModal';
 import { useDeleteWorkoutDemo, useGetWorkoutDemoDetail, useHardDeleteWorkoutDemo } from '@/tanstack/hooks/workoutdemo';
 import { Dropdown, App } from 'antd';
 import type { MenuProps } from 'antd';
+import WorkoutPlanUpdateModal from './WorkoutPlanUpdateModal';
 
 interface WorkoutCardProps {
   workoutPlan: WorkoutDemo;
@@ -21,8 +22,10 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
   onDelete,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
-  const detailId = isModalOpen ? workoutPlan.workoutDemoId : undefined;
+  const shouldFetchDetail = isModalOpen || isUpdateModalOpen;
+  const detailId = shouldFetchDetail ? workoutPlan.workoutDemoId : undefined;
   const { data: detailResponse, isLoading: isDetailLoading } = useGetWorkoutDemoDetail(detailId);
   const detail = detailResponse?.data;
 
@@ -41,6 +44,18 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
 
   const activeDays = days.filter((day) => day.exercises.length > 0).length;
   const totalDays = detail?.totalDays ?? workoutPlan.days.length;
+
+  const updateInitialValues = useMemo(
+    () => ({
+      planName,
+      gender: detail?.gender ?? undefined,
+      goal: detail?.goal ?? '',
+      totalDays: detail?.totalDays ?? workoutPlan.days.length,
+    }),
+    [planName, detail?.gender, detail?.goal, detail?.totalDays, workoutPlan.days.length]
+  );
+
+  const isPlanInfoLoading = isUpdateModalOpen && isDetailLoading && !detail;
 
   const isActionDisabled = isDeleting || isHardDeleting;
 
@@ -111,6 +126,7 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
   const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
     switch (key) {
       case 'update':
+        setIsUpdateModalOpen(true);
         onUpdate?.(workoutPlan);
         break;
       case 'deactivate':
@@ -223,6 +239,14 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
         gender={detail?.gender}
         totalDays={detail?.totalDays}
         isLoading={isDetailLoading}
+      />
+
+      <WorkoutPlanUpdateModal
+        isOpen={isUpdateModalOpen}
+        onClose={() => setIsUpdateModalOpen(false)}
+        workoutDemoId={workoutPlan.workoutDemoId}
+        initialValues={updateInitialValues}
+        isLoading={isPlanInfoLoading}
       />
     </>
   );

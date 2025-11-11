@@ -120,7 +120,6 @@ export const CreatePlanModal: React.FC<CreatePlanModalProps> = ({
   const genderOptions = [
     { label: 'Nam', value: 'male' },
     { label: 'Nữ', value: 'female' },
-    { label: 'Khác', value: 'other' },
   ];
 
   return (

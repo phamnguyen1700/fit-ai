@@ -58,6 +58,15 @@ export interface CreateWorkoutDemoPayload {
 
 export type CreateWorkoutDemoResponse = WorkoutDemoDetailResponse;
 
+export interface UpdateWorkoutDemoPayload {
+  planName: string;
+  gender: string;
+  goal: string;
+  totalDays: number;
+}
+
+export type UpdateWorkoutDemoResponse = WorkoutDemoDetailResponse;
+
 export interface UpdateWorkoutDemoExercisePayload {
   exerciseId: string;
   exerciseCategoryId: string;
