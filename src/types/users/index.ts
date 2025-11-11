@@ -8,7 +8,7 @@ export interface User {
   gender?: 'male' | 'female' | 'other';
   address?: string;
   status: 'active' | 'inactive' | 'pending' | 'banned';
-  role: 'user' | 'admin' | 'moderator';
+  role: 'user' | 'admin' | 'moderator' | 'advisor';
   planId?: string;
   planName?: string;
   subscriptionStart?: string;
@@ -27,7 +27,7 @@ export interface CreateUserRequest {
   dateOfBirth?: string;
   gender?: 'male' | 'female' | 'other';
   address?: string;
-  role?: 'user' | 'admin' | 'moderator';
+  role?: 'user' | 'admin' | 'moderator' | 'advisor';
   planId?: string;
 }
 
@@ -40,14 +40,14 @@ export interface UpdateUserRequest {
   gender?: 'male' | 'female' | 'other';
   address?: string;
   status?: 'active' | 'inactive' | 'pending' | 'banned';
-  role?: 'user' | 'admin' | 'moderator';
+  role?: 'user' | 'admin' | 'moderator' | 'advisor';
   planId?: string;
   avatar?: string;
 }
 
 export interface UserFilters {
   status?: 'active' | 'inactive' | 'pending' | 'banned';
-  role?: 'user' | 'admin' | 'moderator';
+  role?: 'user' | 'admin' | 'moderator' | 'advisor';
   planId?: string;
   search?: string;
   dateFrom?: string;
