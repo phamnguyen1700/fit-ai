@@ -1,32 +1,25 @@
 import React, { useState } from 'react';
 import { Card, Flex, Button } from '@/shared/ui';
 import { Icon } from '@/shared/ui/icon';
-import type { WorkoutPlanCreation } from '@/types/plan';
+import type { WorkoutDemo } from '@/types/workoutdemo';
 import WorkoutDetailModal from './WorkoutDetailModal';
 
 interface WorkoutCardProps {
-  workoutPlan: WorkoutPlanCreation;
-  exerciseCategories?: { id: string; name: string }[];
-  exercises?: { id: string; name: string; categoryId: string }[];
+  workoutPlan: WorkoutDemo;
 }
 
 export const WorkoutCard: React.FC<WorkoutCardProps> = ({
   workoutPlan,
-  exerciseCategories = [],
-  exercises = [],
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Count total sessions and exercises
-  const totalSessions = workoutPlan.workouts.reduce((acc, day) => {
-    const sessionNames = new Set(day.exercises.map((ex) => ex.sessionName));
-    return acc + sessionNames.size;
-  }, 0);
-
-  const totalExercises = workoutPlan.workouts.reduce(
+  const totalExercises = workoutPlan.days.reduce(
     (acc, day) => acc + day.exercises.length,
     0
   );
+
+  const activeDays = workoutPlan.days.filter((day) => day.exercises.length > 0).length;
+  const totalDays = workoutPlan.days.length;
 
   return (
     <>
@@ -40,7 +33,6 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
           body: { padding: 24 },
         }}
       >
-        {/* Plan Name */}
         <h2 style={{ 
           margin: '0 0 20px 0', 
           fontSize: 20, 
@@ -50,22 +42,30 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
           {workoutPlan.planName}
         </h2>
 
-        {/* Goal */}
-        {workoutPlan.goal && (
-          <Flex gap={8} align="center" style={{ marginBottom: 20 }}>
-            <Icon name="mdi:target" size={18} color="var(--primary)" />
-            <span style={{ fontSize: 14, color: 'var(--text)' }}>
-              {workoutPlan.goal}
-            </span>
-          </Flex>
-        )}
+        <Flex gap={6} align="center" style={{ marginBottom: 20 }}>
+          <Icon
+            name={workoutPlan.isDeleted ? 'mdi:close-circle-outline' : 'mdi:check-circle-outline'}
+            size={18}
+            color={workoutPlan.isDeleted ? 'var(--danger)' : 'var(--success)'}
+          />
+          <span style={{
+            fontSize: 13,
+            fontWeight: 500,
+            color: workoutPlan.isDeleted ? 'var(--danger)' : 'var(--success)',
+            backgroundColor: workoutPlan.isDeleted ? 'rgba(255, 99, 71, 0.12)' : 'rgba(34, 197, 94, 0.12)',
+            padding: '4px 10px',
+            borderRadius: 999,
+          }}>
+            {workoutPlan.isDeleted ? 'Đã ẩn' : 'Đang hoạt động'}
+          </span>
+        </Flex>
 
         {/* Summary Stats */}
         <Flex gap={16} style={{ marginBottom: 20 }}>
           <Flex gap={8} align="center">
             <Icon name="mdi:calendar-check" size={20} color="var(--primary)" />
             <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
-              {workoutPlan.workouts.length} ngày
+              {totalDays} ngày ({activeDays} ngày có bài tập)
             </span>
           </Flex>
           <Flex gap={8} align="center">
@@ -92,9 +92,7 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         planName={workoutPlan.planName}
-        workouts={workoutPlan.workouts}
-        exerciseCategories={exerciseCategories}
-        exercises={exercises}
+        workouts={workoutPlan.days}
       />
     </>
   );

@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import { Modal, Card, Flex } from '@/shared/ui';
 import { Icon } from '@/shared/ui/icon';
-import type { DayWorkout, WorkoutExercise } from '@/types/plan';
+import type { WorkoutDemoDay, WorkoutDemoExercise } from '@/types/workoutdemo';
 
 interface WorkoutDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   planName: string;
-  workouts: DayWorkout[];
-  exerciseCategories?: { id: string; name: string }[];
-  exercises?: { id: string; name: string; categoryId: string }[];
+  workouts: WorkoutDemoDay[];
 }
 
 const TABLE_HEADERS = ['Buổi tập', 'Nhóm cơ / Loại bài tập', 'Bài tập', 'Sets', 'Reps', 'Thời gian'];
@@ -20,16 +18,8 @@ export const WorkoutDetailModal: React.FC<WorkoutDetailModalProps> = ({
   onClose,
   planName,
   workouts,
-  exerciseCategories = [],
-  exercises = [],
 }) => {
   const [expandedDays, setExpandedDays] = useState<number[]>([]);
-
-  const getCategoryName = (id: string) => 
-    exerciseCategories.find((cat) => cat.id === id)?.name || 'Nhóm cơ';
-
-  const getExerciseName = (id: string) => 
-    exercises.find((ex) => ex.id === id)?.name || 'Bài tập';
 
   const toggleDay = (day: number) => 
     setExpandedDays((prev) => prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]);
@@ -57,7 +47,7 @@ export const WorkoutDetailModal: React.FC<WorkoutDetailModalProps> = ({
     </div>
   );
 
-  const DayContent = ({ exercises }: { exercises: WorkoutExercise[] }) => (
+  const DayContent = ({ exercises }: { exercises: WorkoutDemoExercise[] }) => (
     <div style={{ padding: '16px 20px 20px' }}>
       <div style={{ overflow: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -77,23 +67,23 @@ export const WorkoutDetailModal: React.FC<WorkoutDetailModalProps> = ({
           </thead>
           <tbody>
             {exercises.map((ex, i) => (
-              <tr key={ex.id} style={{
+              <tr key={`${ex.name ?? 'exercise'}-${i}`} style={{
                 borderBottom: i === exercises.length - 1 ? 'none' : '1px solid var(--border)',
               }}>
                 <td style={{ padding: '12px', fontWeight: 500, color: 'var(--primary)' }}>
-                  {ex.sessionName || 'Buổi tập'}
+                  {ex.name || 'Buổi tập'}
                 </td>
                 <td style={{ padding: '12px', color: 'var(--text-secondary)' }}>
-                  {getCategoryName(ex.categoryId)}
+                  {ex.category?.name || 'Nhóm cơ'}
                 </td>
                 <td style={{ padding: '12px', color: 'var(--text)' }}>
-                  {getExerciseName(ex.exerciseId)}
+                  {ex.description || 'Bài tập'}
                 </td>
                 <td style={{ padding: '12px', textAlign: 'center', color: 'var(--text)' }}>
-                  {ex.sets || '-'}
+                  {ex.sets ?? '-'}
                 </td>
                 <td style={{ padding: '12px', textAlign: 'center', color: 'var(--text)' }}>
-                  {ex.reps || '-'}
+                  {ex.reps ?? '-'}
                 </td>
                 <td style={{ padding: '12px', textAlign: 'center', color: 'var(--text)' }}>
                   {ex.minutes ? `${ex.minutes}p` : '-'}
