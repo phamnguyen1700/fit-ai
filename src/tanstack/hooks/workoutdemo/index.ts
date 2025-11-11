@@ -1,7 +1,8 @@
-import { useQuery } from '@tanstack/react-query'
-import { getWorkoutDemoDetailService, getWorkoutDemoListService } from '@/tanstack/services/workoutdemo'
-import { WorkoutDemoDetailResponse, WorkoutDemoListParams, WorkoutDemoListResponse } from '@/types/workoutdemo'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { createWorkoutDemoService, getWorkoutDemoDetailService, getWorkoutDemoListService, updateWorkoutDemoDetailService } from '@/tanstack/services/workoutdemo'
+import { WorkoutDemoDetailResponse, WorkoutDemoListParams, WorkoutDemoListResponse, CreateWorkoutDemoPayload, CreateWorkoutDemoResponse, UpdateWorkoutDemoDetailPayload, UpdateWorkoutDemoDetailResponse } from '@/types/workoutdemo'
 import { IApiResponse } from '@/shared/api/http'
+import toast from 'react-hot-toast'
 
 export const WORKOUT_DEMO_QUERY_KEY = 'workout-demo-list'
 export const WORKOUT_DEMO_DETAIL_QUERY_KEY = 'workout-demo-detail'
@@ -9,7 +10,15 @@ export const WORKOUT_DEMO_DETAIL_QUERY_KEY = 'workout-demo-detail'
 export const useGetWorkoutDemoList = (params?: WorkoutDemoListParams) => {
   return useQuery<IApiResponse<WorkoutDemoListResponse>>({
     queryKey: [WORKOUT_DEMO_QUERY_KEY, params],
-    queryFn: () => getWorkoutDemoListService(params),
+    queryFn: async () => {
+      const response = await getWorkoutDemoListService(params)
+
+      if (!response.success) {
+        throw new Error(response.message || 'Không thể tải danh sách kế hoạch luyện tập')
+      }
+
+      return response
+    },
     staleTime: 5 * 60 * 1000,
   })
 }
@@ -17,8 +26,57 @@ export const useGetWorkoutDemoList = (params?: WorkoutDemoListParams) => {
 export const useGetWorkoutDemoDetail = (id?: string) => {
   return useQuery<IApiResponse<WorkoutDemoDetailResponse>>({
     queryKey: [WORKOUT_DEMO_DETAIL_QUERY_KEY, id],
-    queryFn: () => getWorkoutDemoDetailService(id as string),
+    queryFn: async () => {
+      const response = await getWorkoutDemoDetailService(id as string)
+    console.log('response', response)
+      if (!response.success) {
+        throw new Error(response.message || 'Không thể tải chi tiết kế hoạch luyện tập')
+      }
+
+      return response
+    },
     enabled: Boolean(id),
     staleTime: 5 * 60 * 1000,
+  })
+}
+
+export const useCreateWorkoutDemo = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<IApiResponse<CreateWorkoutDemoResponse>, unknown, CreateWorkoutDemoPayload>({
+    mutationFn: (payload) => createWorkoutDemoService(payload),
+    onSuccess: (response) => {
+      if (response.success) {
+        toast.success('Tạo kế hoạch tập luyện thành công!')
+        queryClient.invalidateQueries({ queryKey: [WORKOUT_DEMO_QUERY_KEY] })
+      } else {
+        toast.error(response.message || 'Tạo kế hoạch tập luyện thất bại')
+      }
+    },
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Không thể tạo kế hoạch tập luyện. Vui lòng thử lại.'
+      toast.error(message)
+    },
+  })
+}
+
+export const useUpdateWorkoutDemoDetail = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<IApiResponse<UpdateWorkoutDemoDetailResponse>, unknown, { workoutDemoId: string; payload: UpdateWorkoutDemoDetailPayload }>({
+    mutationFn: ({ workoutDemoId, payload }) => updateWorkoutDemoDetailService(workoutDemoId, payload),
+    onSuccess: (response, variables) => {
+      if (response.success) {
+        toast.success('Cập nhật chi tiết kế hoạch thành công! ✅')
+        queryClient.invalidateQueries({ queryKey: [WORKOUT_DEMO_DETAIL_QUERY_KEY, variables.workoutDemoId] })
+        queryClient.invalidateQueries({ queryKey: [WORKOUT_DEMO_QUERY_KEY] })
+      } else {
+        toast.error(response.message || 'Cập nhật chi tiết kế hoạch thất bại')
+      }
+    },
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Cập nhật chi tiết kế hoạch thất bại. Vui lòng thử lại.'
+      toast.error(message)
+    },
   })
 }

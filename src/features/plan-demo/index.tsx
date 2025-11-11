@@ -18,6 +18,7 @@ export const PlanDemoPage: React.FC = () => {
   const [createPlanModalOpen, setCreatePlanModalOpen] = useState(false);
   const [workoutDetailsModalOpen, setWorkoutDetailsModalOpen] = useState(false);
   const [planFormData, setPlanFormData] = useState<CreatePlanFormData | null>(null);
+  const [workoutDemoId, setWorkoutDemoId] = useState<string | null>(null);
   const [createMealPlanModalOpen, setCreateMealPlanModalOpen] = useState(false);
   const [mealDetailsModalOpen, setMealDetailsModalOpen] = useState(false);
   const [mealPlanFormData, setMealPlanFormData] = useState<CreateMealPlanFormData | null>(null);
@@ -50,8 +51,9 @@ export const PlanDemoPage: React.FC = () => {
     }
   };
 
-  const handleCreatePlanSubmit = (data: CreatePlanFormData) => {
+  const handleCreatePlanSubmit = (data: CreatePlanFormData, createdWorkoutDemoId: string) => {
     setPlanFormData(data);
+    setWorkoutDemoId(createdWorkoutDemoId);
     setCreatePlanModalOpen(false);
     setWorkoutDetailsModalOpen(true);
   };
@@ -61,6 +63,7 @@ export const PlanDemoPage: React.FC = () => {
     console.log('Workout plan created:', { ...planFormData, workouts });
     setWorkoutDetailsModalOpen(false);
     setPlanFormData(null);
+    setWorkoutDemoId(null);
     alert('Kế hoạch tập luyện đã được tạo thành công!');
   };
 
@@ -109,9 +112,11 @@ export const PlanDemoPage: React.FC = () => {
       <WorkoutDetailsModal
         open={workoutDetailsModalOpen}
         planData={planFormData}
+        workoutDemoId={workoutDemoId}
         onCancel={() => {
           setWorkoutDetailsModalOpen(false);
           setPlanFormData(null);
+          setWorkoutDemoId(null);
         }}
         onSubmit={handleWorkoutDetailsSubmit}
       />

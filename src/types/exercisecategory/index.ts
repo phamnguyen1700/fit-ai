@@ -3,6 +3,7 @@ export interface ExerciseCategory {
   id: string;
   name: string;
   description: string;
+  type?: string;
 }
 
 // API Response Types

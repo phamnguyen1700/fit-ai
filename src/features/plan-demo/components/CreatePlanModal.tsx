@@ -1,14 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Modal, Input, Select, Button, Flex } from '@/shared/ui';
 import { Form, InputNumber } from 'antd';
 import type { CreatePlanFormData, Gender } from '@/types/plan';
+import { useCreateWorkoutDemo } from '@/tanstack/hooks/workoutdemo';
+import toast from 'react-hot-toast';
 
 interface CreatePlanModalProps {
   open: boolean;
   onCancel: () => void;
-  onSubmit: (data: CreatePlanFormData) => void;
+  onSubmit: (data: CreatePlanFormData, workoutDemoId: string) => void;
 }
 
 export const CreatePlanModal: React.FC<CreatePlanModalProps> = ({
@@ -17,13 +19,60 @@ export const CreatePlanModal: React.FC<CreatePlanModalProps> = ({
   onSubmit,
 }) => {
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
+  const { mutateAsync: createWorkoutDemo, isPending } = useCreateWorkoutDemo();
+
+  const resolveWorkoutDemoId = (raw: unknown): string | undefined => {
+    if (!raw) {
+      return undefined;
+    }
+
+    if (typeof raw === 'string' || typeof raw === 'number') {
+      const value = String(raw).trim();
+      return value || undefined;
+    }
+
+    if (Array.isArray(raw)) {
+      for (const item of raw) {
+        const nested = resolveWorkoutDemoId(item);
+        if (nested) {
+          return nested;
+        }
+      }
+      return undefined;
+    }
+
+    if (typeof raw === 'object') {
+      const record = raw as Record<string, unknown>;
+      const candidateKeys = ['workoutDemoId', 'workoutDemoID', 'id', 'workoutPlanId', 'workoutPlanID'];
+
+      for (const key of candidateKeys) {
+        const candidate = record[key];
+        if (typeof candidate === 'string' || typeof candidate === 'number') {
+          const normalized = String(candidate).trim();
+          if (normalized) {
+            return normalized;
+          }
+        }
+      }
+
+      const nestedKeys = ['data', 'result', 'workoutDemo', 'payload'];
+      for (const nestedKey of nestedKeys) {
+        if (nestedKey in record) {
+          const nested = resolveWorkoutDemoId(record[nestedKey]);
+          if (nested) {
+            return nested;
+          }
+        }
+      }
+    }
+
+    return undefined;
+  };
 
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      setLoading(true);
-      
+
       const formData: CreatePlanFormData = {
         planName: values.planName,
         gender: values.gender,
@@ -32,12 +81,34 @@ export const CreatePlanModal: React.FC<CreatePlanModalProps> = ({
         totalDays: values.totalDays,
       };
 
-      onSubmit(formData);
-      setLoading(false);
+      const response = await createWorkoutDemo({
+        planName: formData.planName,
+        gender: formData.gender,
+        goal: formData.goal,
+        totalDays: formData.totalDays,
+      });
+
+      if (!response?.success) {
+        toast.error(response?.message || 'Không thể tạo kế hoạch. Vui lòng thử lại.');
+        return;
+      }
+
+      const workoutDemoId = resolveWorkoutDemoId(response?.data);
+
+      if (!workoutDemoId) {
+        toast.error('Không nhận được mã kế hoạch từ máy chủ.');
+        return;
+      }
+
+      onSubmit(formData, workoutDemoId);
       form.resetFields();
-    } catch (error) {
-      console.error('Validation failed:', error);
-      setLoading(false);
+    } catch (error: any) {
+      if (error?.errorFields) {
+        console.error('Validation failed:', error);
+      } else {
+        console.error('Create workout demo failed:', error);
+        toast.error('Không thể tạo kế hoạch. Vui lòng thử lại.');
+      }
     }
   };
 
@@ -144,7 +215,7 @@ export const CreatePlanModal: React.FC<CreatePlanModalProps> = ({
               variant="primary"
               size="md"
               onClick={handleSubmit}
-              loading={loading}
+              loading={isPending}
             >
               Tạo kế hoạch
             </Button>

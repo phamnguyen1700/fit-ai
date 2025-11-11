@@ -12,6 +12,9 @@ export interface WorkoutDemoExercise {
   sets: number | null;
   reps: number | null;
   minutes: number | null;
+  exerciseId?: string | null;
+  exerciseCategoryId?: string | null;
+  sessionName?: string | null;
 }
 
 export interface WorkoutDemoDay {
@@ -45,3 +48,30 @@ export interface WorkoutDemoListResponse {
 }
 
 export type WorkoutDemoDetailResponse = WorkoutDemoDetail;
+
+export interface CreateWorkoutDemoPayload {
+  planName: string;
+  gender: string;
+  goal: string;
+  totalDays: number;
+}
+
+export type CreateWorkoutDemoResponse = WorkoutDemoDetailResponse;
+
+export interface UpdateWorkoutDemoExercisePayload {
+  exerciseId: string;
+  exerciseCategoryId: string;
+  sets?: number;
+  reps?: number;
+  minutes?: number;
+}
+
+export interface UpdateWorkoutDemoDayPayload {
+  day: number;
+  dayName?: string;
+  exercises: UpdateWorkoutDemoExercisePayload[];
+}
+
+export type UpdateWorkoutDemoDetailPayload = UpdateWorkoutDemoDayPayload[];
+
+export type UpdateWorkoutDemoDetailResponse = WorkoutDemoDetailResponse;

@@ -55,7 +55,7 @@ export const WorkoutDetailModal: React.FC<WorkoutDetailModalProps> = ({
     </div>
   );
 
-  const DayContent = ({ exercises }: { exercises: WorkoutDemoExercise[] }) => (
+  const DayContent = ({ dayLabel, exercises }: { dayLabel: string; exercises: WorkoutDemoExercise[] }) => (
     <div style={{ padding: '16px 20px 20px' }}>
       <div style={{ overflow: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -79,10 +79,10 @@ export const WorkoutDetailModal: React.FC<WorkoutDetailModalProps> = ({
                 borderBottom: i === exercises.length - 1 ? 'none' : '1px solid var(--border)',
               }}>
                 <td style={{ padding: '12px', fontWeight: 500, color: 'var(--primary)' }}>
-                  {ex.name || 'Buổi tập'}
+                  {dayLabel}
                 </td>
                 <td style={{ padding: '12px', color: 'var(--text-secondary)' }}>
-                  {ex.category?.name || 'Nhóm cơ'}
+                  {ex.category?.name?.trim() || '—'}
                 </td>
                 <td style={{ padding: '12px', color: 'var(--text)' }}>
                   {ex.description || 'Bài tập'}
@@ -157,6 +157,7 @@ export const WorkoutDetailModal: React.FC<WorkoutDetailModalProps> = ({
 
         {workouts.map((day) => {
           const isExpanded = expandedDays.includes(day.day);
+          const dayLabel = day.dayName?.trim() || `Ngày ${day.day}`;
           
           return (
             <Card key={day.day} style={{
@@ -172,7 +173,7 @@ export const WorkoutDetailModal: React.FC<WorkoutDetailModalProps> = ({
                 onClick={() => toggleDay(day.day)}
               />
               {isExpanded && (
-                <DayContent exercises={day.exercises} />
+                <DayContent dayLabel={dayLabel} exercises={day.exercises} />
               )}
             </Card>
           );

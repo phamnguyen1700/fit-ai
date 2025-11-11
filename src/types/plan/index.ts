@@ -70,6 +70,8 @@ export interface WorkoutExercise {
   sessionName: string;
   categoryId: string;
   exerciseId: string;
+  categoryName?: string;
+  exerciseName?: string;
   // For cardio
   minutes?: number;
   // For strength

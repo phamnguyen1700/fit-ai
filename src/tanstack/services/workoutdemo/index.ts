@@ -1,5 +1,5 @@
-import { get } from '@/shared/api/http'
-import { WorkoutDemoListParams, WorkoutDemoListResponse, WorkoutDemo, WorkoutDemoDetailResponse } from '@/types/workoutdemo'
+import { get, post, put } from '@/shared/api/http'
+import { WorkoutDemoListParams, WorkoutDemoListResponse, WorkoutDemo, WorkoutDemoDetailResponse, CreateWorkoutDemoPayload, CreateWorkoutDemoResponse, UpdateWorkoutDemoDetailPayload, UpdateWorkoutDemoDetailResponse } from '@/types/workoutdemo'
 
 type WorkoutDemoApiPayload = {
   success?: boolean
@@ -44,3 +44,9 @@ export const getWorkoutDemoListService = (params?: WorkoutDemoListParams) =>
 
 export const getWorkoutDemoDetailService = (id: string) =>
   get<WorkoutDemoDetailResponse>(`fitness/api/workoutdemo/${id}`)
+
+export const createWorkoutDemoService = (payload: CreateWorkoutDemoPayload) =>
+  post<CreateWorkoutDemoResponse>('fitness/api/workoutdemo', payload)
+
+export const updateWorkoutDemoDetailService = (workoutDemoId: string, payload: UpdateWorkoutDemoDetailPayload) =>
+  put<UpdateWorkoutDemoDetailResponse>(`fitness/api/workoutdemodetail/${workoutDemoId}`, payload)
