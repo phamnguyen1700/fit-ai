@@ -3,6 +3,7 @@ import { Card, Flex, Button } from '@/shared/ui';
 import { Icon } from '@/shared/ui/icon';
 import type { WorkoutDemo } from '@/types/workoutdemo';
 import WorkoutDetailModal from './WorkoutDetailModal';
+import { useGetWorkoutDemoDetail } from '@/tanstack/hooks/workoutdemo';
 
 interface WorkoutCardProps {
   workoutPlan: WorkoutDemo;
@@ -13,13 +14,21 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const totalExercises = workoutPlan.days.reduce(
+  const detailId = isModalOpen ? workoutPlan.workoutDemoId : undefined;
+  const { data: detailResponse, isLoading: isDetailLoading } = useGetWorkoutDemoDetail(detailId);
+  const detail = detailResponse?.data;
+
+  const planName = detail?.planName ?? workoutPlan.planName;
+  const isDeleted = detail?.isDeleted ?? workoutPlan.isDeleted;
+  const days = detail?.days ?? workoutPlan.days;
+
+  const totalExercises = days.reduce(
     (acc, day) => acc + day.exercises.length,
     0
   );
 
-  const activeDays = workoutPlan.days.filter((day) => day.exercises.length > 0).length;
-  const totalDays = workoutPlan.days.length;
+  const activeDays = days.filter((day) => day.exercises.length > 0).length;
+  const totalDays = detail?.totalDays ?? workoutPlan.days.length;
 
   return (
     <>
@@ -39,24 +48,24 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
           fontWeight: 600, 
           color: 'var(--text)' 
         }}>
-          {workoutPlan.planName}
+          {planName}
         </h2>
 
         <Flex gap={6} align="center" style={{ marginBottom: 20 }}>
           <Icon
-            name={workoutPlan.isDeleted ? 'mdi:close-circle-outline' : 'mdi:check-circle-outline'}
+            name={isDeleted ? 'mdi:close-circle-outline' : 'mdi:check-circle-outline'}
             size={18}
-            color={workoutPlan.isDeleted ? 'var(--danger)' : 'var(--success)'}
+            color={isDeleted ? 'var(--danger)' : 'var(--success)'}
           />
           <span style={{
             fontSize: 13,
             fontWeight: 500,
-            color: workoutPlan.isDeleted ? 'var(--danger)' : 'var(--success)',
-            backgroundColor: workoutPlan.isDeleted ? 'rgba(255, 99, 71, 0.12)' : 'rgba(34, 197, 94, 0.12)',
+            color: isDeleted ? 'var(--danger)' : 'var(--success)',
+            backgroundColor: isDeleted ? 'rgba(255, 99, 71, 0.12)' : 'rgba(34, 197, 94, 0.12)',
             padding: '4px 10px',
             borderRadius: 999,
           }}>
-            {workoutPlan.isDeleted ? 'Đã ẩn' : 'Đang hoạt động'}
+            {isDeleted ? 'Đã ẩn' : 'Đang hoạt động'}
           </span>
         </Flex>
 
@@ -91,8 +100,12 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
       <WorkoutDetailModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        planName={workoutPlan.planName}
-        workouts={workoutPlan.days}
+        planName={planName}
+        workouts={days}
+        goal={detail?.goal}
+        gender={detail?.gender}
+        totalDays={detail?.totalDays}
+        isLoading={isDetailLoading}
       />
     </>
   );

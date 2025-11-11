@@ -8,6 +8,10 @@ interface WorkoutDetailModalProps {
   onClose: () => void;
   planName: string;
   workouts: WorkoutDemoDay[];
+  goal?: string | null;
+  gender?: string | null;
+  totalDays?: number | null;
+  isLoading?: boolean;
 }
 
 const TABLE_HEADERS = ['Buổi tập', 'Nhóm cơ / Loại bài tập', 'Bài tập', 'Sets', 'Reps', 'Thời gian'];
@@ -18,6 +22,10 @@ export const WorkoutDetailModal: React.FC<WorkoutDetailModalProps> = ({
   onClose,
   planName,
   workouts,
+  goal,
+  gender,
+  totalDays,
+  isLoading,
 }) => {
   const [expandedDays, setExpandedDays] = useState<number[]>([]);
 
@@ -99,6 +107,54 @@ export const WorkoutDetailModal: React.FC<WorkoutDetailModalProps> = ({
   return (
     <Modal title={planName} isOpen={isOpen} onClose={onClose} size="xl">
       <div style={{ padding: '4px 0' }}>
+        {(goal || gender || typeof totalDays === 'number') && (
+          <Flex gap={12} wrap style={{ marginBottom: 16 }}>
+            {goal && (
+              <span style={{
+                padding: '6px 12px',
+                borderRadius: 999,
+                backgroundColor: 'rgba(59, 130, 246, 0.12)',
+                color: 'var(--primary)',
+                fontSize: 13,
+                fontWeight: 500,
+              }}>
+                🎯 Mục tiêu: {goal}
+              </span>
+            )}
+            {gender && (
+              <span style={{
+                padding: '6px 12px',
+                borderRadius: 999,
+                backgroundColor: 'rgba(246, 189, 22, 0.12)',
+                color: 'var(--warning)',
+                fontSize: 13,
+                fontWeight: 500,
+              }}>
+                🚹 Giới tính: {gender}
+              </span>
+            )}
+            {typeof totalDays === 'number' && (
+              <span style={{
+                padding: '6px 12px',
+                borderRadius: 999,
+                backgroundColor: 'rgba(74, 222, 128, 0.12)',
+                color: 'var(--success)',
+                fontSize: 13,
+                fontWeight: 500,
+              }}>
+                📅 Tổng số ngày: {totalDays}
+              </span>
+            )}
+          </Flex>
+        )}
+
+        {isLoading && (
+          <Flex gap={10} align="center" style={{ marginBottom: 16, color: 'var(--text-secondary)' }}>
+            <Icon name="mdi:loading" size={18} color="var(--primary)" />
+            <span>Đang tải thông tin cập nhật...</span>
+          </Flex>
+        )}
+
         {workouts.map((day) => {
           const isExpanded = expandedDays.includes(day.day);
           

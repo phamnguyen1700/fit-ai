@@ -1,5 +1,5 @@
 import { get } from '@/shared/api/http'
-import { WorkoutDemoListParams, WorkoutDemoListResponse, WorkoutDemo } from '@/types/workoutdemo'
+import { WorkoutDemoListParams, WorkoutDemoListResponse, WorkoutDemo, WorkoutDemoDetailResponse } from '@/types/workoutdemo'
 
 type WorkoutDemoApiPayload = {
   success?: boolean
@@ -41,3 +41,6 @@ export const getWorkoutDemoListService = (params?: WorkoutDemoListParams) =>
     params,
     transformResponse: [transformWorkoutDemoListResponse],
   })
+
+export const getWorkoutDemoDetailService = (id: string) =>
+  get<WorkoutDemoDetailResponse>(`fitness/api/workoutdemo/${id}`)

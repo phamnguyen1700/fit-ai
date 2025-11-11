@@ -27,6 +27,12 @@ export interface WorkoutDemo {
   days: WorkoutDemoDay[];
 }
 
+export interface WorkoutDemoDetail extends WorkoutDemo {
+  gender: string | null;
+  goal: string | null;
+  totalDays: number | null;
+}
+
 export interface WorkoutDemoListParams {
   pageNumber?: number;
   pageSize?: number;
@@ -37,3 +43,5 @@ export interface WorkoutDemoListResponse {
   totalRecords: number;
   data: WorkoutDemo[];
 }
+
+export type WorkoutDemoDetailResponse = WorkoutDemoDetail;
