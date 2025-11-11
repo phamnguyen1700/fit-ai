@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { createWorkoutDemoService, getWorkoutDemoDetailService, getWorkoutDemoListService, updateWorkoutDemoDetailService } from '@/tanstack/services/workoutdemo'
+import { createWorkoutDemoService, deleteWorkoutDemoService, getWorkoutDemoDetailService, getWorkoutDemoListService, updateWorkoutDemoDetailService, hardDeleteWorkoutDemoService } from '@/tanstack/services/workoutdemo'
 import { WorkoutDemoDetailResponse, WorkoutDemoListParams, WorkoutDemoListResponse, CreateWorkoutDemoPayload, CreateWorkoutDemoResponse, UpdateWorkoutDemoDetailPayload, UpdateWorkoutDemoDetailResponse } from '@/types/workoutdemo'
 import { IApiResponse } from '@/shared/api/http'
 import toast from 'react-hot-toast'
@@ -76,6 +76,48 @@ export const useUpdateWorkoutDemoDetail = () => {
     },
     onError: (error: any) => {
       const message = error?.response?.data?.message || error?.message || 'Cập nhật chi tiết kế hoạch thất bại. Vui lòng thử lại.'
+      toast.error(message)
+    },
+  })
+}
+
+export const useDeleteWorkoutDemo = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<IApiResponse<null>, unknown, string>({
+    mutationFn: (id) => deleteWorkoutDemoService(id),
+    onSuccess: (response, id) => {
+      if (response.success) {
+        toast.success('Đã vô hiệu hóa kế hoạch luyện tập.')
+        queryClient.invalidateQueries({ queryKey: [WORKOUT_DEMO_QUERY_KEY] })
+        queryClient.invalidateQueries({ queryKey: [WORKOUT_DEMO_DETAIL_QUERY_KEY, id] })
+      } else {
+        toast.error(response.message || 'Không thể vô hiệu hóa kế hoạch luyện tập')
+      }
+    },
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Không thể vô hiệu hóa kế hoạch luyện tập. Vui lòng thử lại.'
+      toast.error(message)
+    },
+  })
+}
+
+export const useHardDeleteWorkoutDemo = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<IApiResponse<null>, unknown, string>({
+    mutationFn: (id) => hardDeleteWorkoutDemoService(id),
+    onSuccess: (response, id) => {
+      if (response.success) {
+        toast.success('Đã xóa vĩnh viễn kế hoạch luyện tập.')
+        queryClient.invalidateQueries({ queryKey: [WORKOUT_DEMO_QUERY_KEY] })
+        queryClient.removeQueries({ queryKey: [WORKOUT_DEMO_DETAIL_QUERY_KEY, id] })
+      } else {
+        toast.error(response.message || 'Không thể xóa kế hoạch luyện tập')
+      }
+    },
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Không thể xóa kế hoạch luyện tập. Vui lòng thử lại.'
       toast.error(message)
     },
   })

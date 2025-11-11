@@ -1,22 +1,34 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card, Flex, Button } from '@/shared/ui';
 import { Icon } from '@/shared/ui/icon';
 import type { WorkoutDemo } from '@/types/workoutdemo';
 import WorkoutDetailModal from './WorkoutDetailModal';
-import { useGetWorkoutDemoDetail } from '@/tanstack/hooks/workoutdemo';
+import { useDeleteWorkoutDemo, useGetWorkoutDemoDetail, useHardDeleteWorkoutDemo } from '@/tanstack/hooks/workoutdemo';
+import { Dropdown, App } from 'antd';
+import type { MenuProps } from 'antd';
 
 interface WorkoutCardProps {
   workoutPlan: WorkoutDemo;
+  onUpdate?: (workoutPlan: WorkoutDemo) => void;
+  onDeactivate?: (workoutPlan: WorkoutDemo) => void;
+  onDelete?: (workoutPlan: WorkoutDemo) => void;
 }
 
 export const WorkoutCard: React.FC<WorkoutCardProps> = ({
   workoutPlan,
+  onUpdate,
+  onDeactivate,
+  onDelete,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const detailId = isModalOpen ? workoutPlan.workoutDemoId : undefined;
   const { data: detailResponse, isLoading: isDetailLoading } = useGetWorkoutDemoDetail(detailId);
   const detail = detailResponse?.data;
+
+  const { mutateAsync: softDeleteWorkout, isPending: isDeleting } = useDeleteWorkoutDemo();
+  const { mutateAsync: hardDeleteWorkout, isPending: isHardDeleting } = useHardDeleteWorkoutDemo();
+  const { modal } = App.useApp();
 
   const planName = detail?.planName ?? workoutPlan.planName;
   const isDeleted = detail?.isDeleted ?? workoutPlan.isDeleted;
@@ -30,6 +42,88 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
   const activeDays = days.filter((day) => day.exercises.length > 0).length;
   const totalDays = detail?.totalDays ?? workoutPlan.days.length;
 
+  const isActionDisabled = isDeleting || isHardDeleting;
+
+  const menuItems = useMemo<MenuProps['items']>(() => [
+    {
+      key: 'update',
+      label: 'Cập nhật workout plan',
+    },
+    {
+      key: 'deactivate',
+      label: 'Vô hiệu hóa workout plan',
+      disabled: isActionDisabled,
+    },
+    {
+      key: 'delete',
+      label: 'Xóa workout plan',
+      danger: true,
+      disabled: isActionDisabled,
+    },
+  ], [isActionDisabled]);
+
+  const showDeactivateConfirm = () => {
+    modal.confirm({
+      title: 'Vô hiệu hóa kế hoạch luyện tập?',
+      content: 'Kế hoạch sẽ được ẩn khỏi danh sách nhưng có thể khôi phục lại sau này.',
+      okText: 'Vô hiệu hóa',
+      cancelText: 'Hủy',
+      okButtonProps: { danger: true },
+      centered: true,
+      onOk: async () => {
+        if (onDeactivate) {
+          return onDeactivate(workoutPlan);
+        }
+
+        try {
+          await softDeleteWorkout(workoutPlan.workoutDemoId);
+          setIsModalOpen(false);
+        } catch (error) {
+          throw error;
+        }
+      },
+    });
+  };
+
+  const showDeleteConfirm = () => {
+    modal.confirm({
+      title: 'Xóa vĩnh viễn kế hoạch luyện tập?',
+      content: 'Hành động này không thể hoàn tác. Tất cả dữ liệu liên quan sẽ bị xóa khỏi hệ thống.',
+      okText: 'Xóa',
+      cancelText: 'Hủy',
+      okButtonProps: { danger: true },
+      centered: true,
+      onOk: async () => {
+        if (onDelete) {
+          return onDelete(workoutPlan);
+        }
+
+        try {
+          await hardDeleteWorkout(workoutPlan.workoutDemoId);
+          setIsModalOpen(false);
+        } catch (error) {
+          throw error;
+        }
+      },
+    });
+  };
+
+  const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
+    switch (key) {
+      case 'update':
+        onUpdate?.(workoutPlan);
+        break;
+      case 'deactivate':
+        showDeactivateConfirm();
+        break;
+      case 'delete':
+        showDeleteConfirm();
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <>
       <Card
@@ -42,14 +136,37 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
           body: { padding: 24 },
         }}
       >
-        <h2 style={{ 
-          margin: '0 0 20px 0', 
-          fontSize: 20, 
-          fontWeight: 600, 
-          color: 'var(--text)' 
-        }}>
-          {planName}
-        </h2>
+        <Flex justify="space-between" align="flex-start" style={{ marginBottom: 20 }}>
+          <h2 style={{
+            margin: 0,
+            fontSize: 20,
+            fontWeight: 600,
+            color: 'var(--text)'
+          }}>
+            {planName}
+          </h2>
+          <Dropdown
+            trigger={[ 'click' ]}
+            menu={{ items: menuItems, onClick: handleMenuClick }}
+          >
+            <button
+              type="button"
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 8,
+                border: '1px solid var(--border)',
+                display: 'grid',
+                placeItems: 'center',
+                background: 'var(--bg-secondary)',
+                cursor: 'pointer',
+              }}
+              aria-label="Lựa chọn thao tác"
+            >
+              <Icon name="mdi:dots-vertical" size={18} color="var(--text-secondary)" />
+            </button>
+          </Dropdown>
+        </Flex>
 
         <Flex gap={6} align="center" style={{ marginBottom: 20 }}>
           <Icon
@@ -65,7 +182,7 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
             padding: '4px 10px',
             borderRadius: 999,
           }}>
-            {isDeleted ? 'Đã ẩn' : 'Đang hoạt động'}
+            {isDeleted ? 'Không hoạt động' : 'Đang hoạt động'}
           </span>
         </Flex>
 

@@ -1,4 +1,4 @@
-import { get, post, put } from '@/shared/api/http'
+import { get, post, put, del } from '@/shared/api/http'
 import { WorkoutDemoListParams, WorkoutDemoListResponse, WorkoutDemo, WorkoutDemoDetailResponse, CreateWorkoutDemoPayload, CreateWorkoutDemoResponse, UpdateWorkoutDemoDetailPayload, UpdateWorkoutDemoDetailResponse } from '@/types/workoutdemo'
 
 type WorkoutDemoApiPayload = {
@@ -50,3 +50,9 @@ export const createWorkoutDemoService = (payload: CreateWorkoutDemoPayload) =>
 
 export const updateWorkoutDemoDetailService = (workoutDemoId: string, payload: UpdateWorkoutDemoDetailPayload) =>
   put<UpdateWorkoutDemoDetailResponse>(`fitness/api/workoutdemodetail/${workoutDemoId}`, payload)
+
+export const deleteWorkoutDemoService = (id: string) =>
+  del<null>(`fitness/api/workoutdemo/${id}`)
+
+export const hardDeleteWorkoutDemoService = (id: string) =>
+  del<null>(`fitness/api/workoutdemo/${id}/harddelete`)
