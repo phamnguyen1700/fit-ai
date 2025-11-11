@@ -4,9 +4,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Card } from '@/shared/ui/core/Card';
 import { Flex } from '@/shared/ui/core/Flex';
 import { Icon } from '@/shared/ui/icon';
-import { ConversationList, ChatHeader, MessageList, ChatComposer } from './components';
 import { mockConversations, mockMessages } from './data';
 import type { ChatMessage, Conversation } from './types';
+import ConversationList from './components/ConversationList';
+import ChatHeader from './components/ChatHeader';
+import MessageList from './components/MessageList';
+import ChatComposer from './components/ChatComposer';
 
 const computeSummary = (conversations: Conversation[]) => {
   const total = conversations.length;
