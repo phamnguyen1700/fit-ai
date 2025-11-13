@@ -1,5 +1,5 @@
 import { get, post, put, del } from '@/shared/api/http'
-import { WorkoutDemoListParams, WorkoutDemoListResponse, WorkoutDemo, WorkoutDemoDetailResponse, CreateWorkoutDemoPayload, CreateWorkoutDemoResponse, UpdateWorkoutDemoDetailPayload, UpdateWorkoutDemoDetailResponse, UpdateWorkoutDemoPayload, UpdateWorkoutDemoResponse } from '@/types/workoutdemo'
+import { WorkoutDemoListParams, WorkoutDemoListResponse, WorkoutDemo, WorkoutDemoDetailResponse, CreateWorkoutDemoPayload, CreateWorkoutDemoResponse, UpdateWorkoutDemoDetailPayload, UpdateWorkoutDemoDetailResponse, UpdateWorkoutDemoPayload, UpdateWorkoutDemoResponse, UpdateWorkoutDemoExercisePayload, UpdateWorkoutDemoDayPayload } from '@/types/workoutdemo'
 
 type WorkoutDemoApiPayload = {
   success?: boolean
@@ -53,6 +53,25 @@ export const updateWorkoutDemoDetailService = (workoutDemoId: string, payload: U
 
 export const updateWorkoutDemoService = (workoutDemoId: string, payload: UpdateWorkoutDemoPayload) =>
   put<UpdateWorkoutDemoResponse>(`fitness/api/workoutdemo/${workoutDemoId}`, payload)
+
+export const updateWorkoutDemoDayService = (
+  workoutDemoId: string,
+  payload: UpdateWorkoutDemoDayPayload
+) => {
+  // API chỉ cần exercises array trong body, day đã ở trong URL path
+  const { exercises, day } = payload;
+  const url = `fitness/api/workoutdemodetail/${workoutDemoId}/${day}`;
+  
+  // eslint-disable-next-line no-console
+  console.log('updateWorkoutDemoDayService - Sending:', {
+    url,
+    body: exercises,
+    workoutDemoId,
+    day,
+  });
+  
+  return put<null>(url, exercises);
+}
 
 export const deleteWorkoutDemoService = (id: string) =>
   del<null>(`fitness/api/workoutdemo/${id}`)

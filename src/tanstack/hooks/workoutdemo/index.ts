@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { createWorkoutDemoService, deleteWorkoutDemoService, getWorkoutDemoDetailService, getWorkoutDemoListService, updateWorkoutDemoDetailService, hardDeleteWorkoutDemoService, updateWorkoutDemoService } from '@/tanstack/services/workoutdemo'
-import { WorkoutDemoDetailResponse, WorkoutDemoListParams, WorkoutDemoListResponse, CreateWorkoutDemoPayload, CreateWorkoutDemoResponse, UpdateWorkoutDemoDetailPayload, UpdateWorkoutDemoDetailResponse, UpdateWorkoutDemoPayload, UpdateWorkoutDemoResponse } from '@/types/workoutdemo'
+import { createWorkoutDemoService, deleteWorkoutDemoService, getWorkoutDemoDetailService, getWorkoutDemoListService, updateWorkoutDemoDetailService, hardDeleteWorkoutDemoService, updateWorkoutDemoService, updateWorkoutDemoDayService } from '@/tanstack/services/workoutdemo'
+import { WorkoutDemoDetailResponse, WorkoutDemoListParams, WorkoutDemoListResponse, CreateWorkoutDemoPayload, CreateWorkoutDemoResponse, UpdateWorkoutDemoDetailPayload, UpdateWorkoutDemoDetailResponse, UpdateWorkoutDemoPayload, UpdateWorkoutDemoResponse, UpdateWorkoutDemoExercisePayload, UpdateWorkoutDemoDayPayload } from '@/types/workoutdemo'
 import { IApiResponse } from '@/shared/api/http'
 import toast from 'react-hot-toast'
 
@@ -139,6 +139,27 @@ export const useHardDeleteWorkoutDemo = () => {
     },
     onError: (error: any) => {
       const message = error?.response?.data?.message || error?.message || 'Không thể xóa kế hoạch luyện tập. Vui lòng thử lại.'
+      toast.error(message)
+    },
+  })
+}
+
+export const useUpdateWorkoutDemoDay = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<IApiResponse<null>, unknown, { workoutDemoId: string; dayPayload: UpdateWorkoutDemoDayPayload }>({
+    mutationFn: ({ workoutDemoId, dayPayload }) =>
+      updateWorkoutDemoDayService(workoutDemoId, dayPayload),
+    onSuccess: (response, variables) => {
+      if (response.success) {
+        queryClient.invalidateQueries({ queryKey: [WORKOUT_DEMO_DETAIL_QUERY_KEY, variables.workoutDemoId] })
+        queryClient.invalidateQueries({ queryKey: [WORKOUT_DEMO_QUERY_KEY] })
+      } else {
+        toast.error(response.message || 'Cập nhật bài tập thất bại')
+      }
+    },
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Cập nhật bài tập thất bại. Vui lòng thử lại.'
       toast.error(message)
     },
   })

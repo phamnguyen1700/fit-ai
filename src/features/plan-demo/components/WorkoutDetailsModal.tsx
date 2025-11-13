@@ -84,7 +84,26 @@ export const WorkoutDetailsModal: React.FC<WorkoutDetailsModalProps> = ({
   }, [categories]);
 
   const selectedCategory = selectedCategoryId ? categoryMap.get(selectedCategoryId) : undefined;
-  const isCardioCategory = selectedCategory?.type?.toLowerCase() === 'cardio';
+  
+  // Kiểm tra cardio bằng cả type và name
+  const isCardioCategory = React.useMemo(() => {
+    if (!selectedCategory) return false;
+    
+    const typeLower = selectedCategory.type?.toLowerCase() || '';
+    const nameLower = selectedCategory.name?.toLowerCase() || '';
+    
+    const isCardio = typeLower === 'cardio' || nameLower === 'cardio' || nameLower.includes('cardio');
+    
+    // eslint-disable-next-line no-console
+    console.log('Cardio check:', {
+      selectedCategory,
+      type: selectedCategory.type,
+      name: selectedCategory.name,
+      isCardio,
+    });
+    
+    return isCardio;
+  }, [selectedCategory]);
 
   const exerciseParams = useMemo(
     () => (selectedCategoryId ? { categoryId: selectedCategoryId } : undefined),
@@ -209,6 +228,17 @@ export const WorkoutDetailsModal: React.FC<WorkoutDetailsModalProps> = ({
     setUsesZeroBasedDays(isZeroBased);
     setIsPrefilled(true);
   }, [open, planData, workoutDetailResponse, isPrefilled]);
+
+  // Debug: Log khi selectedCategoryId thay đổi
+  React.useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('Selected category changed:', {
+      selectedCategoryId,
+      selectedCategory,
+      isCardioCategory,
+      categoryMap: selectedCategoryId ? categoryMap.get(selectedCategoryId) : null,
+    });
+  }, [selectedCategoryId, selectedCategory, isCardioCategory, categoryMap]);
 
   const handleAddExercise = async () => {
     try {
@@ -489,23 +519,36 @@ export const WorkoutDetailsModal: React.FC<WorkoutDetailsModalProps> = ({
               </Form.Item>
 
               {isCardioCategory ? (
-                <Form.Item
-                  label="Số phút"
-                  name="minutes"
-                  rules={[
-                    { required: true, message: 'Vui lòng nhập số phút' },
-                    { type: 'number', min: 1, max: 180, message: 'Số phút phải từ 1 đến 180' },
-                  ]}
-                >
-                  <InputNumber
-                    placeholder="Nhập số phút"
-                    size="large"
-                    style={{ width: '100%' }}
-                    min={1}
-                    max={180}
-                    addonAfter="phút"
-                  />
-                </Form.Item>
+                <div>
+                  <Form.Item
+                    label={
+                      <Flex gap={6} align="center">
+                        <Icon name="mdi:timer-outline" size={18} color="var(--primary)" />
+                        <span>Thời gian tập (phút)</span>
+                      </Flex>
+                    }
+                    name="minutes"
+                    rules={[
+                      { required: true, message: 'Vui lòng nhập thời gian tập' },
+                      { type: 'number', min: 1, max: 180, message: 'Thời gian phải từ 1 đến 180 phút' },
+                    ]}
+                    extra="Nhập thời gian tập luyện cho bài tập cardio (tính bằng phút)"
+                  >
+                    <InputNumber
+                      placeholder="Ví dụ: 30"
+                      size="large"
+                      style={{ width: '100%' }}
+                      min={1}
+                      max={180}
+                      addonAfter={
+                        <Flex gap={4} align="center">
+                          <Icon name="mdi:clock-outline" size={16} color="var(--text-secondary)" />
+                          <span>phút</span>
+                        </Flex>
+                      }
+                    />
+                  </Form.Item>
+                </div>
               ) : (
                 <Space size="middle" style={{ width: '100%' }}>
                   <Form.Item

@@ -3,10 +3,11 @@ import { Card, Flex, Button } from '@/shared/ui';
 import { Icon } from '@/shared/ui/icon';
 import type { WorkoutDemo } from '@/types/workoutdemo';
 import WorkoutDetailModal from './WorkoutDetailModal';
-import { useDeleteWorkoutDemo, useGetWorkoutDemoDetail, useHardDeleteWorkoutDemo } from '@/tanstack/hooks/workoutdemo';
+import { useDeleteWorkoutDemo, useGetWorkoutDemoDetail, useHardDeleteWorkoutDemo, WORKOUT_DEMO_DETAIL_QUERY_KEY } from '@/tanstack/hooks/workoutdemo';
 import { Dropdown, App } from 'antd';
 import type { MenuProps } from 'antd';
 import WorkoutPlanUpdateModal from './WorkoutPlanUpdateModal';
+import WorkoutPlanDetailUpdateModal from './WorkoutPlanDetailUpdateModal';
 
 interface WorkoutCardProps {
   workoutPlan: WorkoutDemo;
@@ -23,10 +24,15 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isDetailUpdateModalOpen, setIsDetailUpdateModalOpen] = useState(false);
 
-  const shouldFetchDetail = isModalOpen || isUpdateModalOpen;
-  const detailId = shouldFetchDetail ? workoutPlan.workoutDemoId : undefined;
-  const { data: detailResponse, isLoading: isDetailLoading } = useGetWorkoutDemoDetail(detailId);
+  const detailId = workoutPlan.workoutDemoId;
+  const {
+    data: detailResponse,
+    isLoading: isDetailLoading,
+    isFetching: isDetailFetching,
+    refetch: refetchDetail,
+  } = useGetWorkoutDemoDetail(detailId);
   const detail = detailResponse?.data;
 
   const { mutateAsync: softDeleteWorkout, isPending: isDeleting } = useDeleteWorkoutDemo();
@@ -140,6 +146,22 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
     }
   };
 
+  const handlePlanUpdated = async () => {
+    if (workoutPlan.workoutDemoId) {
+      await refetchDetail();
+    }
+    setIsUpdateModalOpen(false);
+    setIsDetailUpdateModalOpen(true);
+  };
+
+  const handleDetailUpdateSuccess = async () => {
+    if (workoutPlan.workoutDemoId) {
+      await refetchDetail();
+    }
+    setIsDetailUpdateModalOpen(false);
+    setIsModalOpen(false);
+  };
+
   return (
     <>
       <Card
@@ -247,6 +269,16 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
         workoutDemoId={workoutPlan.workoutDemoId}
         initialValues={updateInitialValues}
         isLoading={isPlanInfoLoading}
+        onUpdated={handlePlanUpdated}
+      />
+
+      <WorkoutPlanDetailUpdateModal
+        isOpen={isDetailUpdateModalOpen}
+        onClose={() => setIsDetailUpdateModalOpen(false)}
+        workoutDemoId={workoutPlan.workoutDemoId}
+        days={detail?.days ?? workoutPlan.days}
+        isLoading={isDetailLoading || isDetailFetching}
+        onUpdated={handleDetailUpdateSuccess}
       />
     </>
   );

@@ -13,7 +13,7 @@ interface WorkoutPlanUpdateModalProps {
   initialValues?: Partial<Pick<WorkoutDemoDetail, 'planName' | 'gender' | 'goal' | 'totalDays'>>;
   isLoading?: boolean;
   onClose: () => void;
-  onUpdated?: (payload: UpdateWorkoutDemoPayload) => void;
+  onUpdated?: (payload: UpdateWorkoutDemoPayload) => Promise<void> | void;
 }
 
 const genderOptions = [
@@ -69,7 +69,9 @@ export const WorkoutPlanUpdateModal: React.FC<WorkoutPlanUpdateModalProps> = ({
       const response = await updateWorkoutPlan({ workoutDemoId, payload });
 
       if (response.success) {
-        onUpdated?.(payload);
+        if (onUpdated) {
+          await onUpdated(payload);
+        }
         handleCancel();
       }
     } catch (error) {
@@ -159,7 +161,7 @@ export const WorkoutPlanUpdateModal: React.FC<WorkoutPlanUpdateModalProps> = ({
                 loading={isPending}
                 disabled={!workoutDemoId}
               >
-                Lưu thay đổi
+                Tiếp tục
               </Button>
             </Flex>
           </Form.Item>
