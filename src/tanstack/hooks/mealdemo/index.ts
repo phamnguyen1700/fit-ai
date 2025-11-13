@@ -1,0 +1,95 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { createMealDemoService, getMealDemoListService, updateMealDemoAllService, getMealDemoDetailService } from '@/tanstack/services/mealdemo';
+import type {
+  CreateMealDemoPayload,
+  CreateMealDemoResponse,
+  MealDemoListParams,
+  MealDemoListResponse,
+  UpdateMealDemoAllPayload,
+  UpdateMealDemoAllResponse,
+  MealDemoDetailResponse,
+} from '@/types/mealdemo';
+import type { IApiResponse } from '@/shared/api/http';
+import toast from 'react-hot-toast';
+
+export const MEAL_DEMO_QUERY_KEY = 'meal-demo-list';
+export const MEAL_DEMO_DETAIL_QUERY_KEY = 'meal-demo-detail';
+
+export const useGetMealDemoList = (params?: MealDemoListParams) => {
+  return useQuery<IApiResponse<MealDemoListResponse>>({
+    queryKey: [MEAL_DEMO_QUERY_KEY, params],
+    queryFn: async () => {
+      const response = await getMealDemoListService(params);
+      console.log('meal data', response);
+      if (!response.success) {
+        throw new Error(response.message || 'Không thể tải danh sách thực đơn mẫu');
+      }
+
+      return response;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+interface UseGetMealDemoDetailOptions {
+  enabled?: boolean;
+  staleTime?: number;
+}
+
+export const useGetMealDemoDetail = (mealDemoId?: string, options?: UseGetMealDemoDetailOptions) => {
+  return useQuery<IApiResponse<MealDemoDetailResponse>>({
+    queryKey: [MEAL_DEMO_DETAIL_QUERY_KEY, mealDemoId],
+    queryFn: async () => {
+      if (!mealDemoId) {
+        throw new Error('mealDemoId is required');
+      }
+      const response = await getMealDemoDetailService(mealDemoId);
+      if (!response.success) {
+        throw new Error(response.message || 'Không thể tải chi tiết thực đơn mẫu');
+      }
+      return response;
+    },
+    enabled: Boolean(mealDemoId) && (options?.enabled ?? true),
+    staleTime: options?.staleTime ?? 5 * 60 * 1000,
+  });
+};
+
+export const useCreateMealDemo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<IApiResponse<CreateMealDemoResponse>, unknown, CreateMealDemoPayload>({
+    mutationFn: (payload) => createMealDemoService(payload),
+    onSuccess: (response) => {
+      if (response.success) {
+        toast.success('Tạo thực đơn mẫu thành công!');
+        queryClient.invalidateQueries({ queryKey: [MEAL_DEMO_QUERY_KEY] });
+      } else {
+        toast.error(response.message || 'Tạo thực đơn mẫu thất bại');
+      }
+    },
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Không thể tạo thực đơn mẫu. Vui lòng thử lại.';
+      toast.error(message);
+    },
+  });
+};
+
+export const useUpdateMealDemoAll = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<IApiResponse<UpdateMealDemoAllResponse>, unknown, { mealDemoId: string; payload: UpdateMealDemoAllPayload }>({
+    mutationFn: ({ mealDemoId, payload }) => updateMealDemoAllService(mealDemoId, payload),
+    onSuccess: (response) => {
+      if (response.success) {
+        toast.success('Cập nhật thực đơn mẫu thành công!');
+        queryClient.invalidateQueries({ queryKey: [MEAL_DEMO_QUERY_KEY] });
+      } else {
+        toast.error(response.message || 'Cập nhật thực đơn mẫu thất bại');
+      }
+    },
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Không thể cập nhật thực đơn mẫu. Vui lòng thử lại.';
+      toast.error(message);
+    },
+  });
+};

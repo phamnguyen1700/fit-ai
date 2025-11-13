@@ -7,6 +7,7 @@ interface MealPlanDetailModalProps {
   open: boolean;
   plan: MealPlanDetail | null;
   onClose: () => void;
+  loading?: boolean;
 }
 
 const MEAL_LABEL: Record<string, string> = {
@@ -18,16 +19,23 @@ const MEAL_LABEL: Record<string, string> = {
 
 const formatNumber = (value: number) => value.toLocaleString('vi-VN');
 
-const formatIngredientName = (ingredientId: string) =>
-  ingredientId
+const formatIngredientName = (ingredientId: string) => {
+  // If it's already a readable name (not a slug), return as is
+  if (ingredientId && !ingredientId.includes('-') && ingredientId.length > 0) {
+    return ingredientId;
+  }
+  // Otherwise format from slug
+  return ingredientId
     .split('-')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+};
 
 export const MealPlanDetailModal: React.FC<MealPlanDetailModalProps> = ({
   open,
   plan,
   onClose,
+  loading = false,
 }) => {
   const [expandedMenus, setExpandedMenus] = useState<number[]>([]);
 
@@ -171,7 +179,7 @@ export const MealPlanDetailModal: React.FC<MealPlanDetailModalProps> = ({
                       borderBottom: i === meal.ingredients.length - 1 ? 'none' : '1px solid var(--border)',
                     }}>
                       <td style={{ padding: '10px 12px', color: 'var(--text)' }}>
-                        {formatIngredientName(ingredient.ingredientId)}
+                        {ingredient.ingredientId ? formatIngredientName(ingredient.ingredientId) : 'Nguyên liệu'}
                       </td>
                       <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--text)' }}>
                         {formatNumber(ingredient.weight)}g
@@ -206,33 +214,60 @@ export const MealPlanDetailModal: React.FC<MealPlanDetailModalProps> = ({
       size="xl"
       title={plan.planName}
     >
-      <div style={{ padding: '4px 0' }}>
-        {menuSummaries.map((menuSummary) => {
-          const menu = plan.menus.find((item) => item.menuNumber === menuSummary.menuNumber);
-          if (!menu) return null;
+      {loading ? (
+        <Flex
+          align="center"
+          justify="center"
+          gap={8}
+          style={{
+            minHeight: 160,
+            color: 'var(--text-secondary)',
+          }}
+        >
+          <Icon name="mdi:loading" size={20} color="var(--primary)" />
+          <span>Đang tải chi tiết bữa ăn...</span>
+        </Flex>
+      ) : (
+        <div style={{ padding: '4px 0' }}>
+          {menuSummaries.map((menuSummary) => {
+            const menu = plan.menus.find((item) => item.menuNumber === menuSummary.menuNumber);
+            if (!menu) return null;
 
-          const isExpanded = expandedMenus.includes(menuSummary.menuNumber);
+            const isExpanded = expandedMenus.includes(menuSummary.menuNumber);
 
-          return (
-            <Card key={menuSummary.menuNumber} style={{
-              marginBottom: 12,
-              border: '1px solid var(--border)',
-              borderRadius: 8,
-            }} styles={{ body: { padding: 0 } }}>
-              <MenuHeader
-                menuNumber={menuSummary.menuNumber}
-                mealsCount={menuSummary.mealsCount}
-                calories={menuSummary.calories}
-                isExpanded={isExpanded}
-                onClick={() => toggleMenu(menuSummary.menuNumber)}
-              />
-              {isExpanded && (
-                <MenuContent menu={menu} />
-              )}
-            </Card>
-          );
-        })}
-      </div>
+            return (
+              <Card key={menuSummary.menuNumber} style={{
+                marginBottom: 12,
+                border: '1px solid var(--border)',
+                borderRadius: 8,
+              }} styles={{ body: { padding: 0 } }}>
+                <MenuHeader
+                  menuNumber={menuSummary.menuNumber}
+                  mealsCount={menuSummary.mealsCount}
+                  calories={menuSummary.calories}
+                  isExpanded={isExpanded}
+                  onClick={() => toggleMenu(menuSummary.menuNumber)}
+                />
+                {isExpanded && (
+                  <MenuContent menu={menu} />
+                )}
+              </Card>
+            );
+          })}
+          {menuSummaries.length === 0 && (
+            <Flex
+              align="center"
+              justify="center"
+              style={{
+                minHeight: 160,
+                color: 'var(--text-secondary)',
+              }}
+            >
+              Chưa có dữ liệu bữa ăn cho meal plan này.
+            </Flex>
+          )}
+        </div>
+      )}
     </Modal>
   );
 };

@@ -1,28 +1,75 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card, Button, Flex } from '@/shared/ui';
 import { Icon } from '@/shared/ui/icon';
 import type { MealPlanDetail } from '@/types/plan';
+import { Dropdown } from 'antd';
+import type { MenuProps } from 'antd';
 
 interface MealPlanCardProps {
   plan: MealPlanDetail;
   onViewDetails?: (plan: MealPlanDetail) => void;
+  onUpdate?: (plan: MealPlanDetail) => void;
+  onDeactivate?: (plan: MealPlanDetail) => void;
+  onDelete?: (plan: MealPlanDetail) => void;
 }
 
 const formatNumber = (value: number) => value.toLocaleString('vi-VN');
 
-const calculatePlanCalories = (plan: MealPlanDetail) =>
-  (plan.menus ?? []).reduce(
-    (acc, menu) =>
-      acc +
-      (menu.meals ?? []).reduce(
-        (menuTotal, meal) => menuTotal + (meal?.totalCalories ?? 0),
-        0,
-      ),
-    0,
+export const MealPlanCard: React.FC<MealPlanCardProps> = ({
+  plan,
+  onViewDetails,
+  onUpdate,
+  onDeactivate,
+  onDelete,
+}) => {
+  const hasDetails =
+    (plan.menus ?? []).length > 0 || (plan.totalMenus ?? 0) > 0;
+  const isDeleted = plan.isDeleted ?? false;
+
+  const statusConfig = useMemo(
+    () => ({
+      label: isDeleted ? 'Không hoạt động' : 'Đang hoạt động',
+      icon: isDeleted ? 'mdi:close-circle-outline' : 'mdi:check-circle-outline',
+      color: isDeleted ? 'var(--danger)' : 'var(--success)',
+      background: isDeleted ? 'rgba(255, 71, 87, 0.12)' : 'rgba(34, 197, 94, 0.12)',
+    }),
+    [isDeleted]
   );
 
-export const MealPlanCard: React.FC<MealPlanCardProps> = ({ plan, onViewDetails }) => {
-  const totalPlanCalories = Math.round(calculatePlanCalories(plan));
+  const menuItems = useMemo<MenuProps['items']>(
+    () => [
+      {
+        key: 'update',
+        label: 'Cập nhật meal plan',
+      },
+      {
+        key: 'deactivate',
+        label: 'Vô hiệu hoá meal plan',
+      },
+      {
+        key: 'delete',
+        label: 'Xoá meal plan',
+        danger: true,
+      },
+    ],
+    []
+  );
+
+  const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
+    switch (key) {
+      case 'update':
+        onUpdate?.(plan);
+        break;
+      case 'deactivate':
+        onDeactivate?.(plan);
+        break;
+      case 'delete':
+        onDelete?.(plan);
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <Card
@@ -35,15 +82,57 @@ export const MealPlanCard: React.FC<MealPlanCardProps> = ({ plan, onViewDetails 
         body: { padding: 24 },
       }}
     >
-      {/* Plan Name */}
-      <h2 style={{ 
-        margin: '0 0 20px 0', 
-        fontSize: 20, 
-        fontWeight: 600, 
-        color: 'var(--text)' 
-      }}>
-        {plan.planName}
-      </h2>
+      <Flex justify="space-between" align="flex-start" style={{ marginBottom: 16 }}>
+        {/* Plan Name */}
+        <h2
+          style={{
+            margin: 0,
+            fontSize: 20,
+            fontWeight: 600,
+            color: 'var(--text)',
+            maxWidth: 'calc(100% - 48px)',
+          }}
+        >
+          {plan.planName}
+        </h2>
+        <Dropdown
+          trigger={['click']}
+          menu={{ items: menuItems, onClick: handleMenuClick }}
+        >
+          <button
+            type="button"
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              border: '1px solid var(--border)',
+              display: 'grid',
+              placeItems: 'center',
+              background: 'var(--bg-secondary)',
+              cursor: 'pointer',
+            }}
+            aria-label="Thao tác với meal plan"
+          >
+            <Icon name="mdi:dots-vertical" size={18} color="var(--text-secondary)" />
+          </button>
+        </Dropdown>
+      </Flex>
+
+      <Flex gap={6} align="center" style={{ marginBottom: 20 }}>
+        <Icon name={statusConfig.icon} size={18} color={statusConfig.color} />
+        <span
+          style={{
+            fontSize: 13,
+            fontWeight: 500,
+            color: statusConfig.color,
+            backgroundColor: statusConfig.background,
+            padding: '4px 10px',
+            borderRadius: 999,
+          }}
+        >
+          {statusConfig.label}
+        </span>
+      </Flex>
 
       {/* Goal */}
       {plan.goal && (
@@ -76,6 +165,7 @@ export const MealPlanCard: React.FC<MealPlanCardProps> = ({ plan, onViewDetails 
         variant="primary"
         block
         onClick={() => onViewDetails?.(plan)}
+        disabled={!hasDetails}
         icon={<Icon name="mdi:eye" size={18} />}
       >
         Xem chi tiết

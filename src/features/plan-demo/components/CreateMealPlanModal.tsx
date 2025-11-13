@@ -1,14 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Modal, Input, Select, Button, Flex } from '@/shared/ui';
 import { Form, InputNumber } from 'antd';
 import type { CreateMealPlanFormData, Gender } from '@/types/plan';
+import { useCreateMealDemo } from '@/tanstack/hooks/mealdemo';
+import toast from 'react-hot-toast';
 
 interface CreateMealPlanModalProps {
   open: boolean;
   onCancel: () => void;
-  onSubmit: (data: CreateMealPlanFormData) => void;
+  onSubmit: (data: CreateMealPlanFormData, mealDemoId: string) => void;
 }
 
 export const CreateMealPlanModal: React.FC<CreateMealPlanModalProps> = ({
@@ -17,12 +19,51 @@ export const CreateMealPlanModal: React.FC<CreateMealPlanModalProps> = ({
   onSubmit,
 }) => {
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
+  const { mutateAsync: createMealDemo, isPending } = useCreateMealDemo();
+
+  const resolveMealDemoId = (raw: unknown): string | undefined => {
+    if (!raw) return undefined;
+
+    if (typeof raw === 'string' || typeof raw === 'number') {
+      const value = String(raw).trim();
+      return value || undefined;
+    }
+
+    if (Array.isArray(raw)) {
+      for (const item of raw) {
+        const nested = resolveMealDemoId(item);
+        if (nested) return nested;
+      }
+      return undefined;
+    }
+
+    if (typeof raw === 'object') {
+      const record = raw as Record<string, unknown>;
+      const candidateKeys = ['mealDemoId', 'mealDemoID', 'id', 'mealPlanId', 'mealPlanID'];
+
+      for (const key of candidateKeys) {
+        const candidate = record[key];
+        if (typeof candidate === 'string' || typeof candidate === 'number') {
+          const normalized = String(candidate).trim();
+          if (normalized) return normalized;
+        }
+      }
+
+      const nestedKeys = ['data', 'result', 'mealDemo', 'payload'];
+      for (const nestedKey of nestedKeys) {
+        if (nestedKey in record) {
+          const nested = resolveMealDemoId(record[nestedKey]);
+          if (nested) return nested;
+        }
+      }
+    }
+
+    return undefined;
+  };
 
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      setLoading(true);
       
       const formData: CreateMealPlanFormData = {
         planName: values.planName,
@@ -32,12 +73,36 @@ export const CreateMealPlanModal: React.FC<CreateMealPlanModalProps> = ({
         totalMenus: values.totalMenus,
       };
 
-      onSubmit(formData);
-      setLoading(false);
+      const response = await createMealDemo({
+        planName: formData.planName,
+        gender: formData.gender,
+        goal: formData.goal,
+        maxDailyCalories: formData.totalCaloriesPerDay,
+        totalMenus: formData.totalMenus,
+      });
+
+      if (!response?.success) {
+        toast.error(response?.message || 'Không thể tạo kế hoạch. Vui lòng thử lại.');
+        return;
+      }
+
+      const mealDemoId = resolveMealDemoId(response?.data);
+
+      if (!mealDemoId) {
+        toast.error('Không nhận được mã kế hoạch từ máy chủ.');
+        return;
+      }
+
+      toast.success('Tạo kế hoạch dinh dưỡng thành công!');
+      onSubmit(formData, mealDemoId);
       form.resetFields();
-    } catch (error) {
-      console.error('Validation failed:', error);
-      setLoading(false);
+    } catch (error: any) {
+      if (error?.errorFields) {
+        console.error('Validation failed:', error);
+      } else {
+        console.error('Create meal demo failed:', error);
+        toast.error('Không thể tạo kế hoạch. Vui lòng thử lại.');
+      }
     }
   };
 
@@ -165,7 +230,7 @@ export const CreateMealPlanModal: React.FC<CreateMealPlanModalProps> = ({
               variant="primary"
               size="md"
               onClick={handleSubmit}
-              loading={loading}
+              loading={isPending}
             >
               Tạo kế hoạch
             </Button>

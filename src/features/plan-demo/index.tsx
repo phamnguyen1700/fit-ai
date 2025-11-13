@@ -6,7 +6,6 @@ import { CreatePlanModal } from './components/CreatePlanModal';
 import { WorkoutDetailsModal } from './components/WorkoutDetailsModal';
 import { CreateMealPlanModal } from './components/CreateMealPlanModal';
 import { MealDetailsModal } from './components/MealDetailsModal';
-import { mockPlans } from './data/mockPlans';
 import type { CreatePlanFormData, DayWorkout, CreateMealPlanFormData, DayMeal } from '@/types/plan';
 import FeedbackTab from './components/tabs/FeedbackTab';
 
@@ -22,6 +21,7 @@ export const PlanDemoPage: React.FC = () => {
   const [createMealPlanModalOpen, setCreateMealPlanModalOpen] = useState(false);
   const [mealDetailsModalOpen, setMealDetailsModalOpen] = useState(false);
   const [mealPlanFormData, setMealPlanFormData] = useState<CreateMealPlanFormData | null>(null);
+  const [mealDemoId, setMealDemoId] = useState<string | null>(null);
 
   const handleTabChange = (key: string) => {
     setActiveTab(key);
@@ -67,17 +67,19 @@ export const PlanDemoPage: React.FC = () => {
     alert('Kế hoạch tập luyện đã được tạo thành công!');
   };
 
-  const handleCreateMealPlanSubmit = (data: CreateMealPlanFormData) => {
+  const handleCreateMealPlanSubmit = (data: CreateMealPlanFormData, createdMealDemoId: string) => {
     setMealPlanFormData(data);
+    setMealDemoId(createdMealDemoId);
     setCreateMealPlanModalOpen(false);
     setMealDetailsModalOpen(true);
   };
 
   const handleMealDetailsSubmit = (menus: DayMeal[]) => {
     if (!mealPlanFormData) return;
-    console.log('Meal plan created:', { ...mealPlanFormData, menus });
+    console.log('Meal plan created:', { ...mealPlanFormData, mealDemoId, menus });
     setMealDetailsModalOpen(false);
     setMealPlanFormData(null);
+    setMealDemoId(null);
     alert('Kế hoạch dinh dưỡng đã được tạo thành công!');
   };
 
@@ -88,7 +90,8 @@ export const PlanDemoPage: React.FC = () => {
       case 'meal':
         return <MealTab/>;
       case 'feedback':
-        return <FeedbackTab plans={mockPlans} onView={handleViewPlan} onEdit={handleEditPlan} onDelete={handleDeletePlan} />;
+        // return <FeedbackTab plans={mockPlans} onView={handleViewPlan} onEdit={handleEditPlan} onDelete={handleDeletePlan} />;
+        return null;
       default:
         return null;
     }
@@ -128,9 +131,11 @@ export const PlanDemoPage: React.FC = () => {
       <MealDetailsModal
         open={mealDetailsModalOpen}
         planData={mealPlanFormData}
+        mealDemoId={mealDemoId}
         onCancel={() => {
           setMealDetailsModalOpen(false);
           setMealPlanFormData(null);
+          setMealDemoId(null);
         }}
         onSubmit={handleMealDetailsSubmit}
       />

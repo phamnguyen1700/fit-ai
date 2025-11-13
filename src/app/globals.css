@@ -8648,11 +8648,6 @@ body {
   height: 100%;
 }
 
-.meal-plan-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(255, 140, 0, 0.18);
-}
-
 .meal-plan-card__container {
   display: flex;
   flex-direction: column;
@@ -9111,3 +9106,4 @@ body {
     display: none;
   }
 }
+

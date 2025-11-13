@@ -147,4 +147,6 @@ export interface MealPlanDetail {
   menus: DayMeal[];
   description?: string;
   createdAt?: string;
+  updatedAt?: string;
+  isDeleted?: boolean;
 }
