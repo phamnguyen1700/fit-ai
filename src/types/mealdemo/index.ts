@@ -55,6 +55,15 @@ export type UpdateMealDemoAllPayload = UpdateMealDemoMenuPayload[];
 
 export type UpdateMealDemoAllResponse = MealDemo | null;
 
+export interface UpdateMealDemoDetailPayload {
+  id: string;
+  mealDemoId: string;
+  menuNumber: number;
+  sessions: UpdateMealDemoSessionPayload[];
+}
+
+export type UpdateMealDemoDetailResponse = MealDemoDetailMenu | null;
+
 export interface MealDemoDetailIngredient {
   name: string;
   weight: number;

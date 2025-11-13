@@ -5,6 +5,7 @@ import { Row, Col, Flex, Button, Pagination } from '@/shared/ui';
 import { Icon } from '@/shared/ui/icon';
 import { MealPlanCard } from '../MealPlanCard';
 import { MealPlanDetailModal } from '../MealPlanDetailModal';
+import MealPlanDetailUpdateModal from '../MealPlanDetailUpdateModal';
 import type { MealPlanDetail, DayMeal, Meal, MealIngredient } from '@/types/plan';
 import { useGetMealDemoList, useGetMealDemoDetail } from '@/tanstack/hooks/mealdemo';
 import type { MealDemo, MealDemoDetailMenu, MealDemoDetailSession } from '@/types/mealdemo';
@@ -13,6 +14,7 @@ const MealTab: React.FC = () => {
   const PAGE_SIZE = 15;
   const [selectedPlan, setSelectedPlan] = useState<MealPlanDetail | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [activeMealDemoId, setActiveMealDemoId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -34,8 +36,9 @@ const MealTab: React.FC = () => {
   const {
     data: mealDemoDetailResponse,
     isPending: isMealDemoDetailLoading,
+    refetch: refetchMealDemoDetail,
   } = useGetMealDemoDetail(activeMealDemoId ?? undefined, {
-    enabled: isModalOpen && Boolean(activeMealDemoId),
+    enabled: (isModalOpen || isUpdateModalOpen) && Boolean(activeMealDemoId),
   });
 
   const mealDemos: MealDemo[] = useMemo(() => {
@@ -146,10 +149,30 @@ const MealTab: React.FC = () => {
     setIsModalOpen(true);
   };
 
+  const handleUpdate = (plan: MealPlanDetail) => {
+    setSelectedPlan(plan);
+    setActiveMealDemoId(plan.id);
+    setIsUpdateModalOpen(true);
+  };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedPlan(null);
     setActiveMealDemoId(null);
+  };
+
+  const handleCloseUpdateModal = () => {
+    setIsUpdateModalOpen(false);
+    setSelectedPlan(null);
+    setActiveMealDemoId(null);
+  };
+
+  const handleUpdateSuccess = async () => {
+    if (activeMealDemoId) {
+      await refetchMealDemoDetail();
+    }
+    setIsUpdateModalOpen(false);
+    setIsModalOpen(false);
   };
 
   const detailedMenus = useMemo(
@@ -240,6 +263,7 @@ const MealTab: React.FC = () => {
             <MealPlanCard
               plan={plan}
               onViewDetails={handleViewDetails}
+              onUpdate={handleUpdate}
             />
           </Col>
         ))}
@@ -261,6 +285,15 @@ const MealTab: React.FC = () => {
         plan={planWithDetails}
         onClose={handleCloseModal}
         loading={isMealDemoDetailLoading}
+      />
+
+      <MealPlanDetailUpdateModal
+        isOpen={isUpdateModalOpen}
+        onClose={handleCloseUpdateModal}
+        mealDemoId={activeMealDemoId}
+        menus={mealDemoDetailResponse?.data ?? []}
+        isLoading={isMealDemoDetailLoading}
+        onUpdated={handleUpdateSuccess}
       />
     </div>
   );

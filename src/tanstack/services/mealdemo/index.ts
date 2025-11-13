@@ -7,6 +7,8 @@ import type {
   CreateMealDemoResponse,
   UpdateMealDemoAllPayload,
   UpdateMealDemoAllResponse,
+  UpdateMealDemoDetailPayload,
+  UpdateMealDemoDetailResponse,
   MealDemoDetailResponse,
   MealDemoDetailMenu,
 } from '@/types/mealdemo';
@@ -100,3 +102,6 @@ export const getMealDemoDetailService = (mealDemoId: string) =>
   get<MealDemoDetailResponse>(`fitness/api/mealdemodetail/meal-demo/${mealDemoId}`, {
     transformResponse: [transformMealDemoDetailResponse],
   });
+
+export const updateMealDemoDetailService = (id: string, payload: UpdateMealDemoDetailPayload) =>
+  put<UpdateMealDemoDetailResponse>(`fitness/api/mealdemodetail/${id}`, payload);
