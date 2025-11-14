@@ -7,8 +7,9 @@ import { MealPlanCard } from '../MealPlanCard';
 import { MealPlanDetailModal } from '../MealPlanDetailModal';
 import MealPlanDetailUpdateModal from '../MealPlanDetailUpdateModal';
 import type { MealPlanDetail, DayMeal, Meal, MealIngredient } from '@/types/plan';
-import { useGetMealDemoList, useGetMealDemoDetail } from '@/tanstack/hooks/mealdemo';
+import { useGetMealDemoList, useGetMealDemoDetail, useDeleteMealDemo, useHardDeleteMealDemo } from '@/tanstack/hooks/mealdemo';
 import type { MealDemo, MealDemoDetailMenu, MealDemoDetailSession } from '@/types/mealdemo';
+import { App } from 'antd';
 
 const MealTab: React.FC = () => {
   const PAGE_SIZE = 15;
@@ -17,6 +18,9 @@ const MealTab: React.FC = () => {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [activeMealDemoId, setActiveMealDemoId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const { modal } = App.useApp();
+  const { mutateAsync: deleteMealDemo, isPending: isDeleting } = useDeleteMealDemo();
+  const { mutateAsync: hardDeleteMealDemo, isPending: isHardDeleting } = useHardDeleteMealDemo();
 
   const listParams = useMemo(
     () => ({
@@ -175,6 +179,44 @@ const MealTab: React.FC = () => {
     setIsModalOpen(false);
   };
 
+  const handleDeactivate = (plan: MealPlanDetail) => {
+    modal.confirm({
+      title: 'Vô hiệu hóa thực đơn mẫu?',
+      content: `Bạn có chắc chắn muốn vô hiệu hóa thực đơn "${plan.planName}"? Thực đơn sẽ được ẩn khỏi danh sách nhưng có thể khôi phục lại sau này.`,
+      okText: 'Vô hiệu hóa',
+      cancelText: 'Hủy',
+      okButtonProps: { danger: true, loading: isDeleting },
+      centered: true,
+      onOk: async () => {
+        try {
+          await deleteMealDemo(plan.id);
+        } catch (error) {
+          throw error;
+        }
+      },
+    });
+  };
+
+  const handleDelete = (plan: MealPlanDetail) => {
+
+    // Nếu isDeleted = true, hiển thị confirm dialog
+    modal.confirm({
+      title: 'Xóa vĩnh viễn thực đơn mẫu?',
+      content: `Bạn có chắc chắn muốn xóa vĩnh viễn thực đơn "${plan.planName}"? Hành động này không thể hoàn tác. Tất cả dữ liệu liên quan sẽ bị xóa khỏi hệ thống.`,
+      okText: 'Xóa',
+      cancelText: 'Hủy',
+      okButtonProps: { danger: true, loading: isHardDeleting },
+      centered: true,
+      onOk: async () => {
+        try {
+          await hardDeleteMealDemo(plan.id);
+        } catch (error) {
+          throw error;
+        }
+      },
+    });
+  };
+
   const detailedMenus = useMemo(
     () => transformDetailMenus(mealDemoDetailResponse?.data),
     [mealDemoDetailResponse?.data]
@@ -264,6 +306,8 @@ const MealTab: React.FC = () => {
               plan={plan}
               onViewDetails={handleViewDetails}
               onUpdate={handleUpdate}
+              onDeactivate={handleDeactivate}
+              onDelete={handleDelete}
             />
           </Col>
         ))}

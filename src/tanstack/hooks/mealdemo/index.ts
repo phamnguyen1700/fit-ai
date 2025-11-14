@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createMealDemoService, getMealDemoListService, updateMealDemoAllService, getMealDemoDetailService, updateMealDemoDetailService } from '@/tanstack/services/mealdemo';
+import { createMealDemoService, getMealDemoListService, updateMealDemoAllService, getMealDemoDetailService, updateMealDemoDetailService, deleteMealDemoService, hardDeleteMealDemoService } from '@/tanstack/services/mealdemo';
 import type {
   CreateMealDemoPayload,
   CreateMealDemoResponse,
@@ -118,6 +118,58 @@ export const useUpdateMealDemoDetail = () => {
     onError: (error: any) => {
       console.error('Update meal demo detail - Error:', error);
       const message = error?.response?.data?.message || error?.message || 'Không thể cập nhật chi tiết thực đơn mẫu. Vui lòng thử lại.';
+      toast.error(message);
+    },
+  });
+};
+
+export const useDeleteMealDemo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<IApiResponse<{ success: boolean; message: string }>, unknown, string>({
+    mutationFn: (id) => {
+      console.log('Delete meal demo - URL:', `fitness/api/mealdemo/${id}`);
+      return deleteMealDemoService(id);
+    },
+    onSuccess: (response) => {
+      console.log('Delete meal demo - Response:', response);
+      if (response.success) {
+        toast.success('Vô hiệu hóa thực đơn mẫu thành công!');
+        queryClient.invalidateQueries({ queryKey: [MEAL_DEMO_QUERY_KEY] });
+        queryClient.invalidateQueries({ queryKey: [MEAL_DEMO_DETAIL_QUERY_KEY] });
+      } else {
+        toast.error(response.message || 'Vô hiệu hóa thực đơn mẫu thất bại');
+      }
+    },
+    onError: (error: any) => {
+      console.error('Delete meal demo - Error:', error);
+      const message = error?.response?.data?.message || error?.message || 'Không thể vô hiệu hóa thực đơn mẫu. Vui lòng thử lại.';
+      toast.error(message);
+    },
+  });
+};
+
+export const useHardDeleteMealDemo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<IApiResponse<{ success: boolean; message: string }>, unknown, string>({
+    mutationFn: (id) => {
+      console.log('Hard delete meal demo - URL:', `fitness/api/mealdemo/${id}/hard`);
+      return hardDeleteMealDemoService(id);
+    },
+    onSuccess: (response) => {
+      console.log('Hard delete meal demo - Response:', response);
+      if (response.success) {
+        toast.success('Xóa vĩnh viễn thực đơn mẫu thành công!');
+        queryClient.invalidateQueries({ queryKey: [MEAL_DEMO_QUERY_KEY] });
+        queryClient.invalidateQueries({ queryKey: [MEAL_DEMO_DETAIL_QUERY_KEY] });
+      } else {
+        toast.error(response.message || 'Xóa vĩnh viễn thực đơn mẫu thất bại');
+      }
+    },
+    onError: (error: any) => {
+      console.error('Hard delete meal demo - Error:', error);
+      const message = error?.response?.data?.message || error?.message || 'Không thể xóa vĩnh viễn thực đơn mẫu. Vui lòng thử lại.';
       toast.error(message);
     },
   });

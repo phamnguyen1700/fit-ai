@@ -1,4 +1,4 @@
-import { get, post, put } from '@/shared/api/http';
+import { get, post, put, del } from '@/shared/api/http';
 import type {
   MealDemoListParams,
   MealDemoListResponse,
@@ -105,3 +105,9 @@ export const getMealDemoDetailService = (mealDemoId: string) =>
 
 export const updateMealDemoDetailService = (id: string, payload: UpdateMealDemoDetailPayload) =>
   put<UpdateMealDemoDetailResponse>(`fitness/api/mealdemodetail/${id}`, payload);
+
+export const deleteMealDemoService = (id: string) =>
+  del<{ success: boolean; message: string }>(`fitness/api/mealdemo/${id}`);
+
+export const hardDeleteMealDemoService = (id: string) =>
+  del<{ success: boolean; message: string }>(`fitness/api/mealdemo/${id}/hard`);
