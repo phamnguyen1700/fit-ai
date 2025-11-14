@@ -8,9 +8,9 @@ import { AdvisorStats } from './components/AdvisorStats';
 import { AdvisorSpecialty } from './components/AdvisorSpecialty';
 import { AdvisorAchievements } from './components/AdvisorAchievements';
 import { ManagedClientsList } from './components/ManagedClientsList';
-import { useAdvisorDetail } from '@/tanstack/hooks/advisor';
+import { useAdvisorDetail, useSoftDeleteAdvisor, useReactivateAdvisor } from '@/tanstack/hooks/advisor';
 import { AdvisorDetail, Achievement } from '@/types/advisor';
-import { Skeleton } from 'antd';
+import { Skeleton, App } from 'antd';
 
 const resolveAvatarUrl = (avatar?: string) => {
     if (!avatar) return undefined;
@@ -33,6 +33,7 @@ type AdvisorDetailView = {
     activeClients: number;
     completedPrograms: number;
     status: string;
+    isActive: boolean;
     certifications: string[];
     birthDate: string;
     gender: string;
@@ -74,6 +75,7 @@ const mapAdvisorDetailToProfile = (advisor?: AdvisorDetail): AdvisorDetailView |
         activeClients: advisor.activeClients ?? 0,
         completedPrograms: advisor.completedPrograms ?? 0,
         status: advisor.isActive ? 'Hoạt động' : 'Ngưng hoạt động',
+        isActive: advisor.isActive,
         certifications,
         birthDate: formatDate(advisor.birthDate),
         gender: advisor.gender || 'Chưa cập nhật',
@@ -90,6 +92,9 @@ interface AdvisorDetailPageProps {
 
 export const AdvisorDetailPage: React.FC<AdvisorDetailPageProps> = ({ advisorId }) => {
     const { data, isLoading, isError } = useAdvisorDetail(advisorId);
+    const softDeleteAdvisor = useSoftDeleteAdvisor();
+    const reactivateAdvisor = useReactivateAdvisor();
+    const { modal } = App.useApp();
 
     const advisorDetail = useMemo(() => mapAdvisorDetailToProfile(data?.data as AdvisorDetail | undefined), [data?.data]);
 
@@ -181,9 +186,68 @@ export const AdvisorDetailPage: React.FC<AdvisorDetailPageProps> = ({ advisorId 
     }, [advisorDetail?.id]);
 
     const handleDeactivate = useCallback(() => {
-        if (!advisorDetail) return;
-        console.log('Deactivate advisor:', advisorDetail.id);
-    }, [advisorDetail?.id]);
+        if (!advisorDetail || !advisorId) return;
+        
+        modal.confirm({
+            title: 'Xác nhận tạm dừng',
+            content: `Bạn có chắc chắn muốn tạm dừng hoạt động của advisor "${advisorDetail.name}"?`,
+            okText: 'Xác nhận',
+            cancelText: 'Hủy',
+            okButtonProps: {
+                type: 'primary',
+                loading: softDeleteAdvisor.isPending,
+                style: {
+                    backgroundColor: 'var(--primary)',
+                    borderColor: 'var(--primary)',
+                    color: 'white',
+                },
+            },
+            onOk: () => {
+                return new Promise<void>((resolve, reject) => {
+                    softDeleteAdvisor.mutate(advisorId, {
+                        onSuccess: () => {
+                            resolve();
+                        },
+                        onError: (error) => {
+                            reject(error);
+                        },
+                    });
+                });
+            },
+        });
+    }, [advisorDetail, advisorId, softDeleteAdvisor, modal]);
+
+    const handleReactivate = useCallback(() => {
+        if (!advisorDetail || !advisorId) return;
+        
+        modal.confirm({
+            title: 'Xác nhận khởi động lại',
+            content: `Bạn có chắc chắn muốn khởi động lại advisor "${advisorDetail.name}"?`,
+            okText: 'Xác nhận',
+            cancelText: 'Hủy',
+            okButtonProps: {
+                type: 'primary',
+                loading: reactivateAdvisor.isPending,
+                style: {
+                    backgroundColor: 'var(--primary)',
+                    borderColor: 'var(--primary)',
+                    color: 'white',
+                },
+            },
+            onOk: () => {
+                return new Promise<void>((resolve, reject) => {
+                    reactivateAdvisor.mutate(advisorId, {
+                        onSuccess: () => {
+                            resolve();
+                        },
+                        onError: (error) => {
+                            reject(error);
+                        },
+                    });
+                });
+            },
+        });
+    }, [advisorDetail, advisorId, reactivateAdvisor, modal]);
 
     if (isLoading) {
         return (
@@ -215,10 +279,29 @@ export const AdvisorDetailPage: React.FC<AdvisorDetailPageProps> = ({ advisorId 
                         <Icon name="mdi:pencil" />
                         Cập nhật thông tin
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={handleDeactivate}>
-                        <Icon name="mdi:pause-circle-outline" />
-                        Tạm dừng
-                    </Button>
+                    {advisorDetail.isActive ? (
+                        <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={handleDeactivate}
+                            loading={softDeleteAdvisor.isPending}
+                            disabled={softDeleteAdvisor.isPending}
+                        >
+                            <Icon name="mdi:pause-circle-outline" />
+                            Tạm dừng
+                        </Button>
+                    ) : (
+                        <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={handleReactivate}
+                            loading={reactivateAdvisor.isPending}
+                            disabled={reactivateAdvisor.isPending}
+                        >
+                            <Icon name="mdi:play-circle-outline" />
+                            Khởi động lại
+                        </Button>
+                    )}
                 </Flex>
             </div>
 

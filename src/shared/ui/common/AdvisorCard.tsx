@@ -18,6 +18,7 @@ export interface AdvisorCardProps {
     clients: number; // Số lượng khách hàng
     rating: number; // Đánh giá (0-5)
     statusLabel: string; // Trạng thái: Hoạt động, Tạm nghỉ, etc.
+    isActive?: boolean; // Trạng thái hoạt động
     onMenuClick?: (key: string, advisorId: string) => void;
 }
 
@@ -32,6 +33,7 @@ export const AdvisorCard: React.FC<AdvisorCardProps> = ({
     clients,
     rating,
     statusLabel,
+    isActive = true,
     onMenuClick,
 }) => {
     const router = useRouter();
@@ -52,6 +54,9 @@ export const AdvisorCard: React.FC<AdvisorCardProps> = ({
             case 'deactivate':
                 console.log('Deactivate advisor:', advisorId);
                 break;
+            case 'reactivate':
+                console.log('Reactivate advisor:', advisorId);
+                break;
             default:
                 break;
         }
@@ -62,7 +67,9 @@ export const AdvisorCard: React.FC<AdvisorCardProps> = ({
     const items: MenuProps['items'] = [
         { key: 'detail', label: 'Xem chi tiết' },
         { key: 'edit', label: 'Chỉnh sửa' },
-        { key: 'deactivate', label: 'Tạm dừng hoạt động' },
+        isActive 
+            ? { key: 'deactivate', label: 'Tạm dừng hoạt động' }
+            : { key: 'reactivate', label: 'Khởi động lại' },
         { key: 'delete', label: 'Xoá advisor' },
     ];
 

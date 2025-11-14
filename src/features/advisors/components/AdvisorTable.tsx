@@ -2,8 +2,9 @@ import React, { useMemo, useState } from 'react';
 import { CardTable } from '@/shared/ui/core/CardTable';
 import { AdvisorCard, type AdvisorCardProps } from '@/shared/ui/common/AdvisorCard';
 import AdvisorFilter from './AdvisorFilter';
-import { useGetAdvisors } from '@/tanstack/hooks/advisor';
+import { useGetAdvisors, useSoftDeleteAdvisor, useReactivateAdvisor } from '@/tanstack/hooks/advisor';
 import type { Advisor } from '@/types/advisor';
+import { App } from 'antd';
 
 const resolveAvatarUrl = (path?: string) => {
   if (!path) return undefined;
@@ -32,6 +33,7 @@ const mapAdvisorToCardProps = (advisor: Advisor): AdvisorCardProps => {
     clients: 0,
     rating: typeof advisor.rating === 'number' ? advisor.rating : 0,
     statusLabel: advisor.isActive ? 'Hoạt động' : 'Ngưng hoạt động',
+    isActive: advisor.isActive,
   };
 };
 
@@ -47,6 +49,9 @@ export const AdvisorTable: React.FC<AdvisorTableProps> = ({
   const pageSize = 24;
 
   const { data, isLoading, isError } = useGetAdvisors({ page: 1, pageSize });
+  const softDeleteAdvisor = useSoftDeleteAdvisor();
+  const reactivateAdvisor = useReactivateAdvisor();
+  const { modal } = App.useApp();
 
   const advisors = useMemo(() => {
     const apiAdvisors = (data?.data || []) as Advisor[];
@@ -73,6 +78,99 @@ export const AdvisorTable: React.FC<AdvisorTableProps> = ({
   const handleMoreClick = (key: string) => {
     console.log('More action:', key);
     // TODO: Implement more actions (import, export, statistics)
+  };
+
+  const handleMenuClick = (key: string, advisorId: string) => {
+    console.log('handleMenuClick called with:', { key, advisorId });
+    const advisor = advisors.find(a => a.id === advisorId);
+    console.log('Found advisor:', advisor);
+    
+    switch (key) {
+      case 'deactivate':
+        if (advisor) {
+          console.log('Showing confirm modal for deactivate');
+          modal.confirm({
+            title: 'Xác nhận tạm dừng',
+            content: `Bạn có chắc chắn muốn tạm dừng hoạt động của advisor "${advisor.name}"?`,
+            okText: 'Xác nhận',
+            cancelText: 'Hủy',
+            okButtonProps: {
+              type: 'primary',
+              loading: softDeleteAdvisor.isPending,
+              style: {
+                backgroundColor: 'var(--primary)',
+                borderColor: 'var(--primary)',
+                color: 'white',
+              },
+            },
+            onOk: () => {
+              console.log('Modal confirmed, calling mutation for:', advisorId);
+              return new Promise<void>((resolve, reject) => {
+                softDeleteAdvisor.mutate(advisorId, {
+                  onSuccess: (data) => {
+                    console.log('Mutation success in onOk callback:', data);
+                    resolve();
+                  },
+                  onError: (error) => {
+                    console.error('Mutation error in onOk callback:', error);
+                    reject(error);
+                  },
+                });
+              });
+            },
+            onCancel: () => {
+              console.log('Modal cancelled');
+            },
+          });
+          console.log('Modal.confirm() called');
+        } else {
+          console.warn('Advisor not found for ID:', advisorId);
+        }
+        break;
+      case 'reactivate':
+        if (advisor) {
+          console.log('Showing confirm modal for reactivate');
+          modal.confirm({
+            title: 'Xác nhận khởi động lại',
+            content: `Bạn có chắc chắn muốn khởi động lại advisor "${advisor.name}"?`,
+            okText: 'Xác nhận',
+            cancelText: 'Hủy',
+            okButtonProps: {
+              type: 'primary',
+              loading: reactivateAdvisor.isPending,
+              style: {
+                backgroundColor: 'var(--primary)',
+                borderColor: 'var(--primary)',
+                color: 'white',
+              },
+            },
+            onOk: () => {
+              console.log('Modal confirmed, calling reactivate mutation for:', advisorId);
+              return new Promise<void>((resolve, reject) => {
+                reactivateAdvisor.mutate(advisorId, {
+                  onSuccess: (data) => {
+                    console.log('Reactivate mutation success in onOk callback:', data);
+                    resolve();
+                  },
+                  onError: (error) => {
+                    console.error('Reactivate mutation error in onOk callback:', error);
+                    reject(error);
+                  },
+                });
+              });
+            },
+            onCancel: () => {
+              console.log('Modal cancelled');
+            },
+          });
+          console.log('Modal.confirm() called for reactivate');
+        } else {
+          console.warn('Advisor not found for ID:', advisorId);
+        }
+        break;
+      default:
+        break;
+    }
   };
 
   // Filter advisors based on specialty and status
@@ -124,6 +222,8 @@ export const AdvisorTable: React.FC<AdvisorTableProps> = ({
               clients={item.clients}
               rating={item.rating}
               statusLabel={item.statusLabel}
+              isActive={item.isActive}
+              onMenuClick={handleMenuClick}
             />
           )}
         />
