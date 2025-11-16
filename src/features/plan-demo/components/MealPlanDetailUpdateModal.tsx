@@ -65,57 +65,23 @@ interface FormMenuValue {
  * @returns Danh sách menus đã được normalize cho form
  */
 const normalizeMenus = (menus: MealDemoDetailMenu[]): FormMenuValue[] => {
-  console.log('normalizeMenus - input menus:', menus);
-  const normalized = menus.map((menu) => {
-    console.log(`normalizeMenus - Menu ${menu.menuNumber}:`, {
-      id: menu.id,
-      mealDemoId: menu.mealDemoId,
-      menuNumber: menu.menuNumber,
-      sessionsCount: menu.sessions?.length || 0,
-      sessions: menu.sessions,
-    });
-    
-    return {
-      id: menu.id,
-      mealDemoId: menu.mealDemoId,
-      menuNumber: menu.menuNumber,
-      sessions: (menu.sessions || []).map((session) => {
-        console.log(`normalizeMenus - Session "${session.sessionName}":`, {
-          sessionName: session.sessionName,
-          ingredientsCount: session.ingredients?.length || 0,
-          ingredients: session.ingredients,
-        });
-        
-        return {
-          sessionName: session.sessionName,
-          ingredients: (session.ingredients || []).map((ingredient) => {
-            // Log để debug
-            console.log(`normalizeMenus - Ingredient:`, {
-              name: ingredient.name,
-              foodId: ingredient.foodId,
-              foodIdType: typeof ingredient.foodId,
-              foodIdIsNull: ingredient.foodId === null,
-              foodIdIsUndefined: ingredient.foodId === undefined,
-            });
-            
-            return {
-              name: ingredient.name,
-              weight: ingredient.weight,
-              calories: ingredient.calories,
-              carbs: ingredient.carbs,
-              protein: ingredient.protein,
-              fat: ingredient.fat,
-              // Giữ nguyên foodId, không convert null thành empty string
-              foodId: ingredient.foodId ?? '',
-            };
-          }),
-        };
-      }),
-    };
-  });
-  
-  console.log('normalizeMenus - output normalized:', normalized);
-  return normalized;
+  return menus.map((menu) => ({
+    id: menu.id,
+    mealDemoId: menu.mealDemoId,
+    menuNumber: menu.menuNumber,
+    sessions: (menu.sessions || []).map((session) => ({
+      sessionName: session.sessionName,
+      ingredients: (session.ingredients || []).map((ingredient) => ({
+        name: ingredient.name,
+        weight: ingredient.weight,
+        calories: ingredient.calories,
+        carbs: ingredient.carbs,
+        protein: ingredient.protein,
+        fat: ingredient.fat,
+        foodId: ingredient.foodId ?? '',
+      })),
+    })),
+  }));
 };
 
 const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
@@ -214,14 +180,21 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
     return match ? parseFloat(match[0]) : 0;
   };
 
-  /**
-   * Parse trọng lượng từ string (ví dụ: "100g" hoặc "100 gram" -> 100)
-   * Dùng để parse weight từ API response
-   */
   const parseWeightInGrams = (value?: string) => {
     if (!value) return 0;
     const match = value.match(/([\d.]+)\s*(g|gram|grams)?/i);
     return match ? parseFloat(match[1]) : 0;
+  };
+
+  const calculateNutrition = (food: any, weight: number) => {
+    const baseWeight = food.baseWeight || 100;
+    const multiplier = baseWeight > 0 ? weight / baseWeight : 1;
+    return {
+      calories: Math.round(food.calories * multiplier),
+      carbs: Math.round(food.carbs * multiplier * 10) / 10,
+      protein: Math.round(food.protein * multiplier * 10) / 10,
+      fat: Math.round(food.fat * multiplier * 10) / 10,
+    };
   };
 
   /**
@@ -324,10 +297,6 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
       });
     }
     
-    console.log('ingredientOptions - currentIngredients:', currentIngredients);
-    console.log('ingredientOptions - optionsFromApi:', optionsFromApi);
-    console.log('ingredientOptions - final options:', [...currentIngredients, ...optionsFromApi]);
-
     return [...currentIngredients, ...optionsFromApi];
   }, [baseIngredientData, ingredientSearchData, searchParams, normalizedMenus]);
 
@@ -358,69 +327,26 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
     }
 
     if (normalizedMenus.length > 0) {
-      console.log('Setting form fields with normalizedMenus:', normalizedMenus);
-      
-      // Copy toàn bộ normalizedMenus để set vào form
-      // Đảm bảo tất cả các field đều được set đúng
-      // Nếu foodId là null nhưng có name, tạo foodId tạm để Select có thể hiển thị
       const menusToSet = normalizedMenus.map((menu) => ({
         id: menu.id,
         mealDemoId: menu.mealDemoId,
         menuNumber: menu.menuNumber,
         sessions: (menu.sessions || []).map((session) => ({
           sessionName: session.sessionName,
-          ingredients: (session.ingredients || []).map((ing) => {
-            // Nếu foodId là null nhưng có name, tạo foodId tạm để Select hiển thị
-            let foodId = ing.foodId;
-            if ((!foodId || foodId === null || foodId === '') && ing.name) {
-              // Tạo foodId tạm với format cố định để có thể match với option tạm
-              foodId = `temp_${ing.name}`;
-            }
-            
-            return {
-              name: ing.name || '',
-              weight: ing.weight || 0,
-              calories: ing.calories || 0,
-              carbs: ing.carbs || 0,
-              protein: ing.protein || 0,
-              fat: ing.fat || 0,
-              foodId: foodId || null,
-            };
-          }),
+          ingredients: (session.ingredients || []).map((ing) => ({
+            name: ing.name || '',
+            weight: ing.weight || 0,
+            calories: ing.calories || 0,
+            carbs: ing.carbs || 0,
+            protein: ing.protein || 0,
+            fat: ing.fat || 0,
+            foodId: (!ing.foodId || ing.foodId === '') && ing.name ? `temp_${ing.name}` : ing.foodId || null,
+          })),
         })),
       }));
       
-      // Set form values với đầy đủ structure
-      form.setFieldsValue({
-        menus: menusToSet,
-      });
-      
-      // Set state để đảm bảo render ngay lập tức
+      form.setFieldsValue({ menus: menusToSet });
       setFormMenusState(menusToSet);
-      
-      // Log để kiểm tra form values sau khi set
-      setTimeout(() => {
-        const formValues = form.getFieldsValue();
-        console.log('Form values after setFieldsValue:', formValues);
-        console.log('Form values - menus:', formValues.menus);
-        if (formValues.menus && formValues.menus.length > 0) {
-          formValues.menus.forEach((menu: any, mi: number) => {
-            if (menu.sessions) {
-              menu.sessions.forEach((session: any, si: number) => {
-                if (session.ingredients) {
-                  session.ingredients.forEach((ing: any, ii: number) => {
-                    console.log(`Form value - Menu ${mi}, Session ${si}, Ingredient ${ii}:`, {
-                      foodId: ing.foodId,
-                      name: ing.name,
-                      weight: ing.weight,
-                    });
-                  });
-                }
-              });
-            }
-          });
-        }
-      }, 100);
     }
   }, [isOpen, normalizedMenus, form]);
 
@@ -527,13 +453,9 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                   opt.label?.toLowerCase() === ing.name?.toLowerCase() || 
                   opt.food?.name?.toLowerCase() === ing.name?.toLowerCase()
               );
-              if (foundOption && foundOption.value) {
-                console.log(`Fixing foodId for "${ing.name}": ${ing.foodId} -> ${foundOption.value}`);
+              if (foundOption?.value) {
                 needsUpdate = true;
-                return {
-                  ...ing,
-                  foodId: foundOption.value,
-                };
+                return { ...ing, foodId: foundOption.value };
               }
             }
             return ing;
@@ -542,11 +464,8 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
       }));
 
       if (needsUpdate) {
-        console.log('Updating form with fixed foodIds:', updatedMenus);
         hasFixedFoodIds.current = true;
-        form.setFieldsValue({
-          menus: updatedMenus,
-        });
+        form.setFieldsValue({ menus: updatedMenus });
         setFormMenusState(updatedMenus);
       } else {
         hasFixedFoodIds.current = true;
@@ -554,114 +473,72 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
     }
   }, [isOpen, ingredientOptions, formMenusState, form]);
 
-  /**
-   * Handler: Thêm nguyên liệu mới vào session
-   */
-  const handleAddIngredient = (menuIndex: number, sessionIndex: number) => {
-    // Lấy từ formMenusState hoặc mergedMenus để đảm bảo có đầy đủ field
-    const currentMenus = formMenusState.length > 0 ? formMenusState : mergedMenus;
-    const updatedMenus = currentMenus.map((menu: FormMenuValue, mi: number) => {
-      if (mi !== menuIndex) return menu;
-      
-      const updatedSessions = (menu.sessions || []).map((session: FormSessionValue, si: number) => {
-        if (si !== sessionIndex) return session;
-        
-        const newIngredient: FormIngredientValue = {
-          name: '',
-          weight: 100,
-          calories: 0,
-          carbs: 0,
-          protein: 0,
-          fat: 0,
-          foodId: null,
-        };
-        
-        return {
-          ...session,
-          ingredients: [...(session.ingredients || []), newIngredient],
-        };
-      });
-      
-      return {
-        ...menu,
-        sessions: updatedSessions,
-      };
-    });
-    
-    // Update cả form và state để đảm bảo re-render ngay lập tức
+  const updateMenusAndForm = (updatedMenus: FormMenuValue[]) => {
     form.setFieldsValue({ menus: updatedMenus });
     setFormMenusState(updatedMenus);
   };
 
-  /**
-   * Handler: Xóa nguyên liệu khỏi session
-   */
+  const handleAddIngredient = (menuIndex: number, sessionIndex: number) => {
+    const currentMenus = formMenusState.length > 0 ? formMenusState : mergedMenus;
+    const updatedMenus = currentMenus.map((menu, mi) => {
+      if (mi !== menuIndex) return menu;
+      return {
+        ...menu,
+        sessions: (menu.sessions || []).map((session, si) => {
+          if (si !== sessionIndex) return session;
+          return {
+            ...session,
+            ingredients: [...(session.ingredients || []), {
+              name: '', weight: 100, calories: 0, carbs: 0, protein: 0, fat: 0, foodId: null,
+            }],
+          };
+        }),
+      };
+    });
+    updateMenusAndForm(updatedMenus);
+  };
+
   const handleRemoveIngredient = (menuIndex: number, sessionIndex: number, ingredientIndex: number) => {
     const currentMenus = formMenusState.length > 0 ? formMenusState : mergedMenus;
-    const updatedMenus = currentMenus.map((menu: FormMenuValue, mi: number) => {
+    const updatedMenus = currentMenus.map((menu, mi) => {
       if (mi !== menuIndex) return menu;
-      
-      const updatedSessions = (menu.sessions || []).map((session: FormSessionValue, si: number) => {
-        if (si !== sessionIndex) return session;
-        
-        return {
-          ...session,
-          ingredients: (session.ingredients || []).filter((_, ii: number) => ii !== ingredientIndex),
-        };
-      });
-      
       return {
         ...menu,
-        sessions: updatedSessions,
+        sessions: (menu.sessions || []).map((session, si) => {
+          if (si !== sessionIndex) return session;
+          return {
+            ...session,
+            ingredients: (session.ingredients || []).filter((_: FormIngredientValue, ii: number) => ii !== ingredientIndex),
+          };
+        }),
       };
     });
-    
-    form.setFieldsValue({ menus: updatedMenus });
-    setFormMenusState(updatedMenus);
+    updateMenusAndForm(updatedMenus);
   };
 
-  /**
-   * Handler: Thêm session (bữa ăn) mới vào menu
-   */
   const handleAddSession = (menuIndex: number) => {
     const currentMenus = formMenusState.length > 0 ? formMenusState : mergedMenus;
     const menu = currentMenus[menuIndex];
-    const existingSessions = menu?.sessions || [];
-    const sessionCount = existingSessions.length;
-    
-    const newSession: FormSessionValue = {
-      sessionName: `Bữa ${sessionCount + 1}`,
-      ingredients: [],
-    };
-    
-    const updatedMenus = currentMenus.map((m: FormMenuValue, mi: number) => {
+    const updatedMenus = currentMenus.map((m, mi) => {
       if (mi !== menuIndex) return m;
       return {
         ...m,
-        sessions: [...existingSessions, newSession],
+        sessions: [...(m.sessions || []), { sessionName: `Bữa ${(m.sessions || []).length + 1}`, ingredients: [] }],
       };
     });
-    
-    form.setFieldsValue({ menus: updatedMenus });
-    setFormMenusState(updatedMenus);
+    updateMenusAndForm(updatedMenus);
   };
 
-  /**
-   * Handler: Xóa session khỏi menu
-   */
   const handleRemoveSession = (menuIndex: number, sessionIndex: number) => {
     const currentMenus = formMenusState.length > 0 ? formMenusState : mergedMenus;
-    const updatedMenus = currentMenus.map((menu: FormMenuValue, mi: number) => {
+    const updatedMenus = currentMenus.map((menu, mi) => {
       if (mi !== menuIndex) return menu;
-      
       return {
         ...menu,
-        sessions: (menu.sessions || []).filter((_, si: number) => si !== sessionIndex),
+        sessions: (menu.sessions || []).filter((_, si) => si !== sessionIndex),
       };
     });
-    
-    form.setFieldsValue({ menus: updatedMenus });
-    setFormMenusState(updatedMenus);
+    updateMenusAndForm(updatedMenus);
   };
 
   /**
@@ -692,8 +569,6 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
     try {
       const values = await form.validateFields();
 
-      console.log('Submitting meal plan detail update form values:', values);
-
       if (!mealDemoId) {
         toast.error('Thiếu mã kế hoạch dinh dưỡng.');
         return;
@@ -707,12 +582,9 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
 
       for (const menu of menuValues) {
         if (!menu.id || typeof menu.menuNumber !== 'number' || menu.menuNumber <= 0) {
-          console.error(`Invalid menu value:`, menu);
           toast.error(`Thực đơn ${menu.menuNumber || 'undefined'} không hợp lệ. Vui lòng thử lại.`);
           continue;
         }
-
-        console.log(`Processing Menu ${menu.menuNumber} - Raw menu data:`, menu);
 
         /**
          * Transform sessions từ form format sang API payload format
@@ -761,24 +633,14 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
           // Chỉ gửi các session có ít nhất 1 ingredient hợp lệ
           .filter((session) => session.ingredients.length > 0);
 
-        const menuPayload: UpdateMealDemoDetailPayload = {
-          id: menu.id,
-          mealDemoId: menu.mealDemoId,
-          menuNumber: menu.menuNumber,
-          sessions,
-        };
-
-        console.log(`Menu ${menu.menuNumber} - Sending payload:`, menuPayload);
-
         const response = await updateMealDemoDetail({
           id: menu.id,
-          payload: menuPayload,
-        });
-
-        console.log(`Menu ${menu.menuNumber} - Update response:`, {
-          id: menu.id,
-          menuPayload,
-          response,
+          payload: {
+            id: menu.id,
+            mealDemoId: menu.mealDemoId,
+            menuNumber: menu.menuNumber,
+            sessions,
+          },
         });
 
         if (!response.success) {
@@ -806,19 +668,6 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
   const menusValue = mergedMenus.length > 0 ? mergedMenus : normalizedMenus;
   const hasMenus = menusValue.length > 0;
 
-  /**
-   * Effect: Debug log để theo dõi data flow
-   * Log các state quan trọng khi modal mở để debug
-   */
-  React.useEffect(() => {
-    if (isOpen) {
-      console.log('MealPlanDetailUpdateModal - menus prop:', menus);
-      console.log('MealPlanDetailUpdateModal - normalizedMenus:', normalizedMenus);
-      console.log('MealPlanDetailUpdateModal - mergedMenus:', mergedMenus);
-      console.log('MealPlanDetailUpdateModal - watchedMenus:', watchedMenus);
-      console.log('MealPlanDetailUpdateModal - menusValue:', menusValue);
-    }
-  }, [isOpen, menus, normalizedMenus, mergedMenus, watchedMenus, menusValue]);
 
   return (
     <Modal
@@ -1036,30 +885,6 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                                  * - Ưu tiên từ watchedMenus (form state real-time)
                                  * - Nếu không có, dùng từ ingredient (initial value)
                                  */
-                                const watchedFoodId = watchedMenus?.[menuIndex]?.sessions?.[sessionIndex]?.ingredients?.[ingredientIndex]?.foodId;
-                                const currentFoodId = watchedFoodId || ingredient.foodId;
-                                
-                                /**
-                                 * Tìm option tương ứng trong ingredientOptions
-                                 * Tìm theo foodId hoặc name để đảm bảo Select hiển thị đúng
-                                 */
-                                const currentIngredientOption = ingredientOptions.find(
-                                  (opt: any) => opt.value === currentFoodId || opt.label === ingredient.name
-                                );
-
-                                // Debug log
-                                console.log(`Ingredient ${ingredientIndex} - ingredient.foodId:`, ingredient.foodId);
-                                console.log(`Ingredient ${ingredientIndex} - watchedFoodId:`, watchedFoodId);
-                                console.log(`Ingredient ${ingredientIndex} - currentFoodId:`, currentFoodId);
-                                console.log(`Ingredient ${ingredientIndex} - name:`, ingredient.name);
-                                console.log(`Ingredient ${ingredientIndex} - currentOption:`, currentIngredientOption);
-                                console.log(`Ingredient ${ingredientIndex} - options count:`, ingredientOptions.length);
-                                if (currentIngredientOption) {
-                                  console.log(`Ingredient ${ingredientIndex} - option found:`, currentIngredientOption.label);
-                                } else {
-                                  console.warn(`Ingredient ${ingredientIndex} - NO OPTION FOUND for foodId:`, currentFoodId);
-                                }
-
                                 return (
                                   <div
                                     key={ingredientIndex}
@@ -1123,25 +948,11 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                                          */
                                         onChange={(value) => {
                                           const selectedOption = ingredientOptions.find((opt: any) => opt.value === value);
-                                          if (selectedOption && selectedOption.food) {
+                                          if (selectedOption?.food) {
                                             const food = selectedOption.food;
-                                            const baseWeight = food.baseWeight || 100;
-                                            const currentWeightPath: any = ['menus', menuIndex, 'sessions', sessionIndex, 'ingredients', ingredientIndex, 'weight'];
-                                            const currentWeight = form.getFieldValue(currentWeightPath) || baseWeight;
-
-                                            /**
-                                             * Tính toán lại giá trị dinh dưỡng:
-                                             * multiplier = currentWeight / baseWeight
-                                             * Ví dụ: baseWeight = 100g, currentWeight = 200g -> multiplier = 2
-                                             * -> calories = food.calories * 2
-                                             */
-                                            const multiplier = baseWeight > 0 ? currentWeight / baseWeight : 1;
-                                            const calories = Math.round(food.calories * multiplier);
-                                            const carbs = Math.round(food.carbs * multiplier * 10) / 10;
-                                            const protein = Math.round(food.protein * multiplier * 10) / 10;
-                                            const fat = Math.round(food.fat * multiplier * 10) / 10;
-
-                                            // Cập nhật form values với giá trị mới
+                                            const currentWeight = form.getFieldValue(['menus', menuIndex, 'sessions', sessionIndex, 'ingredients', ingredientIndex, 'weight'] as any) || food.baseWeight || 100;
+                                            const nutrition = calculateNutrition(food, currentWeight);
+                                            
                                             form.setFieldsValue({
                                               menus: form.getFieldValue('menus')?.map((m: FormMenuValue, mi: number) => {
                                                 if (mi !== menuIndex) return m;
@@ -1157,10 +968,7 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                                                           ...ing,
                                                           foodId: value,
                                                           name: food.name,
-                                                          calories: Number.isFinite(calories) ? calories : 0,
-                                                          carbs: Number.isFinite(carbs) ? carbs : 0,
-                                                          protein: Number.isFinite(protein) ? protein : 0,
-                                                          fat: Number.isFinite(fat) ? fat : 0,
+                                                          ...nutrition,
                                                         };
                                                       }),
                                                     };
@@ -1206,33 +1014,16 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                                        * 4. Cập nhật calories, carbs, protein, fat trong form
                                        */
                                       onChange={(value) => {
-                                        const currentFoodIdPath: any = ['menus', menuIndex, 'sessions', sessionIndex, 'ingredients', ingredientIndex, 'foodId'];
-                                        const currentFoodId = form.getFieldValue(currentFoodIdPath);
-                                        
+                                        const currentFoodId = form.getFieldValue(['menus', menuIndex, 'sessions', sessionIndex, 'ingredients', ingredientIndex, 'foodId'] as any);
                                         if (currentFoodId && value) {
                                           const selectedOption = ingredientOptions.find((opt: any) => opt.value === currentFoodId);
-                                          if (selectedOption && selectedOption.food) {
-                                            const food = selectedOption.food;
-                                            const baseWeight = food.baseWeight || 100;
-                                            
-                                            /**
-                                             * Tính toán lại giá trị dinh dưỡng:
-                                             * multiplier = newWeight / baseWeight
-                                             * Ví dụ: baseWeight = 100g, newWeight = 150g -> multiplier = 1.5
-                                             * -> calories = food.calories * 1.5
-                                             */
-                                            const multiplier = baseWeight > 0 ? Number(value) / baseWeight : 1;
-                                            const calories = Math.round(food.calories * multiplier);
-                                            const carbs = Math.round(food.carbs * multiplier * 10) / 10;
-                                            const protein = Math.round(food.protein * multiplier * 10) / 10;
-                                            const fat = Math.round(food.fat * multiplier * 10) / 10;
-
-                                            // Cập nhật các giá trị dinh dưỡng trong form
+                                          if (selectedOption?.food) {
+                                            const nutrition = calculateNutrition(selectedOption.food, Number(value));
                                             form.setFieldsValue({
-                                              [`menus.${menuIndex}.sessions.${sessionIndex}.ingredients.${ingredientIndex}.calories`]: Number.isFinite(calories) ? calories : 0,
-                                              [`menus.${menuIndex}.sessions.${sessionIndex}.ingredients.${ingredientIndex}.carbs`]: Number.isFinite(carbs) ? carbs : 0,
-                                              [`menus.${menuIndex}.sessions.${sessionIndex}.ingredients.${ingredientIndex}.protein`]: Number.isFinite(protein) ? protein : 0,
-                                              [`menus.${menuIndex}.sessions.${sessionIndex}.ingredients.${ingredientIndex}.fat`]: Number.isFinite(fat) ? fat : 0,
+                                              [`menus.${menuIndex}.sessions.${sessionIndex}.ingredients.${ingredientIndex}.calories`]: nutrition.calories,
+                                              [`menus.${menuIndex}.sessions.${sessionIndex}.ingredients.${ingredientIndex}.carbs`]: nutrition.carbs,
+                                              [`menus.${menuIndex}.sessions.${sessionIndex}.ingredients.${ingredientIndex}.protein`]: nutrition.protein,
+                                              [`menus.${menuIndex}.sessions.${sessionIndex}.ingredients.${ingredientIndex}.fat`]: nutrition.fat,
                                             });
                                           }
                                         }
