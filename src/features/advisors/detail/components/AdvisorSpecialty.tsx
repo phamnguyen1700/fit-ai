@@ -1,18 +1,60 @@
 import React from 'react';
-import { Card, Flex, Row, Col } from '@/shared/ui';
+import { Card, Flex, Row, Col, Input } from '@/shared/ui';
 import { Icon } from '@/shared/ui/icon';
 
 interface AdvisorSpecialtyProps {
     advisorData: {
         certifications: string[];
         workingHours: string;
+        specialty?: string;
     };
+    isEditing?: boolean;
+    formData?: {
+        specialties: string;
+        availability: string;
+    };
+    onFormChange?: (field: string, value: string) => void;
 }
 
-export const AdvisorSpecialty: React.FC<AdvisorSpecialtyProps> = ({ advisorData }) => {
+export const AdvisorSpecialty: React.FC<AdvisorSpecialtyProps> = ({ 
+    advisorData, 
+    isEditing = false,
+    formData,
+    onFormChange 
+}) => {
     return (
-        <Card title="Chứng chỉ" className="h-fit">
+        <Card title="Chuyên môn" className="h-fit">
             <Row gutter={[16, 16]}>
+                <Col span={24}>
+                    <h4 className="text-[var(--text-secondary)] mb-2">Lĩnh vực chuyên môn:</h4>
+                    {isEditing && formData ? (
+                        <Input
+                            value={formData.specialties}
+                            onChange={(e) => onFormChange?.('specialties', e.target.value)}
+                            placeholder="VD: Fitness, Nutrition, Yoga"
+                        />
+                    ) : (
+                        <div className="text-sm text-[var(--text)]">
+                            {advisorData.specialty || 'Chưa cập nhật'}
+                        </div>
+                    )}
+                </Col>
+
+                <Col span={24}>
+                    <h4 className="text-[var(--text-secondary)] mb-2">Tình trạng khả dụng:</h4>
+                    {isEditing && formData ? (
+                        <Input
+                            value={formData.availability}
+                            onChange={(e) => onFormChange?.('availability', e.target.value)}
+                            placeholder="VD: Available, Busy, Offline"
+                        />
+                    ) : (
+                        <div className="text-sm text-[var(--text)]">
+                            {advisorData.workingHours || 'Chưa cập nhật'}
+                        </div>
+                    )}
+                </Col>
+
                 <Col span={24}>
                     <h4 className="text-[var(--text-secondary)] mb-2">Chứng chỉ</h4>
                     {advisorData.certifications.length === 0 ? (

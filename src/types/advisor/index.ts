@@ -33,8 +33,6 @@ export interface AdvisorDetail extends Omit<Advisor, 'certifications'> {
   activeClients?: number;
   completedPrograms?: number;
   bio?: string;
-  birthDate?: string;
-  gender?: string;
   achievements?: Achievement[];
 }
 
@@ -42,4 +40,15 @@ export interface Achievement {
   year: string;
   title: string;
   organization: string;
+}
+
+export interface UpdateAdvisorProfileRequest {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  bio: string;
+  specialties: string;
+  yearsExperience: number;
+  profilePicture: string;
+  availability: string;
 }

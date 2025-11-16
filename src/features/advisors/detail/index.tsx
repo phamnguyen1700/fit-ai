@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { Card, Breadcrumb, Button, Flex, Row, Col } from '@/shared/ui';
 import { Icon } from '@/shared/ui/icon';
 import { AdvisorProfile } from './components/AdvisorProfile';
@@ -8,9 +8,10 @@ import { AdvisorStats } from './components/AdvisorStats';
 import { AdvisorSpecialty } from './components/AdvisorSpecialty';
 import { AdvisorAchievements } from './components/AdvisorAchievements';
 import { ManagedClientsList } from './components/ManagedClientsList';
-import { useAdvisorDetail, useSoftDeleteAdvisor, useReactivateAdvisor } from '@/tanstack/hooks/advisor';
+import { useAdvisorDetail, useSoftDeleteAdvisor, useReactivateAdvisor, useUpdateAdvisorProfile } from '@/tanstack/hooks/advisor';
 import { AdvisorDetail, Achievement } from '@/types/advisor';
 import { Skeleton, App } from 'antd';
+import toast from 'react-hot-toast';
 
 const resolveAvatarUrl = (avatar?: string) => {
     if (!avatar) return undefined;
@@ -35,8 +36,6 @@ type AdvisorDetailView = {
     status: string;
     isActive: boolean;
     certifications: string[];
-    birthDate: string;
-    gender: string;
     joinDate: string;
     workingHours: string;
     bio: string;
@@ -77,8 +76,6 @@ const mapAdvisorDetailToProfile = (advisor?: AdvisorDetail): AdvisorDetailView |
         status: advisor.isActive ? 'Hoạt động' : 'Ngưng hoạt động',
         isActive: advisor.isActive,
         certifications,
-        birthDate: formatDate(advisor.birthDate),
-        gender: advisor.gender || 'Chưa cập nhật',
         joinDate: formatDate(advisor.lastCreate),
         workingHours: advisor.workingHours || 'Chưa cập nhật',
         bio: advisor.bio || 'Chưa có mô tả',
@@ -94,9 +91,46 @@ export const AdvisorDetailPage: React.FC<AdvisorDetailPageProps> = ({ advisorId 
     const { data, isLoading, isError } = useAdvisorDetail(advisorId);
     const softDeleteAdvisor = useSoftDeleteAdvisor();
     const reactivateAdvisor = useReactivateAdvisor();
+    const updateAdvisorProfile = useUpdateAdvisorProfile();
     const { modal } = App.useApp();
+    const [isEditing, setIsEditing] = useState(false);
+    const [formData, setFormData] = useState({
+        firstName: '',
+        lastName: '',
+        phone: '',
+        bio: '',
+        specialties: '',
+        yearsExperience: 0,
+        profilePicture: '',
+        availability: '',
+    });
 
     const advisorDetail = useMemo(() => mapAdvisorDetailToProfile(data?.data as AdvisorDetail | undefined), [data?.data]);
+
+    // Initialize form data when advisor detail is loaded
+    useEffect(() => {
+        if (advisorDetail && !isEditing) {
+            // Parse firstName and lastName from name
+            const nameParts = advisorDetail.name.trim().split(/\s+/);
+            const firstName = nameParts.slice(0, -1).join(' ') || '';
+            const lastName = nameParts[nameParts.length - 1] || '';
+
+            // Parse yearsExperience from experience string (e.g., "5 năm" -> 5)
+            const experienceMatch = advisorDetail.experience.match(/(\d+)/);
+            const yearsExperience = experienceMatch ? parseInt(experienceMatch[1]) : 0;
+
+            setFormData({
+                firstName,
+                lastName,
+                phone: advisorDetail.phone === 'Chưa cập nhật' ? '' : advisorDetail.phone,
+                bio: advisorDetail.bio === 'Chưa có mô tả' ? '' : advisorDetail.bio,
+                specialties: advisorDetail.specialty === 'Chưa cập nhật' ? '' : advisorDetail.specialty,
+                yearsExperience,
+                profilePicture: advisorDetail.avatar || '',
+                availability: advisorDetail.workingHours === 'Chưa cập nhật' ? '' : advisorDetail.workingHours,
+            });
+        }
+    }, [advisorDetail, isEditing]);
 
     // Mock data khách hàng đang quản lý
     const managedClients = [
@@ -182,8 +216,70 @@ export const AdvisorDetailPage: React.FC<AdvisorDetailPageProps> = ({ advisorId 
 
     const handleEdit = useCallback(() => {
         if (!advisorDetail) return;
-        console.log('Edit advisor:', advisorDetail.id);
-    }, [advisorDetail?.id]);
+        setIsEditing(true);
+    }, [advisorDetail]);
+
+    const handleCancel = useCallback(() => {
+        setIsEditing(false);
+        // Reset form data to original values
+        if (advisorDetail) {
+            const nameParts = advisorDetail.name.trim().split(/\s+/);
+            const firstName = nameParts.slice(0, -1).join(' ') || '';
+            const lastName = nameParts[nameParts.length - 1] || '';
+            const experienceMatch = advisorDetail.experience.match(/(\d+)/);
+            const yearsExperience = experienceMatch ? parseInt(experienceMatch[1]) : 0;
+
+            setFormData({
+                firstName,
+                lastName,
+                phone: advisorDetail.phone === 'Chưa cập nhật' ? '' : advisorDetail.phone,
+                bio: advisorDetail.bio === 'Chưa có mô tả' ? '' : advisorDetail.bio,
+                specialties: advisorDetail.specialty === 'Chưa cập nhật' ? '' : advisorDetail.specialty,
+                yearsExperience,
+                profilePicture: advisorDetail.avatar || '',
+                availability: advisorDetail.workingHours === 'Chưa cập nhật' ? '' : advisorDetail.workingHours,
+            });
+        }
+    }, [advisorDetail]);
+
+    const handleSave = useCallback(() => {
+        if (!advisorId || !advisorDetail) return;
+
+        // Basic validation
+        if (!formData.firstName.trim() || !formData.lastName.trim()) {
+            toast.error('Vui lòng nhập đầy đủ họ và tên');
+            return;
+        }
+
+        const updateData = {
+            firstName: formData.firstName.trim(),
+            lastName: formData.lastName.trim(),
+            phone: formData.phone.trim() || '',
+            bio: formData.bio.trim() || '',
+            specialties: formData.specialties.trim() || '',
+            yearsExperience: formData.yearsExperience || 0,
+            profilePicture: formData.profilePicture.trim() || '',
+            availability: formData.availability.trim() || '',
+        };
+
+        console.log('Sending update request:', { advisorId, updateData });
+
+        updateAdvisorProfile.mutate(
+            { advisorId, data: updateData },
+            {
+                onSuccess: () => {
+                    setIsEditing(false);
+                },
+            }
+        );
+    }, [advisorId, advisorDetail, formData, updateAdvisorProfile]);
+
+    const handleFormChange = useCallback((field: string, value: string | number) => {
+        setFormData((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+    }, []);
 
     const handleDeactivate = useCallback(() => {
         if (!advisorDetail || !advisorId) return;
@@ -275,32 +371,57 @@ export const AdvisorDetailPage: React.FC<AdvisorDetailPageProps> = ({ advisorId 
             <div className="flex items-center justify-between mb-3">
                 <Breadcrumb items={breadcrumbItems} />
                 <Flex gap={8}>
-                    <Button variant="ghost" size="sm" onClick={handleEdit}>
-                        <Icon name="mdi:pencil" />
-                        Cập nhật thông tin
-                    </Button>
-                    {advisorDetail.isActive ? (
-                        <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={handleDeactivate}
-                            loading={softDeleteAdvisor.isPending}
-                            disabled={softDeleteAdvisor.isPending}
-                        >
-                            <Icon name="mdi:pause-circle-outline" />
-                            Tạm dừng
-                        </Button>
+                    {isEditing ? (
+                        <>
+                            <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={handleCancel}
+                                disabled={updateAdvisorProfile.isPending}
+                            >
+                                <Icon name="mdi:close" />
+                                Hủy
+                            </Button>
+                            <Button 
+                                variant="primary" 
+                                size="sm" 
+                                onClick={handleSave}
+                                loading={updateAdvisorProfile.isPending}
+                            >
+                                <Icon name="mdi:content-save" />
+                                Lưu thay đổi
+                            </Button>
+                        </>
                     ) : (
-                        <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={handleReactivate}
-                            loading={reactivateAdvisor.isPending}
-                            disabled={reactivateAdvisor.isPending}
-                        >
-                            <Icon name="mdi:play-circle-outline" />
-                            Khởi động lại
-                        </Button>
+                        <>
+                            <Button variant="ghost" size="sm" onClick={handleEdit}>
+                                <Icon name="mdi:pencil" />
+                                Cập nhật thông tin
+                            </Button>
+                            {advisorDetail.isActive ? (
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={handleDeactivate}
+                                    loading={softDeleteAdvisor.isPending}
+                                    disabled={softDeleteAdvisor.isPending}
+                                >
+                                    <Icon name="mdi:pause-circle-outline" />
+                                    Tạm dừng
+                                </Button>
+                            ) : (
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={handleReactivate}
+                                    loading={reactivateAdvisor.isPending}
+                                    disabled={reactivateAdvisor.isPending}
+                                >
+                                    <Icon name="mdi:play-circle-outline" />
+                                    Khởi động lại
+                                </Button>
+                            )}
+                        </>
                     )}
                 </Flex>
             </div>
@@ -308,14 +429,24 @@ export const AdvisorDetailPage: React.FC<AdvisorDetailPageProps> = ({ advisorId 
             <Row gutter={[24, 24]}>
                 {/* Left Column - Hồ sơ Advisor */}
                 <Col xs={24} lg={12}>
-                    <AdvisorProfile advisorData={advisorDetail} />
+                    <AdvisorProfile 
+                        advisorData={advisorDetail} 
+                        isEditing={isEditing}
+                        formData={formData}
+                        onFormChange={handleFormChange}
+                    />
                 </Col>
 
                 {/* Right Column - Thống kê & Thông tin chuyên môn */}
                 <Col xs={24} lg={12}>
                     <Flex vertical gap={24}>
                         <AdvisorStats advisorData={advisorDetail} />
-                        <AdvisorSpecialty advisorData={advisorDetail} />
+                        <AdvisorSpecialty 
+                            advisorData={advisorDetail} 
+                            isEditing={isEditing}
+                            formData={formData}
+                            onFormChange={handleFormChange}
+                        />
                         <AdvisorAchievements achievements={advisorDetail.achievements?.length ? advisorDetail.achievements : []} />
                     </Flex>
                 </Col>
