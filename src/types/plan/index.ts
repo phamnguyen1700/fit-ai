@@ -142,6 +142,7 @@ export interface MealPlanDetail {
   id: string;
   planName: string;
   goal: string;
+  gender?: string;
   totalCaloriesPerDay: number;
   totalMenus: number;
   menus: DayMeal[];

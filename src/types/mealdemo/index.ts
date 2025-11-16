@@ -31,6 +31,17 @@ export interface CreateMealDemoPayload {
 
 export type CreateMealDemoResponse = MealDemo;
 
+export interface UpdateMealDemoPayload {
+  id: string;
+  planName: string;
+  gender: string;
+  goal: string;
+  maxDailyCalories: number;
+  totalMenus: number;
+}
+
+export type UpdateMealDemoResponse = MealDemo;
+
 export interface UpdateMealDemoIngredientPayload {
   name: string;
   weight: number;

@@ -6,15 +6,17 @@ import { Icon } from '@/shared/ui/icon';
 import { MealPlanCard } from '../MealPlanCard';
 import { MealPlanDetailModal } from '../MealPlanDetailModal';
 import MealPlanDetailUpdateModal from '../MealPlanDetailUpdateModal';
+import MealPlanUpdateModal from '../MealPlanUpdateModal';
 import type { MealPlanDetail, DayMeal, Meal, MealIngredient } from '@/types/plan';
 import { useGetMealDemoList, useGetMealDemoDetail, useDeleteMealDemo, useHardDeleteMealDemo } from '@/tanstack/hooks/mealdemo';
-import type { MealDemo, MealDemoDetailMenu, MealDemoDetailSession } from '@/types/mealdemo';
+import type { MealDemo, MealDemoDetailMenu, MealDemoDetailSession, UpdateMealDemoPayload } from '@/types/mealdemo';
 import { App } from 'antd';
 
 const MealTab: React.FC = () => {
   const PAGE_SIZE = 15;
   const [selectedPlan, setSelectedPlan] = useState<MealPlanDetail | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPlanUpdateModalOpen, setIsPlanUpdateModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [activeMealDemoId, setActiveMealDemoId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,7 +44,7 @@ const MealTab: React.FC = () => {
     isPending: isMealDemoDetailLoading,
     refetch: refetchMealDemoDetail,
   } = useGetMealDemoDetail(activeMealDemoId ?? undefined, {
-    enabled: (isModalOpen || isUpdateModalOpen) && Boolean(activeMealDemoId),
+    enabled: (isModalOpen || isUpdateModalOpen || isPlanUpdateModalOpen) && Boolean(activeMealDemoId),
   });
 
   const mealDemos: MealDemo[] = useMemo(() => {
@@ -60,6 +62,7 @@ const MealTab: React.FC = () => {
         id: demo.id,
         planName: demo.planName,
         goal: demo.goal,
+        gender: demo.gender,
         totalCaloriesPerDay: demo.maxDailyCalories,
         totalMenus: demo.totalMenus,
         menus: [],
@@ -156,7 +159,7 @@ const MealTab: React.FC = () => {
   const handleUpdate = (plan: MealPlanDetail) => {
     setSelectedPlan(plan);
     setActiveMealDemoId(plan.id);
-    setIsUpdateModalOpen(true);
+    setIsPlanUpdateModalOpen(true);
   };
 
   const handleCloseModal = () => {
@@ -165,10 +168,23 @@ const MealTab: React.FC = () => {
     setActiveMealDemoId(null);
   };
 
+  const handleClosePlanUpdateModal = () => {
+    setIsPlanUpdateModalOpen(false);
+  };
+
   const handleCloseUpdateModal = () => {
     setIsUpdateModalOpen(false);
     setSelectedPlan(null);
     setActiveMealDemoId(null);
+  };
+
+  const handlePlanUpdated = async (payload: UpdateMealDemoPayload) => {
+    if (activeMealDemoId) {
+      await refetch();
+      await refetchMealDemoDetail();
+    }
+    setIsPlanUpdateModalOpen(false);
+    setIsUpdateModalOpen(true);
   };
 
   const handleUpdateSuccess = async () => {
@@ -329,6 +345,21 @@ const MealTab: React.FC = () => {
         plan={planWithDetails}
         onClose={handleCloseModal}
         loading={isMealDemoDetailLoading}
+      />
+
+      <MealPlanUpdateModal
+        isOpen={isPlanUpdateModalOpen}
+        onClose={handleClosePlanUpdateModal}
+        mealDemoId={activeMealDemoId}
+        initialValues={selectedPlan ? {
+          planName: selectedPlan.planName,
+          gender: selectedPlan.gender || undefined,
+          goal: selectedPlan.goal || undefined,
+          maxDailyCalories: selectedPlan.totalCaloriesPerDay,
+          totalMenus: selectedPlan.totalMenus,
+        } : undefined}
+        isLoading={isMealDemoDetailLoading && !mealDemoDetailResponse}
+        onUpdated={handlePlanUpdated}
       />
 
       <MealPlanDetailUpdateModal

@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createMealDemoService, getMealDemoListService, updateMealDemoAllService, getMealDemoDetailService, updateMealDemoDetailService, deleteMealDemoService, hardDeleteMealDemoService } from '@/tanstack/services/mealdemo';
+import { createMealDemoService, getMealDemoListService, updateMealDemoAllService, getMealDemoDetailService, updateMealDemoDetailService, deleteMealDemoService, hardDeleteMealDemoService, updateMealDemoService } from '@/tanstack/services/mealdemo';
 import type {
   CreateMealDemoPayload,
   CreateMealDemoResponse,
   MealDemoListParams,
   MealDemoListResponse,
+  UpdateMealDemoPayload,
+  UpdateMealDemoResponse,
   UpdateMealDemoAllPayload,
   UpdateMealDemoAllResponse,
   UpdateMealDemoDetailPayload,
@@ -71,6 +73,27 @@ export const useCreateMealDemo = () => {
     },
     onError: (error: any) => {
       const message = error?.response?.data?.message || error?.message || 'Không thể tạo thực đơn mẫu. Vui lòng thử lại.';
+      toast.error(message);
+    },
+  });
+};
+
+export const useUpdateMealDemo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<IApiResponse<UpdateMealDemoResponse>, unknown, { mealDemoId: string; payload: UpdateMealDemoPayload }>({
+    mutationFn: ({ mealDemoId, payload }) => updateMealDemoService(mealDemoId, payload),
+    onSuccess: (response, variables) => {
+      if (response.success) {
+        toast.success('Cập nhật kế hoạch dinh dưỡng thành công!');
+        queryClient.invalidateQueries({ queryKey: [MEAL_DEMO_QUERY_KEY] });
+        queryClient.invalidateQueries({ queryKey: [MEAL_DEMO_DETAIL_QUERY_KEY, variables.mealDemoId] });
+      } else {
+        toast.error(response.message || 'Cập nhật kế hoạch dinh dưỡng thất bại');
+      }
+    },
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Cập nhật kế hoạch dinh dưỡng thất bại. Vui lòng thử lại.';
       toast.error(message);
     },
   });

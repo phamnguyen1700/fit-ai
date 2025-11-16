@@ -132,8 +132,8 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
   // Hook để update meal plan detail
   const { mutateAsync: updateMealDemoDetail, isPending } = useUpdateMealDemoDetail();
   
-  // State để lưu menus đã được xử lý cho form (có thể đã được merge với watched values)
-  const [formMenus, setFormMenus] = React.useState<FormMenuValue[]>([]);
+  // State để track form values trực tiếp (để đảm bảo update ngay lập tức)
+  const [formMenusState, setFormMenusState] = React.useState<FormMenuValue[]>([]);
   
   // Normalize menus từ props sang form format (memoized để tránh re-calculate không cần thiết)
   const normalizedMenus = React.useMemo(() => normalizeMenus(menus), [menus]);
@@ -289,22 +289,34 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                 });
               }
             } else if (ing.name && !hasFoodId) {
-              // Nếu có name nhưng không có foodId, tạo một option tạm với name làm value
-              const tempValue = `temp_${ing.name}_${Date.now()}`;
-              if (!currentIngredients.some((ci: any) => ci.label === ing.name)) {
-                currentIngredients.push({
-                  label: ing.name,
-                  value: tempValue,
-                  food: {
-                    id: tempValue,
-                    name: ing.name,
-                    baseWeight: ing.weight || 100,
-                    calories: ing.calories || 0,
-                    carbs: ing.carbs || 0,
-                    protein: ing.protein || 0,
-                    fat: ing.fat || 0,
-                  },
-                });
+              // Nếu có name nhưng không có foodId, tìm trong API options trước
+              const foundInApi = optionsFromApi.find(
+                (opt: any) => opt.label === ing.name || opt.food?.name === ing.name
+              );
+              
+              if (foundInApi) {
+                // Nếu tìm thấy trong API, dùng option đó
+                if (!currentIngredients.some((ci: any) => ci.value === foundInApi.value)) {
+                  currentIngredients.push(foundInApi);
+                }
+              } else {
+                // Nếu không tìm thấy, tạo option tạm với value cố định dựa trên name
+                const tempValue = `temp_${ing.name}`;
+                if (!currentIngredients.some((ci: any) => ci.value === tempValue)) {
+                  currentIngredients.push({
+                    label: ing.name,
+                    value: tempValue,
+                    food: {
+                      id: tempValue,
+                      name: ing.name,
+                      baseWeight: ing.weight || 100,
+                      calories: ing.calories || 0,
+                      carbs: ing.carbs || 0,
+                      protein: ing.protein || 0,
+                      fat: ing.fat || 0,
+                    },
+                  });
+                }
               }
             }
           });
@@ -333,39 +345,58 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
    * - Reset form
    * - Clear state
    */
+  // Ref để track xem đã fix foodId chưa, tránh infinite loop
+  const hasFixedFoodIds = React.useRef(false);
+
   React.useEffect(() => {
     if (!isOpen) {
       form.resetFields();
-      setFormMenus([]);
       setIngredientSearchTerm('');
+      setFormMenusState([]);
+      hasFixedFoodIds.current = false; // Reset khi modal đóng
       return;
     }
 
     if (normalizedMenus.length > 0) {
       console.log('Setting form fields with normalizedMenus:', normalizedMenus);
       
-      // Đợi ingredientOptions được load xong rồi mới set form
-      // Nếu foodId là empty string, tìm option theo name và cập nhật foodId
-      const menusWithFixedFoodIds = normalizedMenus.map((menu) => ({
-        ...menu,
-        sessions: menu.sessions.map((session) => ({
-          ...session,
-          ingredients: session.ingredients.map((ing) => {
-            // Nếu foodId là empty string hoặc null, nhưng có name, tìm option theo name
-            if ((!ing.foodId || ing.foodId === '') && ing.name) {
-              // Tìm trong ingredientOptions (sẽ được tính sau khi API load xong)
-              // Tạm thời giữ nguyên, sẽ fix sau khi options load
-              return ing;
+      // Copy toàn bộ normalizedMenus để set vào form
+      // Đảm bảo tất cả các field đều được set đúng
+      // Nếu foodId là null nhưng có name, tạo foodId tạm để Select có thể hiển thị
+      const menusToSet = normalizedMenus.map((menu) => ({
+        id: menu.id,
+        mealDemoId: menu.mealDemoId,
+        menuNumber: menu.menuNumber,
+        sessions: (menu.sessions || []).map((session) => ({
+          sessionName: session.sessionName,
+          ingredients: (session.ingredients || []).map((ing) => {
+            // Nếu foodId là null nhưng có name, tạo foodId tạm để Select hiển thị
+            let foodId = ing.foodId;
+            if ((!foodId || foodId === null || foodId === '') && ing.name) {
+              // Tạo foodId tạm với format cố định để có thể match với option tạm
+              foodId = `temp_${ing.name}`;
             }
-            return ing;
+            
+            return {
+              name: ing.name || '',
+              weight: ing.weight || 0,
+              calories: ing.calories || 0,
+              carbs: ing.carbs || 0,
+              protein: ing.protein || 0,
+              fat: ing.fat || 0,
+              foodId: foodId || null,
+            };
           }),
         })),
       }));
       
+      // Set form values với đầy đủ structure
       form.setFieldsValue({
-        menus: menusWithFixedFoodIds,
+        menus: menusToSet,
       });
-      setFormMenus(menusWithFixedFoodIds);
+      
+      // Set state để đảm bảo render ngay lập tức
+      setFormMenusState(menusToSet);
       
       // Log để kiểm tra form values sau khi set
       setTimeout(() => {
@@ -381,6 +412,7 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                     console.log(`Form value - Menu ${mi}, Session ${si}, Ingredient ${ii}:`, {
                       foodId: ing.foodId,
                       name: ing.name,
+                      weight: ing.weight,
                     });
                   });
                 }
@@ -399,6 +431,65 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
   const watchedMenus = Form.useWatch('menus', form);
 
   /**
+   * Merge formMenusState với normalizedMenus để đảm bảo data đầy đủ
+   * 
+   * Vấn đề: formMenusState có thể thiếu một số field quan trọng (id, mealDemoId, menuNumber, sessionName)
+   * Giải pháp: Merge với normalizedMenus gốc để giữ lại các field này
+   * 
+   * Đặc biệt quan trọng: 
+   * - sessionName phải được giữ lại vì API yêu cầu field này
+   * - Xử lý các session mới được thêm vào (không có trong normalizedMenus gốc)
+   */
+  const mergedMenus = React.useMemo(() => {
+    if (!isOpen) return normalizedMenus;
+    
+    // Ưu tiên formMenusState (được update trực tiếp trong handlers)
+    // Nếu formMenusState rỗng, dùng watchedMenus hoặc normalizedMenus
+    let sourceMenus: FormMenuValue[] = [];
+    
+    if (formMenusState.length > 0) {
+      sourceMenus = formMenusState;
+    } else if (Array.isArray(watchedMenus) && watchedMenus.length > 0) {
+      sourceMenus = watchedMenus;
+    } else if (normalizedMenus.length > 0) {
+      // Nếu cả formMenusState và watchedMenus đều rỗng, dùng normalizedMenus
+      sourceMenus = normalizedMenus;
+    }
+    
+    if (sourceMenus.length > 0) {
+      return sourceMenus.map((menu, index) => {
+        const originalMenu = normalizedMenus[index];
+        if (originalMenu) {
+          const menuSessions = menu.sessions || [];
+          const originalSessions = originalMenu.sessions || [];
+          
+          const mergedSessions = menuSessions.map((session: any, sessionIndex: number) => {
+            const originalSession = originalSessions[sessionIndex];
+            const sessionName = session.sessionName || 
+              originalSession?.sessionName || 
+              `Bữa ${sessionIndex + 1}`;
+            
+            return {
+              ...session,
+              sessionName: sessionName,
+            };
+          });
+
+          return {
+            ...menu,
+            id: originalMenu.id,
+            mealDemoId: originalMenu.mealDemoId,
+            menuNumber: originalMenu.menuNumber,
+            sessions: mergedSessions,
+          };
+        }
+        return menu;
+      });
+    }
+    return normalizedMenus;
+  }, [isOpen, formMenusState, watchedMenus, normalizedMenus]);
+
+  /**
    * Effect: Tự động fix foodId khi ingredientOptions đã load
    * 
    * Vấn đề: Một số nguyên liệu có foodId là empty string nhưng có name
@@ -407,23 +498,37 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
    * Chạy khi:
    * - Modal mở
    * - ingredientOptions đã load (có options)
-   * - normalizedMenus và formMenus có data
+   * - normalizedMenus và mergedMenus có data
    */
   React.useEffect(() => {
-    if (isOpen && ingredientOptions.length > 0 && normalizedMenus.length > 0 && formMenus.length > 0) {
+    // Fix foodId khi ingredientOptions đã load và có nguyên liệu cần fix
+    if (!isOpen) {
+      hasFixedFoodIds.current = false;
+      return;
+    }
+    
+    // Chỉ fix một lần khi ingredientOptions đã load đầy đủ
+    if (hasFixedFoodIds.current) {
+      return;
+    }
+    
+    if (ingredientOptions.length > 0 && formMenusState.length > 0) {
       let needsUpdate = false;
-      const updatedMenus = formMenus.map((menu, menuIndex) => ({
+      const updatedMenus = formMenusState.map((menu, menuIndex) => ({
         ...menu,
-        sessions: menu.sessions.map((session, sessionIndex) => ({
+        sessions: (menu.sessions || []).map((session, sessionIndex) => ({
           ...session,
-          ingredients: session.ingredients.map((ing, ingredientIndex) => {
-            // Nếu foodId là empty string nhưng có name, tìm option theo name
-            if ((!ing.foodId || ing.foodId === '') && ing.name) {
+          ingredients: (session.ingredients || []).map((ing: FormIngredientValue, ingredientIndex: number) => {
+            // Nếu foodId là null, empty string hoặc không có, nhưng có name, tìm option theo name
+            if ((!ing.foodId || ing.foodId === '' || ing.foodId === null) && ing.name) {
+              // Tìm option theo name (không phân biệt hoa thường)
               const foundOption = ingredientOptions.find(
-                (opt: any) => opt.label === ing.name || opt.food?.name === ing.name
+                (opt: any) => 
+                  opt.label?.toLowerCase() === ing.name?.toLowerCase() || 
+                  opt.food?.name?.toLowerCase() === ing.name?.toLowerCase()
               );
-              if (foundOption) {
-                console.log(`Fixing foodId for "${ing.name}": empty -> ${foundOption.value}`);
+              if (foundOption && foundOption.value) {
+                console.log(`Fixing foodId for "${ing.name}": ${ing.foodId} -> ${foundOption.value}`);
                 needsUpdate = true;
                 return {
                   ...ing,
@@ -438,64 +543,132 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
 
       if (needsUpdate) {
         console.log('Updating form with fixed foodIds:', updatedMenus);
+        hasFixedFoodIds.current = true;
         form.setFieldsValue({
           menus: updatedMenus,
         });
-        setFormMenus(updatedMenus);
+        setFormMenusState(updatedMenus);
+      } else {
+        hasFixedFoodIds.current = true;
       }
     }
-  }, [isOpen, ingredientOptions, normalizedMenus, formMenus, form]);
+  }, [isOpen, ingredientOptions, formMenusState, form]);
 
   /**
-   * Effect: Merge watchedMenus với normalizedMenus để đảm bảo data đầy đủ
-   * 
-   * Vấn đề: watchedMenus có thể thiếu một số field quan trọng (id, mealDemoId, menuNumber, sessionName)
-   * Giải pháp: Merge với normalizedMenus gốc để giữ lại các field này
-   * 
-   * Đặc biệt quan trọng: sessionName phải được giữ lại vì API yêu cầu field này
+   * Handler: Thêm nguyên liệu mới vào session
    */
-  React.useEffect(() => {
-    if (Array.isArray(watchedMenus) && watchedMenus.length > 0) {
-      // Đảm bảo sessions được giữ nguyên từ normalizedMenus gốc, đặc biệt là sessionName
-      const mergedMenus = watchedMenus.map((watchedMenu, index) => {
-        const originalMenu = normalizedMenus[index];
-        if (originalMenu) {
-          // Merge sessions, đảm bảo sessionName được giữ lại
-          const mergedSessions = (watchedMenu.sessions && watchedMenu.sessions.length > 0 
-            ? watchedMenu.sessions 
-            : originalMenu.sessions
-          ).map((watchedSession: any, sessionIndex: number) => {
-            const originalSession = originalMenu.sessions[sessionIndex];
-            return {
-              ...watchedSession,
-              // Đảm bảo sessionName luôn được giữ lại từ original
-              sessionName: watchedSession.sessionName || originalSession?.sessionName || '',
-            };
-          });
-
-          return {
-            ...watchedMenu,
-            id: originalMenu.id,
-            mealDemoId: originalMenu.mealDemoId,
-            menuNumber: originalMenu.menuNumber,
-            sessions: mergedSessions,
-          };
-        }
-        return watchedMenu;
+  const handleAddIngredient = (menuIndex: number, sessionIndex: number) => {
+    // Lấy từ formMenusState hoặc mergedMenus để đảm bảo có đầy đủ field
+    const currentMenus = formMenusState.length > 0 ? formMenusState : mergedMenus;
+    const updatedMenus = currentMenus.map((menu: FormMenuValue, mi: number) => {
+      if (mi !== menuIndex) return menu;
+      
+      const updatedSessions = (menu.sessions || []).map((session: FormSessionValue, si: number) => {
+        if (si !== sessionIndex) return session;
+        
+        const newIngredient: FormIngredientValue = {
+          name: '',
+          weight: 100,
+          calories: 0,
+          carbs: 0,
+          protein: 0,
+          fat: 0,
+          foodId: null,
+        };
+        
+        return {
+          ...session,
+          ingredients: [...(session.ingredients || []), newIngredient],
+        };
       });
-      setFormMenus(mergedMenus);
-    } else if (normalizedMenus.length > 0) {
-      // Nếu watchedMenus rỗng nhưng normalizedMenus có data, dùng normalizedMenus
-      setFormMenus(normalizedMenus);
-    }
-  }, [watchedMenus, normalizedMenus]);
+      
+      return {
+        ...menu,
+        sessions: updatedSessions,
+      };
+    });
+    
+    // Update cả form và state để đảm bảo re-render ngay lập tức
+    form.setFieldsValue({ menus: updatedMenus });
+    setFormMenusState(updatedMenus);
+  };
+
+  /**
+   * Handler: Xóa nguyên liệu khỏi session
+   */
+  const handleRemoveIngredient = (menuIndex: number, sessionIndex: number, ingredientIndex: number) => {
+    const currentMenus = formMenusState.length > 0 ? formMenusState : mergedMenus;
+    const updatedMenus = currentMenus.map((menu: FormMenuValue, mi: number) => {
+      if (mi !== menuIndex) return menu;
+      
+      const updatedSessions = (menu.sessions || []).map((session: FormSessionValue, si: number) => {
+        if (si !== sessionIndex) return session;
+        
+        return {
+          ...session,
+          ingredients: (session.ingredients || []).filter((_, ii: number) => ii !== ingredientIndex),
+        };
+      });
+      
+      return {
+        ...menu,
+        sessions: updatedSessions,
+      };
+    });
+    
+    form.setFieldsValue({ menus: updatedMenus });
+    setFormMenusState(updatedMenus);
+  };
+
+  /**
+   * Handler: Thêm session (bữa ăn) mới vào menu
+   */
+  const handleAddSession = (menuIndex: number) => {
+    const currentMenus = formMenusState.length > 0 ? formMenusState : mergedMenus;
+    const menu = currentMenus[menuIndex];
+    const existingSessions = menu?.sessions || [];
+    const sessionCount = existingSessions.length;
+    
+    const newSession: FormSessionValue = {
+      sessionName: `Bữa ${sessionCount + 1}`,
+      ingredients: [],
+    };
+    
+    const updatedMenus = currentMenus.map((m: FormMenuValue, mi: number) => {
+      if (mi !== menuIndex) return m;
+      return {
+        ...m,
+        sessions: [...existingSessions, newSession],
+      };
+    });
+    
+    form.setFieldsValue({ menus: updatedMenus });
+    setFormMenusState(updatedMenus);
+  };
+
+  /**
+   * Handler: Xóa session khỏi menu
+   */
+  const handleRemoveSession = (menuIndex: number, sessionIndex: number) => {
+    const currentMenus = formMenusState.length > 0 ? formMenusState : mergedMenus;
+    const updatedMenus = currentMenus.map((menu: FormMenuValue, mi: number) => {
+      if (mi !== menuIndex) return menu;
+      
+      return {
+        ...menu,
+        sessions: (menu.sessions || []).filter((_, si: number) => si !== sessionIndex),
+      };
+    });
+    
+    form.setFieldsValue({ menus: updatedMenus });
+    setFormMenusState(updatedMenus);
+  };
 
   /**
    * Handler: Đóng modal và reset form
    */
   const handleCancel = () => {
     form.resetFields();
-    setFormMenus([]);
     setIngredientSearchTerm('');
     onClose();
   };
@@ -548,26 +721,28 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
          * - sessionName: Phải có giá trị (required bởi API)
          *   + Ưu tiên lấy từ form values (session.sessionName)
          *   + Nếu không có, lấy từ normalizedMenus gốc
-         *   + Nếu vẫn không có, log error
+         *   + Nếu vẫn không có, dùng tên mặc định "Bữa X"
          * 
          * - ingredients: Chỉ gửi những ingredient có đầy đủ name và foodId
+         *   + Bỏ qua các ingredient mới chưa chọn (foodId null hoặc empty)
          */
-        const sessions: UpdateMealDemoSessionPayload[] = (menu.sessions ?? []).map((session, sessionIndex) => {
+        const sessions: UpdateMealDemoSessionPayload[] = (menu.sessions ?? [])
+          .map((session, sessionIndex) => {
           // Đảm bảo sessionName luôn có giá trị - ưu tiên từ form values, sau đó từ normalizedMenus
+            const originalMenu = normalizedMenus.find(m => m.id === menu.id);
           const sessionName = session.sessionName || 
-            normalizedMenus.find(m => m.id === menu.id)?.sessions[sessionIndex]?.sessionName || 
-            '';
-          
-          if (!sessionName) {
-            console.error(`Menu ${menu.menuNumber} - Session ${sessionIndex} missing sessionName`);
-            console.error('Session data:', session);
-            console.error('Menu data:', menu);
-            console.error('Normalized menus:', normalizedMenus);
-          }
-
-          // Filter và map ingredients: chỉ lấy những ingredient có name và foodId
+              originalMenu?.sessions[sessionIndex]?.sessionName || 
+              `Bữa ${sessionIndex + 1}`;
+            
+            // Filter và map ingredients: chỉ lấy những ingredient có name và foodId hợp lệ
           const ingredients: UpdateMealDemoIngredientPayload[] = (session.ingredients ?? [])
-            .filter((ingredient) => ingredient.name && ingredient.foodId)
+              .filter((ingredient) => {
+                // Chỉ lấy ingredient có name và foodId không rỗng
+                return ingredient.name && 
+                       ingredient.foodId && 
+                       ingredient.foodId !== null && 
+                       ingredient.foodId !== '';
+              })
             .map((ingredient) => ({
               name: ingredient.name,
               weight: ingredient.weight ?? 0,
@@ -582,7 +757,9 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
             sessionName: sessionName,
             ingredients,
           };
-        });
+          })
+          // Chỉ gửi các session có ít nhất 1 ingredient hợp lệ
+          .filter((session) => session.ingredients.length > 0);
 
         const menuPayload: UpdateMealDemoDetailPayload = {
           id: menu.id,
@@ -623,10 +800,10 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
 
   /**
    * Chọn data source để render:
-   * - Ưu tiên formMenus (đã được merge với watched values)
-   * - Nếu formMenus rỗng, dùng normalizedMenus
+   * - Sử dụng mergedMenus (đã được merge với watched values)
+   * - Nếu mergedMenus rỗng, dùng normalizedMenus
    */
-  const menusValue = formMenus.length > 0 ? formMenus : normalizedMenus;
+  const menusValue = mergedMenus.length > 0 ? mergedMenus : normalizedMenus;
   const hasMenus = menusValue.length > 0;
 
   /**
@@ -637,11 +814,11 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
     if (isOpen) {
       console.log('MealPlanDetailUpdateModal - menus prop:', menus);
       console.log('MealPlanDetailUpdateModal - normalizedMenus:', normalizedMenus);
-      console.log('MealPlanDetailUpdateModal - formMenus:', formMenus);
+      console.log('MealPlanDetailUpdateModal - mergedMenus:', mergedMenus);
       console.log('MealPlanDetailUpdateModal - watchedMenus:', watchedMenus);
       console.log('MealPlanDetailUpdateModal - menusValue:', menusValue);
     }
-  }, [isOpen, menus, normalizedMenus, formMenus, watchedMenus, menusValue]);
+  }, [isOpen, menus, normalizedMenus, mergedMenus, watchedMenus, menusValue]);
 
   return (
     <Modal
@@ -697,61 +874,163 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                   <Input type="hidden" />
                 </Form.Item>
 
-                <Flex justify="space-between" align="center" style={{ marginBottom: 16 }}>
+                <Flex justify="space-between" align="center" style={{ marginBottom: 20 }}>
                   <div>
-                    <h3 style={{ margin: 0, fontSize: 18, color: 'var(--text)' }}>{menuLabel}</h3>
+                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: 'var(--text)' }}>{menuLabel}</h3>
                     <p style={{ margin: '4px 0 0', color: 'var(--text-secondary)', fontSize: 13 }}>
                       Cập nhật thông tin nguyên liệu cho thực đơn này.
                     </p>
                   </div>
+                  <Flex gap={12} align="center">
                   <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
                     {sessions.length} bữa ăn
                   </span>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => handleAddSession(menuIndex)}
+                      style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: 6,
+                        border: '1px dashed var(--border)',
+                      }}
+                    >
+                      <Icon name="mdi:plus" size={16} />
+                      Thêm bữa ăn
+                    </Button>
+                  </Flex>
                 </Flex>
 
                 {/* Empty state cho sessions: Hiển thị khi menu chưa có bữa ăn nào */}
                 {!sessions.length ? (
-                  <div style={{ padding: 12, color: 'var(--text-secondary)' }}>
-                    Thực đơn này chưa có bữa ăn nào.
+                  <div style={{ 
+                    padding: 24, 
+                    color: 'var(--text-secondary)', 
+                    textAlign: 'center',
+                    border: '1px dashed var(--border)',
+                    borderRadius: 8,
+                    backgroundColor: 'var(--bg-secondary)',
+                  }}>
+                    <div style={{ marginBottom: 8, opacity: 0.5 }}>
+                      <Icon name="mdi:silverware-fork-knife" size={32} />
+                    </div>
+                    <p style={{ margin: 0 }}>Thực đơn này chưa có bữa ăn nào.</p>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => handleAddSession(menuIndex)}
+                      style={{ marginTop: 12, border: '1px dashed var(--border)' }}
+                    >
+                      <Flex gap={4} align="center">
+                        <Icon name="mdi:plus" size={16} />
+                        <span>Thêm bữa ăn đầu tiên</span>
+                      </Flex>
+                    </Button>
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                     {/* Render từng session (bữa ăn) */}
                     {sessions.map((session, sessionIndex) => {
                       const ingredients = session.ingredients ?? [];
-                      const sessionLabel = session.sessionName || `Bữa ${sessionIndex + 1}`;
 
                       return (
                         <div
                           key={sessionIndex}
                           style={{
-                            padding: '16px',
+                            padding: '20px',
                             border: '1px solid var(--border)',
                             borderRadius: 12,
                             backgroundColor: 'var(--bg-secondary)',
+                            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
                           }}
                         >
-                          {/* 
-                            Hidden field để lưu sessionName trong form state
-                            Quan trọng: sessionName là required field khi submit API
-                          */}
-                          <Form.Item name={['menus', menuIndex, 'sessions', sessionIndex, 'sessionName']} hidden>
-                            <Input type="hidden" />
+                          <Flex justify="space-between" align="center" style={{ marginBottom: 16 }}>
+                            <Form.Item
+                              name={['menus', menuIndex, 'sessions', sessionIndex, 'sessionName']}
+                              rules={[{ required: true, message: 'Vui lòng nhập tên bữa ăn' }]}
+                              style={{ marginBottom: 0, flex: 1, marginRight: 12 }}
+                            >
+                              <Input
+                                placeholder="Nhập tên bữa ăn (ví dụ: Bữa sáng, Bữa trưa...)"
+                                style={{ 
+                                  fontSize: 16, 
+                                  fontWeight: 600,
+                                  border: 'none',
+                                  borderBottom: '2px solid var(--border)',
+                                  borderRadius: 0,
+                                  padding: '4px 0',
+                                  backgroundColor: 'transparent',
+                                }}
+                                onFocus={(e) => {
+                                  e.target.style.borderBottomColor = 'var(--primary)';
+                                }}
+                                onBlur={(e) => {
+                                  e.target.style.borderBottomColor = 'var(--border)';
+                                }}
+                              />
                           </Form.Item>
-
-                          <h4 style={{ margin: '0 0 16px', fontSize: 16, color: 'var(--text)' }}>
-                            {sessionLabel}
-                          </h4>
+                            <Flex gap={8} align="center">
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleAddIngredient(menuIndex, sessionIndex)}
+                                style={{ 
+                                  display: 'flex', 
+                                  alignItems: 'center', 
+                                  gap: 6,
+                                  border: '1px dashed var(--border)',
+                                }}
+                              >
+                                <Icon name="mdi:plus-circle" size={16} />
+                                Thêm nguyên liệu
+                              </Button>
+                              {sessions.length > 1 && (
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={() => handleRemoveSession(menuIndex, sessionIndex)}
+                                  style={{ 
+                                    color: 'var(--error)',
+                                    borderColor: 'var(--error)',
+                                  }}
+                                >
+                                  <Icon name="mdi:delete-outline" size={16} />
+                                </Button>
+                              )}
+                            </Flex>
+                          </Flex>
 
                           {/* Empty state cho ingredients: Hiển thị khi session chưa có nguyên liệu */}
                           {!ingredients.length ? (
-                            <div style={{ padding: 12, color: 'var(--text-secondary)' }}>
-                              Bữa này chưa có nguyên liệu nào.
+                            <div style={{ 
+                              padding: 20, 
+                              color: 'var(--text-secondary)', 
+                              textAlign: 'center',
+                              border: '1px dashed var(--border)',
+                              borderRadius: 8,
+                              backgroundColor: 'var(--bg)',
+                            }}>
+                              <div style={{ marginBottom: 8, opacity: 0.5 }}>
+                                <Icon name="mdi:food" size={24} />
+                              </div>
+                              <p style={{ margin: '0 0 12px' }}>Bữa này chưa có nguyên liệu nào.</p>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleAddIngredient(menuIndex, sessionIndex)}
+                                style={{ border: '1px dashed var(--border)' }}
+                              >
+                                <Flex gap={4} align="center">
+                                  <Icon name="mdi:plus" size={16} />
+                                  <span>Thêm nguyên liệu đầu tiên</span>
+                                </Flex>
+                              </Button>
                             </div>
                           ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                               {/* Render từng nguyên liệu với form fields để chỉnh sửa */}
-                              {ingredients.map((ingredient, ingredientIndex) => {
+                              {ingredients.map((ingredient: FormIngredientValue, ingredientIndex: number) => {
                                 /**
                                  * Lấy foodId hiện tại:
                                  * - Ưu tiên từ watchedMenus (form state real-time)
@@ -786,13 +1065,23 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                                     key={ingredientIndex}
                                     style={{
                                       display: 'grid',
-                                      gridTemplateColumns: '2fr repeat(5, 1fr)',
+                                      gridTemplateColumns: '2fr repeat(5, 1fr) auto',
                                       gap: 12,
                                       alignItems: 'flex-end',
-                                      padding: '12px',
+                                      padding: '16px',
                                       border: '1px solid var(--border)',
                                       borderRadius: 8,
                                       backgroundColor: 'var(--bg)',
+                                      position: 'relative',
+                                      transition: 'all 0.2s ease',
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.borderColor = 'var(--primary)';
+                                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.08)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.borderColor = 'var(--border)';
+                                      e.currentTarget.style.boxShadow = 'none';
                                     }}
                                   >
                                     {/* 
@@ -815,24 +1104,6 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                                         onSearch={setIngredientSearchTerm}
                                         loading={isLoadingIngredients}
                                         allowClear
-                                        /**
-                                         * Set value cho Select:
-                                         * - Nếu có currentFoodId và không rỗng -> dùng currentFoodId
-                                         * - Nếu foodId rỗng nhưng có name và tìm được option -> dùng value của option
-                                         * - Nếu không -> undefined (Select sẽ hiển thị placeholder)
-                                         * 
-                                         * Logic này đảm bảo Select luôn hiển thị đúng nguyên liệu ban đầu
-                                         */
-                                        value={(() => {
-                                          if (currentFoodId && currentFoodId !== '') {
-                                            return currentFoodId;
-                                          }
-                                          // Nếu foodId empty nhưng có name, tìm option theo name
-                                          if (ingredient.name && currentIngredientOption) {
-                                            return currentIngredientOption.value;
-                                          }
-                                          return undefined;
-                                        })()}
                                         notFoundContent={
                                           ingredientSearchTerm.length > 0 && ingredientSearchTerm.length < 2
                                             ? 'Nhập ít nhất 2 ký tự để tìm kiếm nguyên liệu'
@@ -876,11 +1147,11 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                                                 if (mi !== menuIndex) return m;
                                                 return {
                                                   ...m,
-                                                  sessions: m.sessions.map((s: FormSessionValue, si: number) => {
+                                                  sessions: (m.sessions || []).map((s: FormSessionValue, si: number) => {
                                                     if (si !== sessionIndex) return s;
                                                     return {
                                                       ...s,
-                                                      ingredients: s.ingredients.map((ing: FormIngredientValue, ii: number) => {
+                                                      ingredients: (s.ingredients || []).map((ing: FormIngredientValue, ii: number) => {
                                                         if (ii !== ingredientIndex) return ing;
                                                         return {
                                                           ...ing,
@@ -1010,6 +1281,24 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                                   >
                                     <InputNumber min={0} step={0.1} style={{ width: '100%' }} />
                                   </Form.Item>
+                                  
+                                  {/* Button xóa nguyên liệu */}
+                                  <Form.Item style={{ marginBottom: 0 }}>
+                                    <Button
+                                      variant="secondary"
+                                      size="sm"
+                                      onClick={() => handleRemoveIngredient(menuIndex, sessionIndex, ingredientIndex)}
+                                      style={{ 
+                                        color: 'var(--error)',
+                                        borderColor: 'var(--error)',
+                                        minWidth: 'auto',
+                                        padding: '4px 8px',
+                                      }}
+                                      title="Xóa nguyên liệu"
+                                    >
+                                      <Icon name="mdi:delete-outline" size={18} />
+                                    </Button>
+                                  </Form.Item>
                                 </div>
                                 );
                               })}
@@ -1018,6 +1307,25 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                         </div>
                       );
                     })}
+                    
+                    {/* Button thêm bữa ăn ở cuối danh sách */}
+                    <Button
+                      variant="secondary"
+                      size="md"
+                      onClick={() => handleAddSession(menuIndex)}
+                      style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        gap: 8,
+                        border: '1px dashed var(--border)',
+                        padding: '16px',
+                        width: '100%',
+                      }}
+                    >
+                      <Icon name="mdi:plus-circle" size={20} />
+                      Thêm bữa ăn mới
+                    </Button>
                   </div>
                 )}
               </Card>

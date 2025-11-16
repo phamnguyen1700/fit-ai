@@ -2,19 +2,85 @@
 
 import React from 'react';
 import { Modal, Button, Flex, Card } from '@/shared/ui';
-import { Form, InputNumber, Input, Select } from 'antd';
+import { Form, InputNumber, Input, Select, FormInstance } from 'antd';
 import { Icon } from '@/shared/ui/icon';
 import type { WorkoutDemoDay } from '@/types/workoutdemo';
 import type { UpdateWorkoutDemoExercisePayload, UpdateWorkoutDemoDayPayload } from '@/types/workoutdemo';
 import { useUpdateWorkoutDemoDay } from '@/tanstack/hooks/workoutdemo';
 import { useGetExerciseCategories } from '@/tanstack/hooks/exercisecategory';
+import { useGetExercises } from '@/tanstack/hooks/exercise';
 import toast from 'react-hot-toast';
+
+// Component để chọn exercise dựa trên category
+const ExerciseSelectField: React.FC<{
+  dayIndex: number;
+  exerciseIndex: number;
+  categoryId?: string;
+  exerciseId?: string;
+  exerciseOptions: Array<{ label: string; value: string }>;
+  isExercisesLoading: boolean;
+  exerciseName?: string | null;
+}> = ({ dayIndex, exerciseIndex, categoryId, exerciseId, exerciseOptions, isExercisesLoading, exerciseName }) => {
+  // Nếu exerciseId đã có sẵn (từ data cũ) và không có categoryId, hiển thị tên
+  if (exerciseId && exerciseName && !categoryId) {
+    return (
+      <div>
+        <div style={{ fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>
+          {exerciseName}
+        </div>
+        <div style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
+          Bài tập hiện tại
+        </div>
+      </div>
+    );
+  }
+
+  // Nếu chưa chọn category, không hiển thị exercise selector
+  if (!categoryId) {
+    return (
+      <div>
+        <div style={{ fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>
+          {exerciseName || 'Bài tập'}
+        </div>
+        <div style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
+          Vui lòng chọn nhóm cơ trước
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Form.Item
+      name={['days', dayIndex, 'exercises', exerciseIndex, 'exerciseId']}
+      label="Bài tập"
+      rules={[{ required: true, message: 'Vui lòng chọn bài tập' }]}
+    >
+      <Select
+        placeholder="Chọn bài tập"
+        options={exerciseOptions}
+        loading={isExercisesLoading}
+        showSearch
+        notFoundContent={
+          isExercisesLoading
+            ? 'Đang tải...'
+            : exerciseOptions.length === 0
+              ? 'Không có bài tập nào trong nhóm cơ này'
+              : 'Không tìm thấy'
+        }
+        filterOption={(input, option) =>
+          String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+        }
+      />
+    </Form.Item>
+  );
+};
 
 interface WorkoutPlanDetailUpdateModalProps {
   isOpen: boolean;
   onClose: () => void;
   workoutDemoId: string | null;
   days: WorkoutDemoDay[];
+  totalDays?: number | null;
   isLoading?: boolean;
   onUpdated?: () => void;
 }
@@ -35,8 +101,8 @@ interface FormDayValue {
   exercises: FormExerciseValue[];
 }
 
-const normalizeDays = (days: WorkoutDemoDay[]): FormDayValue[] =>
-  days.map((day) => ({
+const normalizeDays = (days: WorkoutDemoDay[], totalDays?: number | null): FormDayValue[] => {
+  const normalized = days.map((day) => ({
     day: day.day,
     dayName: day.dayName,
     exercises: day.exercises.map((exercise) => {
@@ -57,24 +123,53 @@ const normalizeDays = (days: WorkoutDemoDay[]): FormDayValue[] =>
     }),
   }));
 
+  // Nếu totalDays được cung cấp và lớn hơn số ngày hiện có, tạo thêm các ngày mới
+  if (totalDays && totalDays > normalized.length) {
+    const existingDays = new Set(normalized.map(d => d.day));
+    const maxDay = Math.max(...normalized.map(d => d.day), 0);
+    
+    for (let dayNum = 1; dayNum <= totalDays; dayNum++) {
+      if (!existingDays.has(dayNum)) {
+        normalized.push({
+          day: dayNum,
+          dayName: `Ngày ${dayNum}`,
+          exercises: [],
+        });
+      }
+    }
+    
+    // Sắp xếp lại theo day number
+    normalized.sort((a, b) => a.day - b.day);
+  }
+
+  return normalized;
+};
+
 const WorkoutPlanDetailUpdateModal: React.FC<WorkoutPlanDetailUpdateModalProps> = ({
   isOpen,
   onClose,
   workoutDemoId,
   days,
+  totalDays,
   isLoading,
   onUpdated,
 }) => {
   const [form] = Form.useForm<{ days: FormDayValue[] }>();
   const { mutateAsync: updateWorkoutDay, isPending } = useUpdateWorkoutDemoDay();
   const [formDays, setFormDays] = React.useState<FormDayValue[]>([]);
-  const normalizedDays = React.useMemo(() => normalizeDays(days), [days]);
+  const normalizedDays = React.useMemo(() => normalizeDays(days, totalDays), [days, totalDays]);
+
+  // Watch toàn bộ form values ở top level để tránh hooks trong map
+  const watchedDays = Form.useWatch('days', form);
 
   // Fetch exercise categories
   const { data: categoriesResponse, isLoading: isCategoriesLoading } = useGetExerciseCategories({
     page: 1,
     pageSize: 100, // Lấy tất cả categories
   });
+
+  // Fetch tất cả exercises một lần (không filter theo category để tránh nhiều hooks)
+  const { data: allExercisesResponse, isLoading: isAllExercisesLoading } = useGetExercises();
 
   const categoryOptions = React.useMemo(() => {
     // eslint-disable-next-line no-console
@@ -115,6 +210,58 @@ const WorkoutPlanDetailUpdateModal: React.FC<WorkoutPlanDetailUpdateModalProps> 
     return options;
   }, [categoriesResponse]);
 
+  // Parse all exercises để filter theo category khi cần
+  const allExercises = React.useMemo(() => {
+    if (!allExercisesResponse?.data || !Array.isArray(allExercisesResponse.data)) {
+      return [];
+    }
+    return allExercisesResponse.data;
+  }, [allExercisesResponse]);
+
+  // Helper function để lấy exercise options theo categoryId
+  const getExerciseOptionsByCategory = React.useCallback((categoryId?: string) => {
+    if (!categoryId) return [];
+    return allExercises
+      .filter((ex) => ex.categoryId === categoryId)
+      .map((ex) => ({
+        label: ex.name || ex.id,
+        value: ex.id,
+      }));
+  }, [allExercises]);
+
+  // Helper function để lấy exercise name theo exerciseId
+  const getExerciseName = React.useCallback((exerciseId?: string) => {
+    if (!exerciseId) return null;
+    const exercise = allExercises.find((ex) => ex.id === exerciseId);
+    return exercise?.name || exerciseId;
+  }, [allExercises]);
+
+  // Function to add new exercise to a day
+  const handleAddExercise = (dayIndex: number) => {
+    const currentDays = form.getFieldValue('days') || [];
+    const day = currentDays[dayIndex];
+    if (!day) return;
+
+    const newExercise: FormExerciseValue = {
+      exerciseId: '',
+      exerciseCategoryId: '',
+      name: null,
+      categoryName: null,
+      sets: null,
+      reps: null,
+      minutes: null,
+    };
+
+    const updatedDays = [...currentDays];
+    updatedDays[dayIndex] = {
+      ...day,
+      exercises: [...(day.exercises || []), newExercise],
+    };
+
+    form.setFieldsValue({ days: updatedDays });
+    setFormDays(updatedDays);
+  };
+
   React.useEffect(() => {
     if (!isOpen) {
       form.resetFields();
@@ -127,8 +274,6 @@ const WorkoutPlanDetailUpdateModal: React.FC<WorkoutPlanDetailUpdateModalProps> 
     });
     setFormDays(normalizedDays);
   }, [isOpen, normalizedDays, form]);
-
-  const watchedDays = Form.useWatch('days', form);
 
   React.useEffect(() => {
     if (Array.isArray(watchedDays)) {
@@ -212,7 +357,10 @@ const WorkoutPlanDetailUpdateModal: React.FC<WorkoutPlanDetailUpdateModalProps> 
             return payload;
           });
 
-        if (!exercises.length) {
+        // Cho phép gửi day mới ngay cả khi chưa có exercises (để tạo day mới)
+        // Chỉ skip nếu day đã tồn tại và không có exercises hợp lệ
+        const isNewDay = !days.some(d => d.day === day.day);
+        if (!exercises.length && !isNewDay) {
           // eslint-disable-next-line no-console
           console.warn(`Day ${day.day} - No valid exercises to update (all missing IDs)`);
           continue;
@@ -314,8 +462,15 @@ const WorkoutPlanDetailUpdateModal: React.FC<WorkoutPlanDetailUpdateModalProps> 
                 </Flex>
 
                 {!exercises.length ? (
-                  <div style={{ padding: 12, color: 'var(--text-secondary)' }}>
-                    Ngày này chưa có bài tập nào.
+                  <div style={{ padding: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>
+                    <p style={{ marginBottom: 12 }}>Ngày này chưa có bài tập nào.</p>
+                    <Button
+                      variant="secondary"
+                      onClick={() => handleAddExercise(dayIndex)}
+                      icon={<Icon name="mdi:plus" size={16} />}
+                    >
+                      Thêm bài tập
+                    </Button>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -333,15 +488,6 @@ const WorkoutPlanDetailUpdateModal: React.FC<WorkoutPlanDetailUpdateModalProps> 
                           backgroundColor: 'var(--bg-secondary)',
                         }}
                       >
-                        <div>
-                          <div style={{ fontWeight: 600, color: 'var(--text)' }}>
-                            {exercise.name || 'Bài tập'}
-                          </div>
-                          <div style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
-                            {exercise.categoryName || 'Nhóm cơ chưa xác định'}
-                          </div>
-                        </div>
-
                         <Form.Item
                           name={['days', dayIndex, 'exercises', exerciseIndex, 'exerciseCategoryId']}
                           label="Nhóm cơ"
@@ -364,6 +510,16 @@ const WorkoutPlanDetailUpdateModal: React.FC<WorkoutPlanDetailUpdateModalProps> 
                             }
                           />
                         </Form.Item>
+
+                        <ExerciseSelectField
+                          dayIndex={dayIndex}
+                          exerciseIndex={exerciseIndex}
+                          categoryId={watchedDays?.[dayIndex]?.exercises?.[exerciseIndex]?.exerciseCategoryId}
+                          exerciseId={watchedDays?.[dayIndex]?.exercises?.[exerciseIndex]?.exerciseId}
+                          exerciseOptions={getExerciseOptionsByCategory(watchedDays?.[dayIndex]?.exercises?.[exerciseIndex]?.exerciseCategoryId)}
+                          isExercisesLoading={isAllExercisesLoading}
+                          exerciseName={getExerciseName(watchedDays?.[dayIndex]?.exercises?.[exerciseIndex]?.exerciseId)}
+                        />
 
                         <Form.Item
                           name={['days', dayIndex, 'exercises', exerciseIndex, 'sets']}
@@ -389,14 +545,16 @@ const WorkoutPlanDetailUpdateModal: React.FC<WorkoutPlanDetailUpdateModalProps> 
                           <InputNumber min={0} max={300} style={{ width: '100%' }} />
                         </Form.Item>
 
-                        <Form.Item
-                          name={['days', dayIndex, 'exercises', exerciseIndex, 'exerciseId']}
-                          hidden
-                        >
-                          <Input type="hidden" />
-                        </Form.Item>
                       </div>
                     ))}
+                    <Button
+                      variant="secondary"
+                      onClick={() => handleAddExercise(dayIndex)}
+                      icon={<Icon name="mdi:plus" size={16} />}
+                      style={{ width: '100%', marginTop: 8 }}
+                    >
+                      Thêm bài tập
+                    </Button>
                   </div>
                 )}
               </Card>

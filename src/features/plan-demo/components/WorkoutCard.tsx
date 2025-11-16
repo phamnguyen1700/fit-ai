@@ -277,6 +277,7 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
         onClose={() => setIsDetailUpdateModalOpen(false)}
         workoutDemoId={workoutPlan.workoutDemoId}
         days={detail?.days ?? workoutPlan.days}
+        totalDays={detail?.totalDays ?? workoutPlan.days.length}
         isLoading={isDetailLoading || isDetailFetching}
         onUpdated={handleDetailUpdateSuccess}
       />

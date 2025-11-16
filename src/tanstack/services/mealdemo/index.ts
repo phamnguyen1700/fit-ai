@@ -5,6 +5,8 @@ import type {
   MealDemo,
   CreateMealDemoPayload,
   CreateMealDemoResponse,
+  UpdateMealDemoPayload,
+  UpdateMealDemoResponse,
   UpdateMealDemoAllPayload,
   UpdateMealDemoAllResponse,
   UpdateMealDemoDetailPayload,
@@ -63,6 +65,9 @@ export const getMealDemoListService = (params?: MealDemoListParams) =>
 
 export const createMealDemoService = (payload: CreateMealDemoPayload) =>
   post<CreateMealDemoResponse>('fitness/api/mealdemo', payload);
+
+export const updateMealDemoService = (id: string, payload: UpdateMealDemoPayload) =>
+  put<UpdateMealDemoResponse>(`fitness/api/mealdemo/${id}`, payload);
 
 export const updateMealDemoAllService = (mealDemoId: string, payload: UpdateMealDemoAllPayload) =>
   put<UpdateMealDemoAllResponse>(`fitness/api/mealdemodetail/meal-demo/${mealDemoId}/update-all`, payload);
