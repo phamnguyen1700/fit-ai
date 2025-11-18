@@ -12,6 +12,7 @@ export interface FeedbackFilterProps {
   selectedMedia: string;
   onMediaChange: (value: string) => void;
   onBulkAction?: (action: string) => void;
+  layout?: 'stacked' | 'inline';
 }
 
 const statusOptions = [
@@ -38,10 +39,21 @@ export const FeedbackFilter: React.FC<FeedbackFilterProps> = ({
   selectedMedia,
   onMediaChange,
   onBulkAction,
+  layout = 'stacked',
 }) => {
+  const containerClass =
+    layout === 'inline'
+      ? 'flex flex-wrap items-center gap-2'
+      : 'flex flex-col gap-3 md:flex-row md:items-center md:justify-between';
+
+  const selectWrapperClass =
+    layout === 'inline'
+      ? 'flex flex-wrap items-center gap-2'
+      : 'flex flex-1 flex-col gap-3 md:flex-row md:items-center';
+
   return (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="flex flex-1 flex-col gap-3 md:flex-row md:items-center">
+    <div className={containerClass}>
+      <div className={selectWrapperClass}>
         <Select
           value={selectedStatus}
           options={statusOptions}

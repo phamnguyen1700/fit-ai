@@ -1,5 +1,6 @@
 export type FeedbackStatus = 'pending' | 'reviewed' | 'rework';
 export type FeedbackMediaType = 'image' | 'video';
+export type FeedbackCategory = 'training' | 'nutrition';
 
 export interface FeedbackSubmission {
   id: string;
@@ -15,6 +16,7 @@ export interface FeedbackSubmission {
   thumbnailUrl?: string;
   status: FeedbackStatus;
   advisorNotes?: string;
+  category: FeedbackCategory;
 }
 
 export interface FeedbackReviewPayload {

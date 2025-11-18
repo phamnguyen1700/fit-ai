@@ -4,33 +4,15 @@ import React from 'react';
 import { Card } from '@/shared/ui/core/Card';
 import { Avatar } from '@/shared/ui/core/Avatar';
 import { Flex } from '@/shared/ui/core/Flex';
-import { Tag, Dropdown, Tooltip } from 'antd';
+import { Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { Icon } from '@/shared/ui/icon';
-import type { FeedbackSubmission, FeedbackStatus } from '../types';
+import type { FeedbackSubmission } from '../types';
 
 export interface FeedbackCardProps {
   submission: FeedbackSubmission;
   onAction?: (action: string, submission: FeedbackSubmission) => void;
 }
-
-const statusConfig: Record<FeedbackStatus, { label: string; color: string; bg: string }> = {
-  pending: {
-    label: 'Chờ đánh giá',
-    color: 'var(--warning, #fa8c16)',
-    bg: 'rgba(250, 140, 22, 0.12)',
-  },
-  reviewed: {
-    label: 'Đã đánh giá',
-    color: 'var(--success)',
-    bg: 'rgba(82, 196, 26, 0.12)',
-  },
-  rework: {
-    label: 'Cần làm lại',
-    color: 'var(--error)',
-    bg: 'rgba(255, 77, 79, 0.12)',
-  },
-};
 
 const formatDateTime = (iso: string) => {
   const date = new Date(iso);
@@ -54,8 +36,6 @@ export const FeedbackCard: React.FC<FeedbackCardProps> = ({ submission, onAction
     { key: 'request-rework', label: 'Yêu cầu tập lại' },
   ];
 
-  const status = statusConfig[submission.status];
-
   const renderMedia = () => {
     if (submission.mediaType === 'video') {
       return (
@@ -63,7 +43,7 @@ export const FeedbackCard: React.FC<FeedbackCardProps> = ({ submission, onAction
           controls
           preload="metadata"
           poster={submission.thumbnailUrl}
-          className="h-48 w-full rounded-lg object-cover"
+          className="h-52 w-full object-cover rounded-lg"
         >
           <source src={submission.mediaUrl} />
           Trình duyệt không hỗ trợ phát video.
@@ -74,88 +54,93 @@ export const FeedbackCard: React.FC<FeedbackCardProps> = ({ submission, onAction
       <img
         src={submission.mediaUrl}
         alt={submission.workoutName}
-        className="h-48 w-full rounded-lg object-cover"
+        className="h-52 w-full object-cover rounded-lg"
         loading="lazy"
       />
     );
   };
 
   return (
-    <Card className="h-full" style={{ borderRadius: 12, border: '1px solid var(--border)' }}>
+    <Card className="h-full flex flex-col">
       <div className="flex h-full flex-col gap-4">
-        <Flex align="center" justify="space-between" wrap>
-          <Flex align="center" gap={12} wrap>
-            <Avatar size={48} src={submission.customerAvatar}>
+        {/* Header Section */}
+        <Flex align="center" justify="space-between" className="flex-shrink-0 pb-3 border-b border-[var(--border)]">
+          <Flex align="center" gap={12} wrap className="flex-1 min-w-0">
+            <Avatar 
+              size={52} 
+              src={submission.customerAvatar} 
+              className="flex-shrink-0"
+            >
               {submission.customerName.charAt(0)}
             </Avatar>
-            <div>
-              <div className="text-base font-semibold text-[var(--text)]">{submission.customerName}</div>
-              <div className="text-sm text-[var(--text-secondary)]">{submission.customerEmail}</div>
-              <div className="text-xs text-[var(--text-tertiary,#667085)]">Gửi lúc {formatDateTime(submission.submittedAt)}</div>
+            <div className="min-w-0 flex-1">
+              <div className="text-base font-semibold text-[var(--text)] mb-1">{submission.customerName}</div>
+              <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] mb-1">
+                <Icon name="mdi:email-outline" size={14} />
+                <span className="truncate">{submission.customerEmail}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs text-[var(--text-tertiary)]">
+                <Icon name="mdi:clock-outline" size={12} />
+                <span>{formatDateTime(submission.submittedAt)}</span>
+              </div>
             </div>
           </Flex>
 
-          <Flex align="center" gap={8} wrap>
-            <Tag
-              style={{
-                color: status.color,
-                background: status.bg,
-                borderColor: 'transparent',
-              }}
-            >
-              {status.label}
-            </Tag>
-            <Dropdown
-              trigger={[ 'click' ]}
-              menu={{ items: menuItems, onClick: ({ key }) => handleMenuClick(key) }}
-            >
-              <button className="h-8 w-8 grid place-items-center rounded-md border border-[var(--border)] hover:bg-[var(--bg-tertiary)]">
-                <Icon name="mdi:dots-vertical" />
-              </button>
-            </Dropdown>
-          </Flex>
+          <Dropdown
+            trigger={['click']}
+            menu={{ items: menuItems, onClick: ({ key }) => handleMenuClick(key) }}
+          >
+            <button className="h-8 w-8 flex-shrink-0 grid place-items-center rounded-lg border border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors">
+              <Icon name="mdi:dots-vertical" size={18} className="text-[var(--text-secondary)]" />
+            </button>
+          </Dropdown>
         </Flex>
 
-        <div className="space-y-3">
-          <div className="grid gap-2 text-sm">
-            <div className="flex items-center justify-between font-medium text-[var(--text)]">
-              <span>{submission.workoutName}</span>
-              <Tooltip title="Trọng tâm bài tập">
-                <span className="text-xs font-semibold uppercase text-[var(--primary)]">
-                  {submission.focusArea}
-                </span>
-              </Tooltip>
-            </div>
-            {submission.notesFromCustomer && (
-              <div className="rounded-md bg-[var(--bg-tertiary)] p-3 text-sm text-[var(--text-secondary)]">
-                “{submission.notesFromCustomer}”
-              </div>
-            )}
+        {/* Content Section */}
+        <div className="flex flex-col gap-3.5 flex-1 min-h-0">
+          {/* Workout Name */}
+          <div className="flex items-center gap-2">
+            <Icon name="mdi:dumbbell" size={18} className="text-[var(--primary)]" />
+            <span className="text-base font-semibold text-[var(--text)]">{submission.workoutName}</span>
           </div>
 
-          {renderMedia()}
+          {/* Customer Notes */}
+          {submission.notesFromCustomer && (
+            <div className="rounded-lg bg-[var(--bg-secondary)] p-3.5 border-l-4 border-[var(--primary)]">
+              <div className="flex items-center gap-2 mb-2">
+                <Icon name="mdi:message-text-outline" size={16} className="text-[var(--primary)]" />
+                <span className="text-xs font-semibold text-[var(--text-secondary)]">Ghi chú từ khách hàng</span>
+              </div>
+              <p className="text-sm text-[var(--text)] leading-relaxed pl-6">{submission.notesFromCustomer}</p>
+            </div>
+          )}
 
+          {/* Media */}
+          <div className="rounded-lg overflow-hidden border border-[var(--border)]">
+            {renderMedia()}
+          </div>
+
+          {/* Advisor Notes */}
           {submission.advisorNotes && (
-            <div className="rounded-md border border-dashed border-[var(--border)] p-3 text-sm text-[var(--text-secondary)]">
-              <span className="font-medium text-[var(--text)]">Nhận xét trước đó:</span> {submission.advisorNotes}
+            <div className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--bg-secondary)] p-3.5">
+              <div className="flex items-center gap-2 mb-2">
+                <Icon name="mdi:clipboard-text-outline" size={16} className="text-[var(--text-secondary)]" />
+                <span className="text-xs font-semibold text-[var(--text-secondary)]">Nhận xét trước đó</span>
+              </div>
+              <p className="text-sm text-[var(--text)] leading-relaxed pl-6">{submission.advisorNotes}</p>
             </div>
           )}
         </div>
 
-        <div className="mt-auto flex flex-col gap-2 md:flex-row md:items-center md:justify-end">
+        {/* Action Button */}
+        <div className="flex-shrink-0 pt-2.5 border-t border-[var(--border)]">
           <button
             type="button"
             onClick={() => handleMenuClick('review')}
-            className="h-9 rounded-md border border-[var(--primary)] px-4 text-[var(--primary)] hover:bg-[var(--bg-tertiary)]"
+            className="w-full h-10 rounded-lg bg-[var(--primary)] text-white font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
           >
-            Đánh giá ngay
-          </button>
-          <button
-            type="button"
-            onClick={() => handleMenuClick('mark-reviewed')}
-            className="h-9 rounded-md bg-[var(--primary)] px-4 text-white hover:opacity-90"
-          >
-            Đánh dấu hoàn thành
+            <Icon name="mdi:star-outline" size={18} />
+            <span>Đánh giá ngay</span>
           </button>
         </div>
       </div>
