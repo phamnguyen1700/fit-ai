@@ -32,6 +32,7 @@ export { PopupImport } from '../../features/content/components/PopupImport';
   
 // Layout Components
 export { Sider } from './layout/admin/Sider';
+export { AdvisorSider } from './layout/advisor/Sider';
 export { HeaderBanner } from './layout/admin/components/HeaderBanner';
 export { SearchInput } from './layout/admin/components/SearchInput';  
 
