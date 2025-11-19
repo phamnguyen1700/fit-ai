@@ -33,9 +33,9 @@ export const CardTable = <T,>({
 
   return (
     <div className={className}>
-      <div className={`grid grid-cols-1 md:grid-cols-2 gap-3 ${gridClassName || ''}`}>
+      <div className={`grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch ${gridClassName || ''}`}>
         {visibleItems.map((item, index) => (
-          <div key={startIndex + index}>{renderItem(item, startIndex + index)}</div>
+          <div key={startIndex + index} className="h-full">{renderItem(item, startIndex + index)}</div>
         ))}
       </div>
 

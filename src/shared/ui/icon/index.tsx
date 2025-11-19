@@ -21,6 +21,7 @@ export const icons = {
   plans: 'mdi:clipboard-text-outline',
   payment: 'mdi:credit-card-outline',
   advisors: 'mdi:account-tie-outline',
+  clients: 'mdi:account-group-outline',
   settings: 'mdi:cog-outline',
   logout: 'majesticons:logout',
   home: 'mdi:home-outline',
