@@ -5,8 +5,9 @@ import {
   AdvisorDashboardCustomersParams,
   AdvisorDashboardCustomersResponse,
   AdvisorDashboardCustomerDetailResponse,
+  CustomerProfileResponse,
 } from '@/types/advisordashboard';
-import { getAdvisorDashboardCustomersService, getCustomerDetailService } from '@/tanstack/services/advisordashboard';
+import { getAdvisorDashboardCustomersService, getCustomerDetailService, getCustomerProfileService } from '@/tanstack/services/advisordashboard';
 
 export const useAdvisorDashboardCustomers = (params: AdvisorDashboardCustomersParams) => {
   const query = useQuery<IApiResponse<AdvisorDashboardCustomersResponse>>({
@@ -49,6 +50,32 @@ export const useCustomerDetail = (userId?: string) => {
     }
     if (query.error) {
       console.error('❌ [Hook] Customer detail error:', query.error);
+    }
+  }, [query.data, query.error]);
+
+  return query;
+};
+
+export const useCustomerProfile = (userId?: string) => {
+  const query = useQuery<IApiResponse<CustomerProfileResponse>>({
+    queryKey: ['customer-profile', userId],
+    queryFn: () => {
+      if (!userId) {
+        return Promise.reject(new Error('UserId is required'));
+      }
+      return getCustomerProfileService(userId);
+    },
+    enabled: Boolean(userId),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  useEffect(() => {
+    if (query.data) {
+      console.log('✅ [Hook] Customer profile success:', query.data);
+      console.log('✅ [Hook] Customer profile data:', query.data?.data);
+    }
+    if (query.error) {
+      console.error('❌ [Hook] Customer profile error:', query.error);
     }
   }, [query.data, query.error]);
 

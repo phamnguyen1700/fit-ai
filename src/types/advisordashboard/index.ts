@@ -105,3 +105,33 @@ export interface AdvisorDashboardCustomerDetailResponse {
   engagement?: AdvisorDashboardCustomerEngagement | string;
 }
 
+export interface CustomerProfileResponse {
+  profile?: {
+    name?: string;
+    age?: number;
+    gender?: string;
+    joinDate?: string;
+    email?: string;
+    phone?: string;
+    subscriptionType?: string;
+  };
+  bodyStats?: {
+    height?: number;
+    currentWeight?: number;
+    targetWeight?: number;
+    bodyFatPercentage?: number;
+    muscleMass?: number;
+  };
+  goals?: {
+    primary?: string;
+    notes?: string;
+  };
+  medicalHistory?: string;
+  measurementHistory?: Array<{
+    date?: string;
+    weight?: number;
+    bodyFatPercent?: number;
+    muscleKg?: number;
+  }>;
+}
+

@@ -8,7 +8,7 @@ import { Breadcrumb } from '@/shared/ui/core/Breadcrumb';
 import { CardTable } from '@/shared/ui/core/CardTable';
 import type { CustomerDetail as CustomerDetailModel, CustomerMeasurementEntry } from '@/types/advisordashboard';
 import { useRouter, useParams } from 'next/navigation';
-import { useCustomerDetail } from '@/tanstack/hooks/advisordashboard';
+import { useCustomerProfile } from '@/tanstack/hooks/advisordashboard';
 
 interface InfoItemProps {
   label: string;
@@ -46,46 +46,76 @@ export interface CustomerDetailProps {
   customer?: CustomerDetailModel; // Optional để có thể fetch trực tiếp
 }
 
-const normalizeCustomerDetail = (data: any): CustomerDetailModel => {
-  const sessionsCompleted = Number(data?.sessionsCompleted ?? 0);
-  const sessionsTarget = Number(data?.totalSessions ?? data?.sessionsTarget ?? 0) || 1;
-  const derivedProgress = Math.round(Math.min(100, Math.max(0, (sessionsCompleted / sessionsTarget) * 100)));
+const normalizeCustomerProfile = (profileData: any): CustomerDetailModel => {
+  const profile = profileData?.profile || {};
+  const bodyStats = profileData?.bodyStats || {};
+  const goals = profileData?.goals || {};
+  const measurementHistory = profileData?.measurementHistory || [];
 
   const now = new Date();
   const fallbackMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
+  // Normalize gender
+  const normalizeGender = (gender?: string): 'male' | 'female' | 'other' => {
+    if (!gender || gender === 'N/A') return 'other';
+    const lower = gender.toLowerCase();
+    if (lower.includes('male') || lower.includes('nam')) return 'male';
+    if (lower.includes('female') || lower.includes('nữ')) return 'female';
+    return 'other';
+  };
+
+  // Normalize measurements
+  const normalizedMeasurements = measurementHistory.map((m: any) => ({
+    date: m?.date || '',
+    weight: Number(m?.weight ?? 0),
+    bodyFat: m?.bodyFatPercent,
+    muscleMass: m?.muscleKg,
+    boneMass: undefined, // API không có field này
+  }));
+
+  // Format joinDate
+  const formatJoinDate = (dateStr?: string) => {
+    if (!dateStr) return undefined;
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('vi-VN');
+    } catch {
+      return dateStr;
+    }
+  };
+
   return {
-    id: data?.userId || data?.id || '',
-    name: data?.name || 'Chưa cập nhật',
-    email: data?.email || 'Không có email',
-    phone: data?.phone,
-    avatarUrl: data?.avatarUrl,
+    id: profileData?.userId || '',
+    name: profile?.name || 'Chưa cập nhật',
+    email: profile?.email || 'Không có email',
+    phone: profile?.phone && profile.phone !== 'Chưa có thông tin' ? profile.phone : undefined,
+    avatarUrl: undefined,
     month: fallbackMonth,
-    goal: data?.goal || 'Chưa cập nhật mục tiêu',
-    plan: data?.plan || 'Chưa có kế hoạch',
-    status: data?.status === 'on-track' || data?.status === 'at-risk' || data?.status === 'behind' 
-      ? data.status 
-      : 'on-track',
-    engagement: data?.engagement === 'high' || data?.engagement === 'medium' || data?.engagement === 'low'
-      ? data.engagement
-      : 'medium',
-    sessionsCompleted,
-    sessionsTarget,
-    progressPercent: Number(data?.monthlyProgress ?? data?.progressPercent ?? derivedProgress),
-    lastCheckIn: data?.lastCheckIn || 'Chưa cập nhật',
-    nextSession: data?.nextSession || 'Chưa sắp lịch',
-    weightChange: data?.weightChange,
-    notes: data?.notes,
-    age: data?.age,
-    gender: data?.gender,
-    joinedDate: data?.joinedDate,
-    packageName: data?.packageName,
-    height: data?.height,
-    currentWeight: data?.currentWeight,
-    bmi: data?.bmi,
-    medicalHistory: data?.medicalHistory,
-    remarks: data?.remarks,
-    measurements: data?.measurements,
+    goal: goals?.primary || 'Chưa cập nhật mục tiêu',
+    plan: profile?.subscriptionType || 'Chưa có kế hoạch',
+    status: 'on-track', // Default vì API profile không có field này
+    engagement: 'medium', // Default vì API profile không có field này
+    sessionsCompleted: 0, // API profile không có field này
+    sessionsTarget: 0, // API profile không có field này
+    progressPercent: 0, // API profile không có field này
+    lastCheckIn: 'Chưa cập nhật', // API profile không có field này
+    nextSession: 'Chưa sắp lịch', // API profile không có field này
+    weightChange: bodyStats?.targetWeight ? `${bodyStats.targetWeight > 0 ? '+' : ''}${bodyStats.targetWeight}kg` : undefined,
+    notes: goals?.notes || undefined,
+    age: profile?.age,
+    gender: normalizeGender(profile?.gender),
+    joinedDate: formatJoinDate(profile?.joinDate),
+    packageName: profile?.subscriptionType,
+    height: bodyStats?.height,
+    currentWeight: bodyStats?.currentWeight && bodyStats.currentWeight > 0 ? bodyStats.currentWeight : undefined,
+    bmi: bodyStats?.currentWeight && bodyStats?.height 
+      ? Number((bodyStats.currentWeight / Math.pow(bodyStats.height / 100, 2)).toFixed(1))
+      : undefined,
+    medicalHistory: profileData?.medicalHistory && profileData.medicalHistory !== 'Dữ liệu y tế không có sẵn'
+      ? profileData.medicalHistory
+      : undefined,
+    remarks: goals?.notes || undefined,
+    measurements: normalizedMeasurements.length > 0 ? normalizedMeasurements : undefined,
   };
 };
 
@@ -102,8 +132,8 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({ customer: custom
   const params = useParams();
   const userId = params?.id as string;
 
-  // Fetch từ API nếu không có customer prop (backward compatible)
-  const { data: apiData, isLoading, error } = useCustomerDetail(customerProp ? undefined : userId);
+  // Fetch từ API profile endpoint nếu không có customer prop (backward compatible)
+  const { data: apiData, isLoading, error } = useCustomerProfile(customerProp ? undefined : userId);
 
   const customer = useMemo(() => {
     // Nếu có customer prop, dùng prop (backward compatible)
@@ -111,13 +141,13 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({ customer: custom
       return customerProp;
     }
 
-    // Nếu không có prop, fetch từ API
+    // Nếu không có prop, fetch từ API profile
     if (!apiData?.data) {
       return null;
     }
 
-    console.log('📊 [CustomerDetail] Raw data:', apiData.data);
-    const normalized = normalizeCustomerDetail(apiData.data);
+    console.log('📊 [CustomerDetail] Raw profile data:', apiData.data);
+    const normalized = normalizeCustomerProfile(apiData.data);
     console.log('✅ [CustomerDetail] Normalized customer:', normalized);
     return normalized;
   }, [customerProp, apiData]);

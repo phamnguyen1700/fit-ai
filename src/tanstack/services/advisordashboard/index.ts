@@ -3,6 +3,7 @@ import {
   AdvisorDashboardCustomersParams,
   AdvisorDashboardCustomersResponse,
   AdvisorDashboardCustomerDetailResponse,
+  CustomerProfileResponse,
 } from '@/types/advisordashboard';
 
 const BASE_PATH = 'fitness/api/advisordashboard';
@@ -42,6 +43,20 @@ export const getCustomerDetailService = async (userId: string) => {
   
   console.log('🟢 [CustomerDetail] Response:', response);
   console.log('🟢 [CustomerDetail] Response data:', response.data);
+  
+  return response;
+};
+
+export const getCustomerProfileService = async (userId: string) => {
+  const url = `${BASE_PATH}/customers/${userId}/profile`;
+  
+  console.log('🔵 [CustomerProfile] Request URL:', url);
+  console.log('🔵 [CustomerProfile] UserId:', userId);
+  
+  const response = await get<CustomerProfileResponse>(url);
+  
+  console.log('🟢 [CustomerProfile] Response:', response);
+  console.log('🟢 [CustomerProfile] Response data:', response.data);
   
   return response;
 };
