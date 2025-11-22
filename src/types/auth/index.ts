@@ -19,4 +19,13 @@ export interface ILoginResponse {
 	token: string
 }
 
+export interface IAdvisorLoginResponse {
+	id: string
+	email: string
+	token: string
+	onboardingStep: string | null
+	message: string | null
+	subscriptionProductName: string | null
+}
+
 

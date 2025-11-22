@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { CardTable } from '@/shared/ui/core/CardTable';
-import type { MonthlyCustomer } from '../types';
+import type { MonthlyCustomer } from '@/types/advisordashboard';
 import { MonthlyCustomerCard } from './MonthlyCustomerCard';
 
 export interface MonthlyCustomerTableProps {

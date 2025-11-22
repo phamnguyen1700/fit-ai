@@ -1,13 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card } from '@/shared/ui/core/Card';
 import { Avatar } from '@/shared/ui/core/Avatar';
 import { Icon } from '@/shared/ui/icon';
 import { Breadcrumb } from '@/shared/ui/core/Breadcrumb';
 import { CardTable } from '@/shared/ui/core/CardTable';
-import type { CustomerDetail as CustomerDetailModel, CustomerMeasurementEntry } from '../types';
-import { useRouter } from 'next/navigation';
+import type { CustomerDetail as CustomerDetailModel, CustomerMeasurementEntry } from '@/types/advisordashboard';
+import { useRouter, useParams } from 'next/navigation';
+import { useCustomerDetail } from '@/tanstack/hooks/advisordashboard';
 
 interface InfoItemProps {
   label: string;
@@ -42,8 +43,51 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({ icon, title, helper }) =>
 );
 
 export interface CustomerDetailProps {
-  customer: CustomerDetailModel;
+  customer?: CustomerDetailModel; // Optional để có thể fetch trực tiếp
 }
+
+const normalizeCustomerDetail = (data: any): CustomerDetailModel => {
+  const sessionsCompleted = Number(data?.sessionsCompleted ?? 0);
+  const sessionsTarget = Number(data?.totalSessions ?? data?.sessionsTarget ?? 0) || 1;
+  const derivedProgress = Math.round(Math.min(100, Math.max(0, (sessionsCompleted / sessionsTarget) * 100)));
+
+  const now = new Date();
+  const fallbackMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+  return {
+    id: data?.userId || data?.id || '',
+    name: data?.name || 'Chưa cập nhật',
+    email: data?.email || 'Không có email',
+    phone: data?.phone,
+    avatarUrl: data?.avatarUrl,
+    month: fallbackMonth,
+    goal: data?.goal || 'Chưa cập nhật mục tiêu',
+    plan: data?.plan || 'Chưa có kế hoạch',
+    status: data?.status === 'on-track' || data?.status === 'at-risk' || data?.status === 'behind' 
+      ? data.status 
+      : 'on-track',
+    engagement: data?.engagement === 'high' || data?.engagement === 'medium' || data?.engagement === 'low'
+      ? data.engagement
+      : 'medium',
+    sessionsCompleted,
+    sessionsTarget,
+    progressPercent: Number(data?.monthlyProgress ?? data?.progressPercent ?? derivedProgress),
+    lastCheckIn: data?.lastCheckIn || 'Chưa cập nhật',
+    nextSession: data?.nextSession || 'Chưa sắp lịch',
+    weightChange: data?.weightChange,
+    notes: data?.notes,
+    age: data?.age,
+    gender: data?.gender,
+    joinedDate: data?.joinedDate,
+    packageName: data?.packageName,
+    height: data?.height,
+    currentWeight: data?.currentWeight,
+    bmi: data?.bmi,
+    medicalHistory: data?.medicalHistory,
+    remarks: data?.remarks,
+    measurements: data?.measurements,
+  };
+};
 
 const formatMeasurementValue = (value: string | number | undefined) => {
   if (value === undefined || value === null) return '--';
@@ -53,8 +97,58 @@ const formatMeasurementValue = (value: string | number | undefined) => {
   return value;
 };
 
-export const CustomerDetail: React.FC<CustomerDetailProps> = ({ customer }) => {
+export const CustomerDetail: React.FC<CustomerDetailProps> = ({ customer: customerProp }) => {
   const router = useRouter();
+  const params = useParams();
+  const userId = params?.id as string;
+
+  // Fetch từ API nếu không có customer prop (backward compatible)
+  const { data: apiData, isLoading, error } = useCustomerDetail(customerProp ? undefined : userId);
+
+  const customer = useMemo(() => {
+    // Nếu có customer prop, dùng prop (backward compatible)
+    if (customerProp) {
+      return customerProp;
+    }
+
+    // Nếu không có prop, fetch từ API
+    if (!apiData?.data) {
+      return null;
+    }
+
+    console.log('📊 [CustomerDetail] Raw data:', apiData.data);
+    const normalized = normalizeCustomerDetail(apiData.data);
+    console.log('✅ [CustomerDetail] Normalized customer:', normalized);
+    return normalized;
+  }, [customerProp, apiData]);
+
+  // Loading state
+  if (!customerProp && isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-sm text-[var(--text-secondary)]">Đang tải thông tin khách hàng...</div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (!customerProp && (error || !customer)) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-2 p-8">
+        <div className="text-sm font-medium text-red-600">
+          {error ? 'Không thể tải thông tin khách hàng' : 'Không tìm thấy khách hàng'}
+        </div>
+        <div className="text-xs text-[var(--text-secondary)]">
+          {error instanceof Error ? error.message : 'Vui lòng thử lại sau'}
+        </div>
+      </div>
+    );
+  }
+
+  if (!customer) {
+    return null;
+  }
+
   const {
     name,
     email,

@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal } from '@/shared/ui/core/Modal';
 import { Tabs } from '@/shared/ui/core/Tabs';
 import { Carousel } from 'antd';
-import { Form, Checkbox } from 'antd';
+import { Form, Checkbox, Radio } from 'antd';
 import { Input } from '@/shared/ui/core/Input';
 import { Button } from '@/shared/ui/core/Button';
-import { useLoginMutation } from '@/tanstack/hooks/auth';
+import { useLoginMutation, useAdvisorLoginMutation } from '@/tanstack/hooks/auth';
 import { useRegisterMutation } from '@/tanstack/hooks/users';
 import { Icon } from '@/shared/ui/icon';
 import { Row, Col } from '@/shared/ui/core/Grid';
@@ -44,35 +44,89 @@ const carouselSlides = [
 type LoginModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  role?: 'admin' | 'advisor';
 };
 
-export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
+export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, role }) => {
   const [activeKey, setActiveKey] = useState<'login' | 'register'>('login');
   const [loginError, setLoginError] = useState<string>('');
   const [registerError, setRegisterError] = useState<string>('');
-  const { mutate: loginMutate, isPending: isLoginPending } = useLoginMutation();
+  const { mutate: adminLoginMutate, isPending: isAdminLoginPending } = useLoginMutation();
+  const { mutate: advisorLoginMutate, isPending: isAdvisorLoginPending } = useAdvisorLoginMutation();
   const { mutate: registerMutate, isPending: isRegisterPending } = useRegisterMutation();
   const router = useRouter()
   const [loginForm] = Form.useForm();
   const [registerForm] = Form.useForm();
 
-  const handleLoginFinish = (values: { email: string; password: string }) => {
+  const isLoginPending = isAdminLoginPending || isAdvisorLoginPending;
+
+  // Reset form khi modal đóng
+  useEffect(() => {
+    if (!isOpen) {
+      loginForm.resetFields();
+    }
+  }, [isOpen, loginForm]);
+
+  const handleLoginFinish = (values: { email: string; password: string; userRole?: 'admin' | 'advisor' }) => {
     setLoginError('');
     
-    loginMutate(values, {
-      onSuccess: (response) => {
-        if (response.success && response.data) {
-          // Lưu token vào localStorage
-          if (response.data.token) {
-            localStorage.setItem('authToken', response.data.token);
+    console.log('=== Login Submit ===');
+    console.log('All form values:', values);
+    console.log('userRole value:', values.userRole);
+    console.log('userRole type:', typeof values.userRole);
+    
+    // Kiểm tra nếu người dùng chưa chọn role
+    if (!values.userRole) {
+      console.log('ERROR: No role selected');
+      setLoginError('Vui lòng chọn vai trò');
+      return;
+    }
+    
+    const selectedRole = values.userRole;
+    
+    console.log('Selected role:', selectedRole);
+    console.log('Is advisor?', selectedRole === 'advisor');
+    
+    if (selectedRole === 'advisor') {
+      console.log('Calling advisor login API...');
+      advisorLoginMutate({ email: values.email, password: values.password }, {
+        onSuccess: (response) => {
+          if (response.success && response.data) {
+            if (response.data.token) {
+              localStorage.setItem('authToken', response.data.token);
+            }
+            onClose()
+            router.push('/advisor/customers')
+          } else if (response.success === false && response.data === undefined && response.message) {
+            setLoginError(response.message);
           }
-          onClose()
-          router.push('/admin/home')
-        } else if (response.success === false && response.data === undefined && response.message) {
-          setLoginError(response.message);
+        },
+        onError: (error: any) => {
+          const errorMessage = error?.response?.data?.message || error?.message || 'Đăng nhập thất bại';
+          setLoginError(errorMessage);
         }
-      }
-    })
+      })
+    } else {
+      // Admin login
+      console.log('Calling admin login API...');
+      adminLoginMutate({ email: values.email, password: values.password }, {
+        onSuccess: (response) => {
+          if (response.success && response.data) {
+            if (response.data.token) {
+              localStorage.setItem('authToken', response.data.token);
+            }
+            onClose()
+            router.push('/admin/home')
+          } else if (response.success === false && response.data === undefined && response.message) {
+            setLoginError(response.message);
+          }
+        },
+        onError: (error: any) => {
+          const errorMessage = error?.response?.data?.message || error?.message || 'Đăng nhập thất bại';
+          setLoginError(errorMessage);
+        }
+      })
+    }
   }
 
   const handleLoginFormChange = () => {
@@ -209,7 +263,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                         name="login"
                         onFinish={handleLoginFinish}
                         onValuesChange={handleLoginFormChange}
-                        initialValues={{ phone: '', password: '', remember: false }}
+                        initialValues={{ email: '', password: '', remember: false, userRole: undefined }}
                       >
                         <Form.Item
                           name="email"
@@ -227,6 +281,63 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
                         <Form.Item name="password" label="Mật khẩu" rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}>
                           <Input.Password prefix={<Icon name="mdi:lock" />} placeholder="Nhập mật khẩu" visibilityToggle />
+                        </Form.Item>
+
+                        <Form.Item
+                          name="userRole"
+                          label="Vai trò"
+                          rules={[{ required: true, message: 'Vui lòng chọn vai trò' }]}
+                          getValueFromEvent={(e) => {
+                            console.log('Radio onChange event:', e.target.value);
+                            return e.target.value;
+                          }}
+                        >
+                          <Radio.Group
+                            className="role-radio-group"
+                            style={{
+                              width: '100%',
+                            }}
+                            onChange={(e) => {
+                              console.log('Radio.Group onChange:', e.target.value);
+                              loginForm.setFieldsValue({ userRole: e.target.value });
+                            }}
+                          >
+                            <Radio 
+                              value="admin" 
+                              style={{ 
+                                color: 'var(--text)',
+                                fontWeight: 500
+                              }}
+                            >
+                              Admin
+                            </Radio>
+                            <Radio 
+                              value="advisor" 
+                              style={{ 
+                                color: 'var(--text)',
+                                fontWeight: 500
+                              }}
+                            >
+                              Advisor
+                            </Radio>
+                          </Radio.Group>
+                          <style dangerouslySetInnerHTML={{
+                            __html: `
+                              .role-radio-group .ant-radio-checked .ant-radio-inner {
+                                border-color: var(--primary) !important;
+                              }
+                              .role-radio-group .ant-radio-checked .ant-radio-inner::after {
+                                background-color: var(--primary) !important;
+                                transform: scale(0.875);
+                              }
+                              .role-radio-group .ant-radio:hover .ant-radio-inner {
+                                border-color: var(--primary) !important;
+                              }
+                              .role-radio-group .ant-radio-wrapper {
+                                color: var(--text) !important;
+                              }
+                            `
+                          }} />
                         </Form.Item>
 
                         <Form.Item>

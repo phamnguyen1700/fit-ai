@@ -7,7 +7,7 @@ import { Flex } from '@/shared/ui/core/Flex';
 import { Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { Icon } from '@/shared/ui/icon';
-import type { MonthlyCustomer } from '../types';
+import type { MonthlyCustomer } from '@/types/advisordashboard';
 import { useRouter } from 'next/navigation';
 
 export interface MonthlyCustomerCardProps {
