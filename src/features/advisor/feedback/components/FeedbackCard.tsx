@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card } from '@/shared/ui/core/Card';
 import { Avatar } from '@/shared/ui/core/Avatar';
 import { Flex } from '@/shared/ui/core/Flex';
@@ -8,11 +8,72 @@ import { Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { Icon } from '@/shared/ui/icon';
 import type { FeedbackSubmission } from '../types';
+import type { WorkoutReview, MealReview } from '@/types/advisorreview';
 
 export interface FeedbackCardProps {
-  submission: FeedbackSubmission;
+  submission?: FeedbackSubmission; // Optional để backward compatible
+  workoutReview?: WorkoutReview; // New prop để fetch trực tiếp
+  mealReview?: MealReview; // New prop cho meal reviews
   onAction?: (action: string, submission: FeedbackSubmission) => void;
 }
+
+const normalizeWorkoutReviewToFeedback = (review: WorkoutReview): FeedbackSubmission => {
+  // Determine status based on hasComments and lastCommentFrom
+  let status: FeedbackSubmission['status'] = 'pending';
+  if (review.hasComments) {
+    if (review.lastCommentFrom === 'advisor') {
+      status = 'reviewed';
+    } else if (review.lastCommentFrom === 'customer' || review.lastCommentFrom === 'user') {
+      status = 'rework';
+    }
+  }
+
+  return {
+    id: review.workoutLogId,
+    customerName: review.userName,
+    customerEmail: '', // API không có email
+    customerAvatar: undefined,
+    submittedAt: review.createdAt,
+    workoutName: `${review.exerciseName} - Ngày ${review.dayNumber}`,
+    focusArea: review.exerciseName,
+    notesFromCustomer: undefined,
+    mediaType: 'video' as const,
+    mediaUrl: review.videoUrl,
+    thumbnailUrl: undefined,
+    status,
+    advisorNotes: review.hasComments && review.lastCommentFrom === 'advisor' ? 'Đã có nhận xét' : undefined,
+    category: 'training' as const,
+  };
+};
+
+const normalizeMealReviewToFeedback = (review: MealReview): FeedbackSubmission => {
+  // Determine status based on hasComments and lastCommentFrom
+  let status: FeedbackSubmission['status'] = 'pending';
+  if (review.hasComments) {
+    if (review.lastCommentFrom === 'advisor') {
+      status = 'reviewed';
+    } else if (review.lastCommentFrom === 'user' || review.lastCommentFrom === 'customer') {
+      status = 'rework';
+    }
+  }
+
+  return {
+    id: review.mealLogId,
+    customerName: review.userName,
+    customerEmail: '', // API không có email
+    customerAvatar: undefined,
+    submittedAt: review.createdAt,
+    workoutName: `${review.mealType} - Ngày ${review.dayNumber}`,
+    focusArea: review.mealType,
+    notesFromCustomer: undefined,
+    mediaType: 'image' as const,
+    mediaUrl: review.photoUrl,
+    thumbnailUrl: review.photoUrl,
+    status,
+    advisorNotes: review.hasComments && review.lastCommentFrom === 'advisor' ? 'Đã có nhận xét' : undefined,
+    category: 'nutrition' as const,
+  };
+};
 
 const formatDateTime = (iso: string) => {
   const date = new Date(iso);
@@ -25,7 +86,40 @@ const formatDateTime = (iso: string) => {
   });
 };
 
-export const FeedbackCard: React.FC<FeedbackCardProps> = ({ submission, onAction }) => {
+export const FeedbackCard: React.FC<FeedbackCardProps> = ({ submission: submissionProp, workoutReview, mealReview, onAction }) => {
+  // Normalize workoutReview hoặc mealReview nếu có, hoặc dùng submission prop (backward compatible)
+  const submission = useMemo(() => {
+    if (submissionProp) {
+      return submissionProp;
+    }
+    
+    if (workoutReview) {
+      console.log('📊 [FeedbackCard] Normalizing workout review:', workoutReview);
+      const normalized = normalizeWorkoutReviewToFeedback(workoutReview);
+      console.log('✅ [FeedbackCard] Normalized submission:', normalized);
+      return normalized;
+    }
+    
+    if (mealReview) {
+      console.log('📊 [FeedbackCard] Normalizing meal review:', mealReview);
+      const normalized = normalizeMealReviewToFeedback(mealReview);
+      console.log('✅ [FeedbackCard] Normalized submission:', normalized);
+      return normalized;
+    }
+    
+    return null;
+  }, [submissionProp, workoutReview, mealReview]);
+
+  if (!submission) {
+    return (
+      <Card className="h-full flex flex-col">
+        <div className="flex items-center justify-center p-8 text-sm text-[var(--text-secondary)]">
+          Không có dữ liệu
+        </div>
+      </Card>
+    );
+  }
+
   const handleMenuClick = (action: string) => {
     onAction?.(action, submission);
   };
