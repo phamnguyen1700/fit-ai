@@ -1,8 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { IApiResponse } from '@/shared/api/http';
-import { WorkoutReviewResponse, MealReviewResponse } from '@/types/advisorreview';
-import { getPendingWorkoutReviewsService, getPendingMealReviewsService } from '@/tanstack/services/advisorreview';
+import { WorkoutReviewResponse, MealReviewResponse, WorkoutReviewRequest, WorkoutReviewSubmitResponse } from '@/types/advisorreview';
+import { getPendingWorkoutReviewsService, getPendingMealReviewsService, submitWorkoutReviewService } from '@/tanstack/services/advisorreview';
+import toast from 'react-hot-toast';
 
 export const usePendingWorkoutReviews = () => {
   const query = useQuery<IApiResponse<WorkoutReviewResponse>>({
@@ -46,5 +47,31 @@ export const usePendingMealReviews = () => {
   }, [query.data, query.error]);
 
   return query;
+};
+
+export const useSubmitWorkoutReview = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workoutLogId, data }: { workoutLogId: string; data: WorkoutReviewRequest }) => {
+      console.log('🔵 [Hook] Submitting workout review:', workoutLogId, data);
+      return submitWorkoutReviewService(workoutLogId, data);
+    },
+    onSuccess: (response) => {
+      console.log('✅ [Hook] Submit workout review success:', response);
+      if (response.success) {
+        toast.success(response.message || 'Đánh giá workout thành công!');
+        // Invalidate và refetch pending reviews
+        queryClient.invalidateQueries({ queryKey: ['pending-workout-reviews'] });
+      } else {
+        toast.error(response.message || 'Đánh giá workout thất bại');
+      }
+    },
+    onError: (error: any) => {
+      console.error('❌ [Hook] Submit workout review error:', error);
+      const errorMessage = error?.response?.data?.message || error?.message || 'Đánh giá workout thất bại. Vui lòng thử lại.';
+      toast.error(errorMessage);
+    },
+  });
 };
 

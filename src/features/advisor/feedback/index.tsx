@@ -7,10 +7,10 @@ import { Icon } from '@/shared/ui/icon';
 import { CardTable } from '@/shared/ui/core/CardTable';
 import { FeedbackFilter } from './components/FeedbackFilter';
 import { FeedbackCard } from './components/FeedbackCard';
-import type { FeedbackSubmission, FeedbackReviewPayload, FeedbackCategory } from './types';
 import ReviewModal from './components/ReviewModal';
 import { usePendingWorkoutReviews, usePendingMealReviews } from '@/tanstack/hooks/advisorreview';
 import type { WorkoutReview, MealReview } from '@/types/advisorreview';
+import type { FeedbackSubmission, FeedbackReviewPayload, FeedbackCategory } from './types';
 
 const computeSummary = (submissions: FeedbackSubmission[]) => {
 	const total = submissions.length;
@@ -128,7 +128,7 @@ export const AdvisorFeedbackRequests: React.FC = () => {
 			// Status filter
 			if (selectedStatus !== 'all') {
 				if (selectedStatus === 'pending' && review.hasComments) return false;
-				if (selectedStatus === 'reviewed' && (!review.hasComments || review.lastCommentFrom !== 'advisor')) return false;
+				if (selectedStatus === 'reviewed' && !review.hasComments) return false; // Chỉ hiển thị nếu hasComments = true
 				if (selectedStatus === 'rework' && (!review.hasComments || (review.lastCommentFrom !== 'customer' && review.lastCommentFrom !== 'user'))) return false;
 			}
 			// Media filter - all are videos, so only show if 'all' or 'video'
@@ -142,7 +142,7 @@ export const AdvisorFeedbackRequests: React.FC = () => {
 			// Status filter
 			if (selectedStatus !== 'all') {
 				if (selectedStatus === 'pending' && review.hasComments) return false;
-				if (selectedStatus === 'reviewed' && (!review.hasComments || review.lastCommentFrom !== 'advisor')) return false;
+				if (selectedStatus === 'reviewed' && !review.hasComments) return false; // Chỉ hiển thị nếu hasComments = true
 				if (selectedStatus === 'rework' && (!review.hasComments || (review.lastCommentFrom !== 'user' && review.lastCommentFrom !== 'customer'))) return false;
 			}
 			// Media filter - all are images, so only show if 'all' or 'image'

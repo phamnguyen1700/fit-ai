@@ -19,7 +19,6 @@ const statusOptions = [
   { value: 'all', label: 'Tất cả trạng thái' },
   { value: 'pending', label: 'Chờ đánh giá' },
   { value: 'reviewed', label: 'Đã đánh giá' },
-  { value: 'rework', label: 'Cần làm lại' },
 ];
 
 const mediaOptions = [

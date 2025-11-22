@@ -31,3 +31,15 @@ export interface MealReviewResponse {
   data: MealReview[];
 }
 
+export interface WorkoutReviewRequest {
+  completionPercent: number;
+  feedback: string;
+}
+
+export interface WorkoutReviewSubmitResponse {
+  workoutLogId: string;
+  completionPercent: number;
+  feedback: string;
+  reviewedAt: string;
+}
+

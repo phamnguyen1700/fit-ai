@@ -4,6 +4,7 @@ import React, { useMemo } from 'react';
 import { Card } from '@/shared/ui/core/Card';
 import { Avatar } from '@/shared/ui/core/Avatar';
 import { Flex } from '@/shared/ui/core/Flex';
+import { Badge } from '@/shared/ui/core/Badge';
 import { Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { Icon } from '@/shared/ui/icon';
@@ -192,10 +193,16 @@ export const FeedbackCard: React.FC<FeedbackCardProps> = ({ submission: submissi
 
         {/* Content Section */}
         <div className="flex flex-col gap-3.5 flex-1 min-h-0">
-          {/* Workout Name */}
-          <div className="flex items-center gap-2">
+          {/* Workout Name with Tag */}
+          <div className="flex items-center gap-2 flex-wrap">
             <Icon name="mdi:dumbbell" size={18} className="text-[var(--primary)]" />
             <span className="text-base font-semibold text-[var(--text)]">{submission.workoutName}</span>
+            {(workoutReview?.hasComments || mealReview?.hasComments) && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-50 border border-green-200">
+                <Icon name="mdi:check-circle" size={14} className="text-green-600" />
+                <span className="text-xs font-medium text-green-700">Đã đánh giá</span>
+              </span>
+            )}
           </div>
 
           {/* Customer Notes */}

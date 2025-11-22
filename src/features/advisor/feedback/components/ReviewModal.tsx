@@ -8,6 +8,7 @@ import { Avatar } from '@/shared/ui/core/Avatar';
 import { TextArea, Input } from '@/shared/ui';
 import { Icon } from '@/shared/ui/icon';
 import type { FeedbackSubmission, FeedbackReviewPayload } from '../types';
+import { useSubmitWorkoutReview } from '@/tanstack/hooks/advisorreview';
 
 interface Comment {
   id: string;
@@ -51,6 +52,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
   const [selectedRemarks, setSelectedRemarks] = useState<string[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
+  const submitWorkoutReviewMutation = useSubmitWorkoutReview();
 
   React.useEffect(() => {
     if (submission) {
@@ -320,14 +322,40 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
                 </button>
                 <button
                   type="button"
-                  onClick={() =>
-                    submission &&
-                    onSubmit({ advisorNotes: notes, status: 'reviewed', rating: score, quickRemarks: selectedRemarks })
-                  }
-                  className="h-10 rounded-lg bg-[var(--primary)] px-4 font-semibold text-white hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                  onClick={async () => {
+                    if (!submission) return;
+                    
+                    // Nếu là workout review (category = 'training'), gọi API
+                    if (submission.category === 'training') {
+                      // Extract workoutLogId từ submission.id
+                      const workoutLogId = submission.id;
+                      const completionPercent = score || 0;
+                      const feedback = notes || selectedRemarks.join('\n') || '';
+                      
+                      try {
+                        await submitWorkoutReviewMutation.mutateAsync({
+                          workoutLogId,
+                          data: {
+                            completionPercent,
+                            feedback,
+                          },
+                        });
+                        onSubmit({ advisorNotes: notes, status: 'reviewed', rating: score, quickRemarks: selectedRemarks });
+                        onClose();
+                      } catch (error) {
+                        // Error đã được xử lý trong hook
+                        console.error('Submit workout review error:', error);
+                      }
+                    } else {
+                      // Meal review hoặc other - gọi callback như cũ
+                      onSubmit({ advisorNotes: notes, status: 'reviewed', rating: score, quickRemarks: selectedRemarks });
+                    }
+                  }}
+                  disabled={submitWorkoutReviewMutation.isPending}
+                  className="h-10 rounded-lg bg-[var(--primary)] px-4 font-semibold text-white hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Icon name="mdi:check-circle-outline" size={18} />
-                  <span>Gửi đánh giá</span>
+                  <span>{submitWorkoutReviewMutation.isPending ? 'Đang gửi...' : 'Gửi đánh giá'}</span>
                 </button>
               </div>
             </div>
