@@ -11,6 +11,8 @@ import {
   usePlanReviewCardData,
 } from './components/PlanReviewCard';
 import { PlanReviewModal } from './components/PlanReviewModal';
+import { approvePlanService } from '@/tanstack/services/planreview';
+import toast from 'react-hot-toast';
 
 const SummaryTile: React.FC<{
   icon: string;
@@ -55,6 +57,7 @@ const AdvisorPlanReviewsContent: React.FC = () => {
   const [activeType, setActiveType] = useState<PlanTypeFilter>('all');
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [isReviewModalOpen, setReviewModalOpen] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
 
   const summary = useMemo(() => {
     const total = plans.length;
@@ -77,21 +80,25 @@ const AdvisorPlanReviewsContent: React.FC = () => {
     setReviewModalOpen(true);
   };
 
-  const handleSubmitReview = (payload: any) => {
-    console.log('Submit plan review', payload);
-    // TODO: Call API to submit review
-    setReviewModalOpen(false);
-    setSelectedPlan(null);
-    // Show success message
-    let message = '';
-    if (payload.status === 'approved') {
-      message = 'Plan đã được duyệt thành công!';
-    } else if (payload.status === 'rejected') {
-      message = 'Plan đã bị từ chối!';
-    } else if (payload.status === 'request-modification') {
-      message = 'Yêu cầu chỉnh sửa đã được gửi!';
+  const handleSubmitReview = async (payload: any) => {
+    if (!payload?.planId) return;
+
+    try {
+      setIsApproving(true);
+      const response = await approvePlanService(payload.planId);
+      toast.success('Duyệt plan thành công');
+      setReviewModalOpen(false);
+      setSelectedPlan(null);
+      refetch();
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        'Duyệt plan thất bại. Vui lòng thử lại.';
+      toast.error(message);
+    } finally {
+      setIsApproving(false);
     }
-    alert(message);
   };
 
   return (
@@ -189,6 +196,7 @@ const AdvisorPlanReviewsContent: React.FC = () => {
       <PlanReviewModal
         plan={selectedPlan}
         isOpen={isReviewModalOpen}
+        isSubmitting={isApproving}
         onClose={() => {
           setReviewModalOpen(false);
           setSelectedPlan(null);

@@ -13,6 +13,7 @@ const { TextArea } = Input;
 interface PlanReviewModalProps {
   plan: any;
   isOpen: boolean;
+  isSubmitting?: boolean;
   onClose: () => void;
   onSubmit: (payload: any) => void;
 }
@@ -31,6 +32,7 @@ const formatDateTime = (iso: string) => {
 export const PlanReviewModal: React.FC<PlanReviewModalProps> = ({
   plan,
   isOpen,
+  isSubmitting,
   onClose,
   onSubmit,
 }) => {
@@ -323,6 +325,7 @@ export const PlanReviewModal: React.FC<PlanReviewModalProps> = ({
               <div className="flex flex-col gap-2.5">
                 <button
                   type="button"
+                  disabled={isSubmitting}
                   onClick={() => {
                     if (notes.trim() === '') {
                       alert('Vui lòng nhập nhận xét trước khi gửi quyết định');
@@ -330,38 +333,14 @@ export const PlanReviewModal: React.FC<PlanReviewModalProps> = ({
                     }
                     handleApprove();
                   }}
-                  className="w-full h-11 rounded-lg bg-gradient-to-r from-[#52c41a] to-[#73d13d] text-white font-semibold hover:from-[#73d13d] hover:to-[#52c41a] transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+                  className={`w-full h-11 rounded-lg bg-gradient-to-r from-[#52c41a] to-[#73d13d] text-white font-semibold flex items-center justify-center gap-2 shadow-md transition-all duration-200 ${
+                    isSubmitting
+                      ? 'opacity-60 cursor-not-allowed'
+                      : 'hover:from-[#73d13d] hover:to-[#52c41a] hover:shadow-lg transform hover:scale-[1.02]'
+                  }`}
                 >
                   <Icon name="mdi:check-circle" size={18} />
-                  <span>Duyệt plan</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (notes.trim() === '') {
-                      alert('Vui lòng nhập nhận xét trước khi gửi quyết định');
-                      return;
-                    }
-                    handleRequestModification();
-                  }}
-                  className="w-full h-11 rounded-lg bg-gradient-to-r from-[#fa8c16] to-[#ffa940] text-white font-semibold hover:from-[#ffa940] hover:to-[#fa8c16] transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg transform hover:scale-[1.02]"
-                >
-                  <Icon name="mdi:pencil" size={18} />
-                  <span>Yêu cầu chỉnh sửa</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (notes.trim() === '') {
-                      alert('Vui lòng nhập nhận xét trước khi gửi quyết định');
-                      return;
-                    }
-                    handleReject();
-                  }}
-                  className="w-full h-11 rounded-lg bg-gradient-to-r from-[var(--error)] to-[#ff7875] text-white font-semibold hover:from-[#ff7875] hover:to-[var(--error)] transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg transform hover:scale-[1.02]"
-                >
-                  <Icon name="mdi:close-circle" size={18} />
-                  <span>Từ chối plan</span>
+                  <span>{isSubmitting ? 'Đang duyệt...' : 'Duyệt plan'}</span>
                 </button>
               </div>
             </div>
