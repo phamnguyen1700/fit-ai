@@ -19,6 +19,7 @@ interface AdvisorSiderProps {
 const menuItems: { key: string; label: React.ReactNode; icon?: React.ReactNode }[] = [
   { key: '/advisor/customers', label: 'Khách hàng trong tháng', icon: <Icon name={icons.clients} /> },
   { key: '/advisor/feedback', label: 'Cần đánh giá', icon: <Icon name={icons.feedback} /> },
+  { key: '/advisor/plans', label: 'Duyệt plan', icon: <Icon name={icons.plans} /> },
   { key: '/advisor/chat', label: 'Chat với khách hàng', icon: <Icon name={icons.message} /> },
 ];
 
