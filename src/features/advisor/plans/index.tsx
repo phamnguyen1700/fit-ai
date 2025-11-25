@@ -5,10 +5,12 @@ import { Card } from '@/shared/ui/core/Card';
 import { Flex } from '@/shared/ui/core/Flex';
 import { Icon } from '@/shared/ui/icon';
 import { CardTable } from '@/shared/ui/core/CardTable';
-import { PlanReviewCard } from './components/PlanReviewCard';
+import {
+  PlanReviewCard,
+  PlanReviewCardDataProvider,
+  usePlanReviewCardData,
+} from './components/PlanReviewCard';
 import { PlanReviewModal } from './components/PlanReviewModal';
-import { PENDING_PLANS } from './data';
-import type { PlanReview, PlanReviewPayload } from './types';
 
 const SummaryTile: React.FC<{
   icon: string;
@@ -42,17 +44,23 @@ const PLAN_TYPE_TABS: { value: PlanTypeFilter; label: string; icon: string }[] =
   { value: 'combined', label: 'Kết hợp', icon: 'mdi:clipboard-text-outline' },
 ];
 
-export const AdvisorPlanReviews: React.FC = () => {
-  const [plans] = useState<PlanReview[]>(PENDING_PLANS);
+export const AdvisorPlanReviews: React.FC = () => (
+  <PlanReviewCardDataProvider>
+    <AdvisorPlanReviewsContent />
+  </PlanReviewCardDataProvider>
+);
+
+const AdvisorPlanReviewsContent: React.FC = () => {
+  const { plans, isLoading, isError, error, refetch } = usePlanReviewCardData();
   const [activeType, setActiveType] = useState<PlanTypeFilter>('all');
-  const [selectedPlan, setSelectedPlan] = useState<PlanReview | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [isReviewModalOpen, setReviewModalOpen] = useState(false);
 
   const summary = useMemo(() => {
     const total = plans.length;
-    const workout = plans.filter((p) => p.planType === 'workout').length;
-    const meal = plans.filter((p) => p.planType === 'meal').length;
-    const combined = plans.filter((p) => p.planType === 'combined').length;
+    const workout = plans.filter((p: any) => p.planType === 'workout').length;
+    const meal = plans.filter((p: any) => p.planType === 'meal').length;
+    const combined = plans.filter((p: any) => p.planType === 'combined').length;
 
     return { total, workout, meal, combined };
   }, [plans]);
@@ -61,15 +69,15 @@ export const AdvisorPlanReviews: React.FC = () => {
     if (activeType === 'all') {
       return plans;
     }
-    return plans.filter((plan) => plan.planType === activeType);
+    return plans.filter((plan: any) => plan.planType === activeType);
   }, [plans, activeType]);
 
-  const handleReview = (plan: PlanReview) => {
+  const handleReview = (plan: any) => {
     setSelectedPlan(plan);
     setReviewModalOpen(true);
   };
 
-  const handleSubmitReview = (payload: PlanReviewPayload) => {
+  const handleSubmitReview = (payload: any) => {
     console.log('Submit plan review', payload);
     // TODO: Call API to submit review
     setReviewModalOpen(false);
@@ -146,13 +154,35 @@ export const AdvisorPlanReviews: React.FC = () => {
             })}
           </div>
 
-          <CardTable
-            items={filteredPlans}
-            pageSize={6}
-            renderItem={(item) => (
-              <PlanReviewCard key={item.id} plan={item} onReview={handleReview} />
-            )}
-          />
+          {isLoading ? (
+            <div className="py-10 text-center text-[var(--text-secondary)] text-sm">
+              Đang tải danh sách kế hoạch cần duyệt...
+            </div>
+          ) : isError ? (
+            <div className="py-10 text-center text-red-500 text-sm">
+              Không thể tải danh sách plan cần duyệt.{' '}
+              <button
+                type="button"
+                onClick={() => refetch()}
+                className="text-[var(--primary)] underline ml-1"
+              >
+                Thử lại
+              </button>
+              <div className="text-xs text-[var(--text-tertiary)] mt-2">{(error as Error)?.message}</div>
+            </div>
+          ) : filteredPlans.length === 0 ? (
+            <div className="py-10 text-center text-[var(--text-secondary)] text-sm">
+              Hiện chưa có kế hoạch nào cần duyệt.
+            </div>
+          ) : (
+            <CardTable
+              items={filteredPlans}
+              pageSize={6}
+              renderItem={(item: any) => (
+                <PlanReviewCard key={item.id} plan={item} onReview={handleReview} />
+              )}
+            />
+          )}
         </div>
       </Card>
 

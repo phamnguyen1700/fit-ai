@@ -4,18 +4,17 @@ import React, { useState, ChangeEvent, useMemo } from 'react';
 import { Modal } from '@/shared/ui';
 import { Input } from 'antd';
 import { Icon } from '@/shared/ui/icon';
-import { Avatar } from '@/shared/ui/core/Avatar';
-import type { PlanReview, PlanReviewPayload } from '../types';
 import { MealPlanDayView } from './MealPlanDayView';
 import { WorkoutPlanDayView } from './WorkoutPlanDayView';
+import { usePlanReviewDetail } from '@/tanstack/hooks/planreview';
 
 const { TextArea } = Input;
 
 interface PlanReviewModalProps {
-  plan: PlanReview | null;
+  plan: any;
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (payload: PlanReviewPayload) => void;
+  onSubmit: (payload: any) => void;
 }
 
 const formatDateTime = (iso: string) => {
@@ -36,70 +35,62 @@ export const PlanReviewModal: React.FC<PlanReviewModalProps> = ({
   onSubmit,
 }) => {
   const [notes, setNotes] = useState('');
-  const [activeTab, setActiveTab] = useState<string>('meal');
+  const [activeTab, setActiveTab] = useState<'meal' | 'workout'>('meal');
   const [selectedDay, setSelectedDay] = useState<number>(1);
+  const {
+    data: detailResponse,
+    isLoading: isDetailLoading,
+    isError: isDetailError,
+    refetch: refetchDetail,
+  } = usePlanReviewDetail(plan?.id);
+
+  const detail = detailResponse?.data as any;
+  const mealDays: any[] = Array.isArray(detail?.mealPlan?.days) ? detail?.mealPlan?.days : [];
+  const workoutDays: any[] = Array.isArray(detail?.workoutPlan?.days) ? detail?.workoutPlan?.days : [];
+  const hasMealPlan = mealDays.length > 0;
+  const hasWorkoutPlan = workoutDays.length > 0;
 
   React.useEffect(() => {
     if (plan) {
       setNotes(plan.advisorNotes || '');
-      // Set default tab based on plan type
-      if (plan.planType === 'workout') {
-        setActiveTab('workout');
-      } else if (plan.planType === 'meal') {
-        setActiveTab('meal');
-      } else {
-        setActiveTab('meal'); // Default to meal for combined
-      }
-      setSelectedDay(1);
     }
-  }, [plan]);
+  }, [plan?.id, plan?.advisorNotes]);
 
-  // Calculate summary stats from meal details for selected day
-  const summaryStats = useMemo(() => {
-    if (!plan?.mealDetails || plan.mealDetails.length === 0) {
-      return { calories: 0, protein: 0, carbs: 0 };
-    }
-
-    // Get stats for selected day
-    const dayMeal = plan.mealDetails[selectedDay - 1];
-    if (!dayMeal) {
-      return { calories: 0, protein: 0, carbs: 0 };
-    }
-
-    let totalCalories = 0;
-    let totalProtein = 0;
-    let totalCarbs = 0;
-
-    dayMeal.meals.forEach((meal) => {
-      totalCalories += meal.totalCalories;
-      totalProtein += meal.totalProtein;
-      totalCarbs += meal.totalCarbs;
+  React.useEffect(() => {
+    if (!detail) return;
+    setActiveTab((prev) => {
+      if (prev === 'meal' && hasMealPlan) return prev;
+      if (prev === 'workout' && hasWorkoutPlan) return prev;
+      if (hasMealPlan) return 'meal';
+      if (hasWorkoutPlan) return 'workout';
+      return prev;
     });
+  }, [detail?.planId, hasMealPlan, hasWorkoutPlan]);
 
-    return {
-      calories: Math.round(totalCalories),
-      protein: Math.round(totalProtein * 10) / 10,
-      carbs: Math.round(totalCarbs * 10) / 10,
-    };
-  }, [plan, selectedDay]);
-
-  // Get available days
-  const availableDays = useMemo(() => {
-    if (!plan) return [];
-    const days: number[] = [];
-    if (plan.planType === 'meal' || plan.planType === 'combined') {
-      const maxDays = plan.mealDetails?.length || 0;
-      for (let i = 1; i <= maxDays; i++) {
-        days.push(i);
-      }
-    } else if (plan.planType === 'workout') {
-      const maxDays = plan.workoutDetails?.length || 0;
-      for (let i = 1; i <= maxDays; i++) {
-        days.push(i);
-      }
+  React.useEffect(() => {
+    const days = activeTab === 'meal' ? mealDays : workoutDays;
+    if (days.length === 0) return;
+    const exists = days.some((day) => day.dayNumber === selectedDay);
+    if (!exists) {
+      setSelectedDay(days[0].dayNumber);
     }
-    return days;
-  }, [plan]);
+  }, [activeTab, mealDays, workoutDays, selectedDay]);
+
+  const summaryStats = useMemo(() => {
+    if (activeTab !== 'meal') return null;
+    const dayMeal = mealDays.find((day) => day.dayNumber === selectedDay);
+    if (!dayMeal) return null;
+    return {
+      calories: dayMeal.totalCalories,
+      meals: dayMeal.meals.length,
+      dietType: detail?.mealPlan?.dietType,
+    };
+  }, [activeTab, mealDays, selectedDay, detail?.mealPlan?.dietType]);
+
+  const availableDays = useMemo(() => {
+    const days = activeTab === 'meal' ? mealDays : workoutDays;
+    return days.map((day) => day.dayNumber);
+  }, [activeTab, mealDays, workoutDays]);
 
   const handleApprove = () => {
     if (!plan) return;
@@ -128,11 +119,22 @@ export const PlanReviewModal: React.FC<PlanReviewModalProps> = ({
     });
   };
 
+  const handleTabChange = (tab: 'meal' | 'workout') => {
+    setActiveTab(tab);
+    const days = tab === 'meal' ? mealDays : workoutDays;
+    if (days.length > 0) {
+      setSelectedDay(days[0].dayNumber);
+    } else {
+      setSelectedDay(1);
+    }
+  };
+
   if (!plan) return null;
 
-  // Get current day data
-  const currentDayMeal = plan.mealDetails?.[selectedDay - 1];
-  const currentDayWorkout = plan.workoutDetails?.find((w) => w.day === selectedDay);
+  const currentDayMeal = mealDays.find((day) => day.dayNumber === selectedDay);
+  const currentDayWorkout = workoutDays.find((day) => day.dayNumber === selectedDay);
+  const planTitle = detail?.fitnessGoal || plan.goal || plan.planName || 'Plan AI';
+  const planSubtitle = plan.planName || plan.goal || detail?.workoutPlan?.goal || '';
 
   return (
     <Modal
@@ -153,57 +155,24 @@ export const PlanReviewModal: React.FC<PlanReviewModalProps> = ({
                 Plan AI - {plan.userName}
               </h2>
               <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-                {plan.planName}
+                {planSubtitle || planTitle}
               </p>
             </div>
           </div>
         </div>
 
         {/* Tabs for Meal/Workout */}
-        {(plan.planType === 'combined' || plan.planType === 'meal' || plan.planType === 'workout') && (
+        {(hasMealPlan || hasWorkoutPlan) && (
           <div className="flex gap-1 mb-6 border-b border-[var(--border)] -mb-6">
-            {plan.planType === 'combined' && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveTab('meal');
-                    setSelectedDay(1);
-                  }}
-                  className={`px-5 py-3 font-semibold text-sm transition-all duration-200 border-b-2 relative ${
-                    activeTab === 'meal'
-                      ? 'border-[var(--primary)] text-[var(--primary)]'
-                      : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text)] hover:border-[var(--primary)]/30'
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <Icon name="mdi:food-apple" size={18} />
-                    Thực đơn
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveTab('workout');
-                    setSelectedDay(1);
-                  }}
-                  className={`px-5 py-3 font-semibold text-sm transition-all duration-200 border-b-2 relative ${
-                    activeTab === 'workout'
-                      ? 'border-[var(--primary)] text-[var(--primary)]'
-                      : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text)] hover:border-[var(--primary)]/30'
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <Icon name="mdi:dumbbell" size={18} />
-                    Tập luyện
-                  </span>
-                </button>
-              </>
-            )}
-            {plan.planType === 'meal' && (
+            {hasMealPlan && (
               <button
                 type="button"
-                className="px-5 py-3 font-semibold text-sm border-b-2 border-[var(--primary)] text-[var(--primary)]"
+                onClick={() => handleTabChange('meal')}
+                className={`px-5 py-3 font-semibold text-sm transition-all duration-200 border-b-2 relative ${
+                  activeTab === 'meal'
+                    ? 'border-[var(--primary)] text-[var(--primary)]'
+                    : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text)] hover:border-[var(--primary)]/30'
+                }`}
               >
                 <span className="flex items-center gap-2">
                   <Icon name="mdi:food-apple" size={18} />
@@ -211,10 +180,15 @@ export const PlanReviewModal: React.FC<PlanReviewModalProps> = ({
                 </span>
               </button>
             )}
-            {plan.planType === 'workout' && (
+            {hasWorkoutPlan && (
               <button
                 type="button"
-                className="px-5 py-3 font-semibold text-sm border-b-2 border-[var(--primary)] text-[var(--primary)]"
+                onClick={() => handleTabChange('workout')}
+                className={`px-5 py-3 font-semibold text-sm transition-all duration-200 border-b-2 relative ${
+                  activeTab === 'workout'
+                    ? 'border-[var(--primary)] text-[var(--primary)]'
+                    : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text)] hover:border-[var(--primary)]/30'
+                }`}
               >
                 <span className="flex items-center gap-2">
                   <Icon name="mdi:dumbbell" size={18} />
@@ -228,92 +202,114 @@ export const PlanReviewModal: React.FC<PlanReviewModalProps> = ({
         <div className="flex gap-6 flex-1 min-h-0 pt-6">
           {/* Left Content */}
           <div className="flex-1 flex flex-col min-w-0">
-            {/* Summary Cards */}
-            {activeTab === 'meal' && plan.mealDetails && plan.mealDetails.length > 0 && (
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="rounded-xl border border-[var(--border)] bg-gradient-to-br from-[var(--bg-secondary)] to-white p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Icon name="mdi:fire" size={16} className="text-orange-500" />
-                    <div className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide">
-                      Calories/ngày
-                    </div>
-                  </div>
-                  <div className="text-2xl font-bold text-[var(--text)]">
-                    {summaryStats.calories}
-                  </div>
-                </div>
-                <div className="rounded-xl border border-[var(--border)] bg-gradient-to-br from-[var(--bg-secondary)] to-white p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Icon name="mdi:weight-lifter" size={16} className="text-blue-500" />
-                    <div className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide">
-                      Protein
-                    </div>
-                  </div>
-                  <div className="text-2xl font-bold text-[var(--text)]">
-                    {summaryStats.protein}g
-                  </div>
-                </div>
-                <div className="rounded-xl border border-[var(--border)] bg-gradient-to-br from-[var(--bg-secondary)] to-white p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Icon name="mdi:grain" size={16} className="text-green-500" />
-                    <div className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide">
-                      Carbs
-                    </div>
-                  </div>
-                  <div className="text-2xl font-bold text-[var(--text)]">
-                    {summaryStats.carbs}g
-                  </div>
-                </div>
+            {isDetailLoading ? (
+              <div className="flex-1 flex flex-col items-center justify-center gap-3 text-[var(--text-secondary)]">
+                <Icon name="mdi:loading" size={32} className="animate-spin" />
+                <p>Đang tải chi tiết kế hoạch...</p>
               </div>
-            )}
-
-            {/* Day Navigation */}
-            {availableDays.length > 0 && (
-              <div className="mb-5">
-                <div className="text-sm font-medium text-[var(--text-secondary)] mb-3 flex items-center gap-2">
-                  <Icon name="mdi:calendar-range" size={16} />
-                  <span>Xem {activeTab === 'meal' ? 'thực đơn' : 'kế hoạch tập luyện'} theo ngày:</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {availableDays.map((day) => (
-                    <button
-                      key={day}
-                      type="button"
-                      onClick={() => setSelectedDay(day)}
-                      className={`px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 ${
-                        selectedDay === day
-                          ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/30 transform scale-105'
-                          : 'bg-white text-[var(--text)] border-2 border-[var(--border)] hover:border-[var(--primary)] hover:text-[var(--primary)] hover:shadow-md'
-                      }`}
-                    >
-                      Ngày {day}
-                    </button>
-                  ))}
-                </div>
+            ) : isDetailError ? (
+              <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center text-red-500">
+                <Icon name="mdi:alert-circle-outline" size={40} />
+                <p>Không thể tải chi tiết kế hoạch. Vui lòng thử lại.</p>
+                <button
+                  type="button"
+                  onClick={() => refetchDetail()}
+                  className="px-4 py-2 rounded-lg bg-[var(--primary)] text-white text-sm font-semibold"
+                >
+                  Thử lại
+                </button>
               </div>
-            )}
+            ) : !hasMealPlan && !hasWorkoutPlan ? (
+              <div className="flex-1 flex items-center justify-center text-[var(--text-secondary)]">
+                Chưa có dữ liệu chi tiết cho plan này.
+              </div>
+            ) : (
+              <>
+                {activeTab === 'meal' && summaryStats && (
+                  <div className="grid grid-cols-3 gap-4 mb-6">
+                    <div className="rounded-xl border border-[var(--border)] bg-gradient-to-br from-[var(--bg-secondary)] to-white p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Icon name="mdi:fire" size={16} className="text-orange-500" />
+                        <div className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide">
+                          Calories/ngày
+                        </div>
+                      </div>
+                      <div className="text-2xl font-bold text-[var(--text)]">
+                        {summaryStats.calories}
+                      </div>
+                    </div>
+                    <div className="rounded-xl border border-[var(--border)] bg-gradient-to-br from-[var(--bg-secondary)] to-white p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Icon name="mdi:silverware-fork-knife" size={16} className="text-blue-500" />
+                        <div className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide">
+                          Số bữa ăn
+                        </div>
+                      </div>
+                      <div className="text-2xl font-bold text-[var(--text)]">
+                        {summaryStats.meals}
+                      </div>
+                    </div>
+                    <div className="rounded-xl border border-[var(--border)] bg-gradient-to-br from-[var(--bg-secondary)] to-white p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Icon name="mdi:leaf" size={16} className="text-green-500" />
+                        <div className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide">
+                          Chế độ ăn
+                        </div>
+                      </div>
+                      <div className="text-lg font-bold text-[var(--text)]">
+                        {summaryStats.dietType || '—'}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
-            {/* Day Content */}
-            <div className="flex-1 overflow-y-auto pr-3 custom-scrollbar">
-              {activeTab === 'meal' && currentDayMeal && (
-                <MealPlanDayView dayMeal={currentDayMeal} dayNumber={selectedDay} />
-              )}
-              {activeTab === 'workout' && currentDayWorkout && (
-                <WorkoutPlanDayView workout={currentDayWorkout} dayNumber={selectedDay} />
-              )}
-              {activeTab === 'meal' && !currentDayMeal && (
-                <div className="text-center py-12 text-[var(--text-secondary)]">
-                  <Icon name="mdi:information-outline" size={48} className="mx-auto mb-3 opacity-50" />
-                  <p>Không có dữ liệu cho ngày {selectedDay}</p>
+                {availableDays.length > 0 && (
+                  <div className="mb-5">
+                    <div className="text-sm font-medium text-[var(--text-secondary)] mb-3 flex items-center gap-2">
+                      <Icon name="mdi:calendar-range" size={16} />
+                      <span>Xem {activeTab === 'meal' ? 'thực đơn' : 'kế hoạch tập luyện'} theo ngày:</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {availableDays.map((day) => (
+                        <button
+                          key={day}
+                          type="button"
+                          onClick={() => setSelectedDay(day)}
+                          className={`px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 ${
+                            selectedDay === day
+                              ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/30 transform scale-105'
+                              : 'bg-white text-[var(--text)] border-2 border-[var(--border)] hover:border-[var(--primary)] hover:text-[var(--primary)] hover:shadow-md'
+                          }`}
+                        >
+                          Ngày {day}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex-1 overflow-y-auto pr-3 custom-scrollbar">
+                  {activeTab === 'meal' && currentDayMeal && (
+                    <MealPlanDayView dayMeal={currentDayMeal} dayNumber={selectedDay} />
+                  )}
+                  {activeTab === 'workout' && currentDayWorkout && (
+                    <WorkoutPlanDayView workout={currentDayWorkout} dayNumber={selectedDay} />
+                  )}
+                  {activeTab === 'meal' && !currentDayMeal && (
+                    <div className="text-center py-12 text-[var(--text-secondary)]">
+                      <Icon name="mdi:information-outline" size={48} className="mx-auto mb-3 opacity-50" />
+                      <p>Không có dữ liệu cho ngày {selectedDay}</p>
+                    </div>
+                  )}
+                  {activeTab === 'workout' && !currentDayWorkout && (
+                    <div className="text-center py-12 text-[var(--text-secondary)]">
+                      <Icon name="mdi:information-outline" size={48} className="mx-auto mb-3 opacity-50" />
+                      <p>Không có dữ liệu cho ngày {selectedDay}</p>
+                    </div>
+                  )}
                 </div>
-              )}
-              {activeTab === 'workout' && !currentDayWorkout && (
-                <div className="text-center py-12 text-[var(--text-secondary)]">
-                  <Icon name="mdi:information-outline" size={48} className="mx-auto mb-3 opacity-50" />
-                  <p>Không có dữ liệu cho ngày {selectedDay}</p>
-                </div>
-              )}
-            </div>
+              </>
+            )}
           </div>
 
           {/* Right Sidebar */}
@@ -393,7 +389,7 @@ export const PlanReviewModal: React.FC<PlanReviewModalProps> = ({
                   Vấn đề sức khỏe:
                 </h3>
                 <div className="flex flex-col gap-2">
-                  {plan.healthIssues.map((issue, index) => (
+                  {plan.healthIssues.map((issue: string, index: number) => (
                     <div
                       key={index}
                       className="rounded-lg bg-white border border-purple-200 p-3 text-sm text-purple-900 shadow-sm"

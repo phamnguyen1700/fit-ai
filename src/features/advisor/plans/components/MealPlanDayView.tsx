@@ -2,70 +2,49 @@
 
 import React from 'react';
 import { Icon } from '@/shared/ui/icon';
-import type { DayMeal, Meal } from '@/types/plan';
-import { getIngredientById } from '@/features/plan-demo/data/ingredientData';
+import type { MealPlanDayDetail, MealDetail } from '@/types/planreview';
+
+const mealTypeLabelMap: Record<string, string> = {
+  Breakfast: 'Bữa sáng',
+  'Morning Snack': 'Ăn nhẹ buổi sáng',
+  Lunch: 'Bữa trưa',
+  'Afternoon Snack': 'Ăn nhẹ buổi chiều',
+  Dinner: 'Bữa tối',
+};
 
 interface MealPlanDayViewProps {
-  dayMeal: DayMeal;
+  dayMeal: MealPlanDayDetail;
   dayNumber: number;
 }
 
-const getMealTypeLabel = (type: string, customName?: string) => {
-  if (type === 'custom' && customName) {
-    return customName;
-  }
-  switch (type) {
-    case 'breakfast':
-      return 'Bữa sáng';
-    case 'lunch':
-      return 'Bữa trưa';
-    case 'dinner':
-      return 'Bữa tối';
-    default:
-      return type;
-  }
+const getMealTypeLabel = (type: string) => {
+  return mealTypeLabelMap[type] || type;
 };
 
-const getMealTypeTime = (type: string) => {
-  switch (type) {
-    case 'breakfast':
-      return '7:00 AM';
-    case 'lunch':
-      return '12:00 PM';
-    case 'dinner':
-      return '7:00 PM';
-    default:
-      return '';
-  }
-};
-
-const MealCard: React.FC<{ meal: Meal; index: number }> = ({ meal, index }) => {
+const MealCard: React.FC<{ meal: MealDetail; index: number }> = ({ meal, index }) => {
   return (
     <div className="rounded-lg border border-[var(--border)] bg-white p-4 mb-4">
       {/* Meal Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="text-lg font-semibold text-[var(--text)]">
-            {getMealTypeLabel(meal.type, meal.customName)}
+            {getMealTypeLabel(meal.type)}
           </span>
           <span className="px-2 py-0.5 rounded text-xs font-medium bg-[var(--primary)]/10 text-[var(--primary)]">
             AI Gen
           </span>
         </div>
-        <div className="text-sm text-[var(--text-secondary)]">
-          {getMealTypeTime(meal.type)}
-        </div>
       </div>
 
       {/* Meal Description */}
       <p className="text-sm text-[var(--text-secondary)] mb-3">
-        Món ăn {getMealTypeLabel(meal.type, meal.customName).toLowerCase()} giàu dinh dưỡng, cung cấp năng lượng bền vững
+        Suất ăn {getMealTypeLabel(meal.type).toLowerCase()} bao gồm {meal.foods.length} món
       </p>
 
       {/* Total Calories */}
       <div className="mb-4">
         <span className="text-base font-semibold text-[var(--text)]">
-          Tổng calo {meal.totalCalories} kcal
+          Tổng calo {meal.calories} kcal
         </span>
       </div>
 
@@ -75,29 +54,15 @@ const MealCard: React.FC<{ meal: Meal; index: number }> = ({ meal, index }) => {
           Thành phần món ăn:
         </h4>
         <div className="flex flex-col gap-3">
-          {meal.ingredients.map((ingredient) => {
-            const ingredientInfo = getIngredientById(ingredient.ingredientId);
-            return (
-              <div
-                key={ingredient.id}
-                className="flex items-center justify-between text-sm"
-              >
-                <div className="flex-1">
-                  <span className="text-[var(--text)] font-medium">
-                    {ingredientInfo?.name || 'Nguyên liệu'} ({ingredient.weight}g)
-                  </span>
-                </div>
-                <div className="flex items-center gap-4 text-[var(--text-secondary)]">
-                  <span>P: {ingredient.protein}g</span>
-                  <span>C: {ingredient.carbs}g</span>
-                  <span>F: {ingredient.fat}g</span>
-                  <span className="font-semibold text-[var(--text)]">
-                    {ingredient.calories} kcal
-                  </span>
-                </div>
-              </div>
-            );
-          })}
+          {meal.foods.map((food, idx) => (
+            <div
+              key={`${food.name}-${idx}`}
+              className="flex items-center justify-between text-sm"
+            >
+              <span className="text-[var(--text)] font-medium">{food.name}</span>
+              <span className="text-[var(--text-secondary)]">{food.quantity}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -110,6 +75,9 @@ export const MealPlanDayView: React.FC<MealPlanDayViewProps> = ({ dayMeal, dayNu
       <h3 className="text-lg font-semibold text-[var(--text)] mb-2">
         Thực đơn AI đã gen - Ngày {dayNumber}
       </h3>
+      <div className="text-sm text-[var(--text-secondary)]">
+        Tổng calo cả ngày: <span className="font-semibold text-[var(--text)]">{dayMeal.totalCalories} kcal</span>
+      </div>
       {dayMeal.meals.map((meal, index) => (
         <MealCard key={index} meal={meal} index={index} />
       ))}

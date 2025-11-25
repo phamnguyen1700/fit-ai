@@ -3,7 +3,6 @@
 import React from 'react';
 import { Icon } from '@/shared/ui/icon';
 import type { DayMeal } from '@/types/plan';
-import { getIngredientById } from '@/features/plan-demo/data/ingredientData';
 
 interface MealPlanDetailsProps {
   meals: DayMeal[];
@@ -89,22 +88,19 @@ export const MealPlanDetails: React.FC<MealPlanDetailsProps> = ({ meals }) => {
                       ) : (
                         <>
                           <div className="flex flex-col gap-2 mb-3">
-                            {meal.ingredients.map((ingredient) => {
-                              const ingredientInfo = getIngredientById(ingredient.ingredientId);
-                              return (
-                                <div
-                                  key={ingredient.id}
-                                  className="flex items-center justify-between text-sm"
-                                >
-                                  <span className="text-[var(--text)]">
-                                    {ingredientInfo?.name || 'Nguyên liệu'}
-                                  </span>
-                                  <span className="text-[var(--text-secondary)] font-medium">
-                                    {ingredient.weight}g
-                                  </span>
-                                </div>
-                              );
-                            })}
+                            {meal.ingredients.map((ingredient) => (
+                              <div
+                                key={ingredient.id}
+                                className="flex items-center justify-between text-sm"
+                              >
+                                <span className="text-[var(--text)]">
+                                  {ingredient.ingredientId || 'Nguyên liệu'}
+                                </span>
+                                <span className="text-[var(--text-secondary)] font-medium">
+                                  {ingredient.weight}g
+                                </span>
+                              </div>
+                            ))}
                           </div>
 
                           <div className="pt-2 border-t border-[var(--border)]">

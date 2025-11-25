@@ -3,7 +3,6 @@
 import React from 'react';
 import { Icon } from '@/shared/ui/icon';
 import type { DayWorkout } from '@/types/plan';
-import { getCategoryById, getExerciseById } from '@/features/plan-demo/data/exerciseData';
 
 interface WorkoutPlanDetailsProps {
   workouts: DayWorkout[];
@@ -37,50 +36,45 @@ export const WorkoutPlanDetails: React.FC<WorkoutPlanDetailsProps> = ({ workouts
                 <div className="text-sm text-[var(--text-secondary)] italic">Chưa có bài tập</div>
               ) : (
                 <div className="flex flex-col gap-3">
-                  {workout.exercises.map((exercise, index) => {
-                    const category = getCategoryById(exercise.categoryId);
-                    const exerciseInfo = getExerciseById(exercise.exerciseId);
-
-                    return (
-                      <div
-                        key={exercise.id}
-                        className="rounded-md border border-[var(--border)] bg-white p-3"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-sm font-medium text-[var(--text-secondary)]">
-                                {index + 1}.
-                              </span>
-                              <span className="font-semibold text-[var(--text)]">
-                                {exercise.sessionName}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-2">
-                              <span>{category?.name}</span>
-                              <span>•</span>
-                              <span>{exerciseInfo?.name}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm font-medium text-[var(--primary)]">
-                              {category?.type === 'cardio' ? (
-                                <>
-                                  <Icon name="mdi:timer-outline" size={16} />
-                                  <span>{exercise.minutes} phút</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Icon name="mdi:repeat" size={16} />
-                                  <span>
-                                    {exercise.sets} sets × {exercise.reps} reps
-                                  </span>
-                                </>
-                              )}
-                            </div>
+                  {workout.exercises.map((exercise, index) => (
+                    <div
+                      key={exercise.id}
+                      className="rounded-md border border-[var(--border)] bg-white p-3"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-medium text-[var(--text-secondary)]">
+                              {index + 1}.
+                            </span>
+                            <span className="font-semibold text-[var(--text)]">
+                              {exercise.sessionName}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-2">
+                            <span>{exercise.categoryName || exercise.categoryId || 'Danh mục'}</span>
+                            <span>•</span>
+                            <span>{exercise.exerciseName || exercise.exerciseId || 'Bài tập'}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm font-medium text-[var(--primary)]">
+                            {exercise.minutes ? (
+                              <>
+                                <Icon name="mdi:timer-outline" size={16} />
+                                <span>{exercise.minutes} phút</span>
+                              </>
+                            ) : (
+                              <>
+                                <Icon name="mdi:repeat" size={16} />
+                                <span>
+                                  {exercise.sets} sets × {exercise.reps} reps
+                                </span>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
-                    );
-                  })}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
