@@ -85,7 +85,7 @@ const AdvisorPlanReviewsContent: React.FC = () => {
 
     try {
       setIsApproving(true);
-      const response = await approvePlanService(payload.planId);
+      await approvePlanService(payload.planId);
       toast.success('Duyệt plan thành công');
       setReviewModalOpen(false);
       setSelectedPlan(null);

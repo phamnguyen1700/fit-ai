@@ -9,6 +9,7 @@ export interface PendingPlan {
 }
 
 export interface WorkoutPlanExerciseDetail {
+  exerciseId?: string;
   name: string;
   sets: number;
   reps: string;
@@ -42,6 +43,9 @@ export interface MealFoodDetail {
 export interface MealDetail {
   type: string;
   calories: number;
+  totalProtein: number;
+  totalCarbs: number;
+  totalFat: number;
   foods: MealFoodDetail[];
 }
 
