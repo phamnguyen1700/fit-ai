@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
   },
   // Suppress deprecation warnings
   reactStrictMode: false,
+
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;

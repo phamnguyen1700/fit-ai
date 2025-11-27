@@ -4,6 +4,7 @@ import React from 'react';
 import { Card, Row, Col, Segmented } from '@/shared/ui';
 import { PieChart } from '@/shared/ui';
 import { LineChart } from '@/shared/ui';
+import { SeriesItem } from '@/shared/ui/core/LineChart';
 
 type Period = 'day' | 'month' | 'year';
 
@@ -43,7 +44,7 @@ export const ChartReport: React.FC = () => {
       { name: '20-25', color: lineColors.b, data: [15, 25, 35, 20, 30, 25, 50, 15] },
       { name: '>30', color: lineColors.c, data: [5, 15, 25, 30, 35, 45, 65, 30] },
     ],
-  } as const;
+  } as Record<Period, SeriesItem[]>;
 
   return (
     <Card

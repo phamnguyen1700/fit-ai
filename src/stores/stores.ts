@@ -10,7 +10,7 @@ export const useAuthStore = create<IAuthState>()(
 		(set) => ({
 			token: null,
 			user: null,
-			login: (token, user) => set({ token, user }),
+			login: (token, id) => set({ token, user: { id, email: '' } }),
 			logout: () => set({ token: null, user: null }),
 			setUser: (user) => set({ user }),
 		}),

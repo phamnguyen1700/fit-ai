@@ -103,7 +103,7 @@ export const AreaChart: React.FC<AreaChartProps> = ({
       y: {
         grid: {
           color: '#E5E7EB',
-          borderDash: [2, 6],
+          tickBorderDash: [2, 6],
         },
         ticks: {
           color: '#8A8A8A',
