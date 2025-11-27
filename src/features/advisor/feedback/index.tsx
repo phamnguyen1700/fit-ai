@@ -10,23 +10,16 @@ import { FeedbackCard } from './components/FeedbackCard';
 import ReviewModal from './components/ReviewModal';
 import { usePendingWorkoutReviews, usePendingMealReviews } from '@/tanstack/hooks/advisorreview';
 import type { WorkoutReview, MealReview } from '@/types/advisorreview';
-import type { FeedbackSubmission, FeedbackReviewPayload, FeedbackCategory } from './types';
 
-const computeSummary = (submissions: FeedbackSubmission[]) => {
-	const total = submissions.length;
-	const pending = submissions.filter((item) => item.status === 'pending').length;
-	const rework = submissions.filter((item) => item.status === 'rework').length;
-	const reviewed = submissions.filter((item) => item.status === 'reviewed').length;
-	const videos = submissions.filter((item) => item.mediaType === 'video').length;
+// UI-specific types
+type FeedbackCategory = 'training' | 'nutrition';
 
-	return {
-		total,
-		pending,
-		rework,
-		reviewed,
-		videos,
-	};
-};
+interface FeedbackReviewPayload {
+	advisorNotes: string;
+	status: 'reviewed';
+	rating: number;
+	quickRemarks: string[];
+}
 
 const SummaryTile: React.FC<{ icon: string; label: string; value: React.ReactNode; helper?: React.ReactNode; accent?: string; iconColor?: string }> = ({ icon, label, value, helper, accent, iconColor }) => (
 	<div className="flex flex-1 min-w-[160px] items-center gap-3 rounded-lg border border-[var(--border)] bg-white p-4 shadow-sm">
@@ -55,7 +48,7 @@ export const AdvisorFeedbackRequests: React.FC = () => {
 	const [selectedStatus, setSelectedStatus] = useState<string>('all');
 	const [selectedMedia, setSelectedMedia] = useState<string>('all');
 	const [activeCategory, setActiveCategory] = useState<CategoryFilter>('all');
-	const [selectedSubmission, setSelectedSubmission] = useState<FeedbackSubmission | null>(null);
+	const [selectedSubmission, setSelectedSubmission] = useState<WorkoutReview | MealReview | null>(null);
 	const [isReviewModalOpen, setReviewModalOpen] = useState(false);
 
 	const isLoading = isLoadingWorkouts || isLoadingMeals;
@@ -165,13 +158,14 @@ export const AdvisorFeedbackRequests: React.FC = () => {
 		return combined;
 	}, [workoutReviews, mealReviews, selectedStatus, selectedMedia, activeCategory]);
 
-		const handleAction = (action: string, submission: FeedbackSubmission) => {
+		const handleAction = (action: string, submission: WorkoutReview | MealReview) => {
 			if (action === 'review') {
 				setSelectedSubmission(submission);
 				setReviewModalOpen(true);
 				return;
 			}
-			console.log('Advisor feedback action', action, submission.id);
+			const id = 'workoutLogId' in submission ? submission.workoutLogId : submission.mealLogId;
+			console.log('Advisor feedback action', action, id);
 	};
 
 	const handleBulkAction = (action: string) => {
@@ -247,9 +241,17 @@ export const AdvisorFeedbackRequests: React.FC = () => {
 							pageSize={4}
 							renderItem={(item) => (
 								item.type === 'workout' ? (
-									<FeedbackCard key={item.review.workoutLogId} workoutReview={item.review} onAction={handleAction} />
+									<FeedbackCard 
+										key={item.review.workoutLogId} 
+										workoutReview={item.review} 
+										onAction={(action) => handleAction(action, item.review)} 
+									/>
 								) : (
-									<FeedbackCard key={item.review.mealLogId} mealReview={item.review} onAction={handleAction} />
+									<FeedbackCard 
+										key={item.review.mealLogId} 
+										mealReview={item.review} 
+										onAction={(action) => handleAction(action, item.review)} 
+									/>
 								)
 							)}
 						/>
@@ -262,7 +264,10 @@ export const AdvisorFeedbackRequests: React.FC = () => {
 							isOpen={isReviewModalOpen}
 							onClose={() => setReviewModalOpen(false)}
 									onSubmit={(payload: FeedbackReviewPayload) => {
-											console.log('Submit review', selectedSubmission?.id, payload);
+								const id = selectedSubmission 
+									? ('workoutLogId' in selectedSubmission ? selectedSubmission.workoutLogId : selectedSubmission.mealLogId)
+									: null;
+								console.log('Submit review', id, payload);
 								setReviewModalOpen(false);
 							}}
 						/>

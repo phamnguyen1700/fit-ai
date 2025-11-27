@@ -7,8 +7,8 @@ import { Flex } from '@/shared/ui/core/Flex';
 import { Avatar } from '@/shared/ui/core/Avatar';
 import { TextArea, Input } from '@/shared/ui';
 import { Icon } from '@/shared/ui/icon';
-import type { FeedbackSubmission, FeedbackReviewPayload } from '../types';
 import { useSubmitWorkoutReview } from '@/tanstack/hooks/advisorreview';
+import type { WorkoutReview, MealReview } from '@/types/advisorreview';
 
 interface Comment {
   id: string;
@@ -17,6 +17,13 @@ interface Comment {
   authorAvatar?: string;
   content: string;
   timestamp: string;
+}
+
+interface FeedbackReviewPayload {
+  advisorNotes: string;
+  status: 'reviewed';
+  rating: number;
+  quickRemarks: string[];
 }
 
 const QUICK_REMARKS: string[] = [
@@ -29,7 +36,7 @@ const QUICK_REMARKS: string[] = [
 ];
 
 export interface ReviewModalProps {
-  submission: FeedbackSubmission | null;
+  submission: WorkoutReview | MealReview | null;
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (payload: FeedbackReviewPayload) => void;
@@ -56,22 +63,11 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
 
   React.useEffect(() => {
     if (submission) {
-      setNotes(submission.advisorNotes ?? '');
+      setNotes('');
       setScore(0);
       setSelectedRemarks([]);
-      // Initialize comments with customer's note if exists
-      const initialComments: Comment[] = [];
-      if (submission.notesFromCustomer) {
-        initialComments.push({
-          id: 'customer-note-1',
-          author: 'customer',
-          authorName: submission.customerName,
-          authorAvatar: submission.customerAvatar,
-          content: submission.notesFromCustomer,
-          timestamp: submission.submittedAt,
-        });
-      }
-      setComments(initialComments);
+      // Initialize comments - API doesn't provide customer notes in current structure
+      setComments([]);
       setNewComment('');
     }
   }, [submission]);
@@ -114,35 +110,47 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
 
   const preview = useMemo(() => {
     if (!submission) return null;
-    if (submission.mediaType === 'video') {
+    
+    // Check if it's a workout (has videoUrl) or meal (has photoUrl)
+    if ('videoUrl' in submission) {
       return (
         <video
           controls
           preload="metadata"
-          poster={submission.thumbnailUrl}
           className="w-full rounded-lg shadow-sm"
         >
-          <source src={submission.mediaUrl} />
+          <source src={submission.videoUrl} />
           Trình duyệt không hỗ trợ phát video.
         </video>
       );
     }
 
-    return (
-      <img
-        src={submission.mediaUrl}
-        alt={submission.workoutName}
-        className="w-full rounded-lg object-cover shadow-sm"
-        loading="lazy"
-      />
-    );
+    if ('photoUrl' in submission) {
+      return (
+        <img
+          src={submission.photoUrl}
+          alt={`${submission.mealType} - Ngày ${submission.dayNumber}`}
+          className="w-full rounded-lg object-cover shadow-sm"
+          loading="lazy"
+        />
+      );
+    }
+
+    return null;
   }, [submission]);
+
+  const userName = submission ? submission.userName : '';
+  const displayName = 'exerciseName' in (submission || {}) 
+    ? `${(submission as WorkoutReview).exerciseName} - Ngày ${(submission as WorkoutReview).dayNumber}`
+    : 'mealType' in (submission || {})
+    ? `${(submission as MealReview).mealType} - Ngày ${(submission as MealReview).dayNumber}`
+    : '';
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Đánh giá từ ${submission?.customerName ?? ''}`.trim()}
+      title={`Đánh giá từ ${userName}`.trim()}
       size="xl"
       showFooter={false}
     >
@@ -150,18 +158,14 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
         <div className="flex flex-col gap-6">
           {/* Header */}
           <Flex align="center" gap={14} wrap>
-            <Avatar size={56} src={submission.customerAvatar} className="flex-shrink-0 ring-2 ring-[var(--border)] ring-offset-2 ring-offset-white">
-              {submission.customerName.charAt(0)}
+            <Avatar size={56} className="flex-shrink-0 ring-2 ring-[var(--border)] ring-offset-2 ring-offset-white">
+              {userName.charAt(0)}
             </Avatar>
             <div className="min-w-0 flex-1">
-              <div className="text-lg font-semibold text-[var(--text)] mb-1">{submission.customerName}</div>
-              <div className="flex items-center gap-1.5 text-sm text-[var(--text-secondary)] mb-1">
-                <Icon name="mdi:email-outline" size={14} />
-                <span className="truncate">{submission.customerEmail}</span>
-              </div>
+              <div className="text-lg font-semibold text-[var(--text)] mb-1">{userName}</div>
               <div className="flex items-center gap-2">
                 <Icon name="mdi:dumbbell" size={16} className="text-[var(--primary)]" />
-                <span className="text-sm font-medium text-[var(--text)]">{submission.workoutName}</span>
+                <span className="text-sm font-medium text-[var(--text)]">{displayName}</span>
               </div>
             </div>
           </Flex>
@@ -325,10 +329,9 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
                   onClick={async () => {
                     if (!submission) return;
                     
-                    // Nếu là workout review (category = 'training'), gọi API
-                    if (submission.category === 'training') {
-                      // Extract workoutLogId từ submission.id
-                      const workoutLogId = submission.id;
+                    // Check if it's a workout review (has workoutLogId)
+                    if ('workoutLogId' in submission) {
+                      const workoutLogId = submission.workoutLogId;
                       const completionPercent = score || 0;
                       const feedback = notes || selectedRemarks.join('\n') || '';
                       
@@ -347,7 +350,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
                         console.error('Submit workout review error:', error);
                       }
                     } else {
-                      // Meal review hoặc other - gọi callback như cũ
+                      // Meal review - gọi callback như cũ (TODO: implement meal review API)
                       onSubmit({ advisorNotes: notes, status: 'reviewed', rating: score, quickRemarks: selectedRemarks });
                     }
                   }}

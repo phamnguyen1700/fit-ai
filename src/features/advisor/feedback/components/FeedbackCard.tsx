@@ -8,73 +8,13 @@ import { Badge } from '@/shared/ui/core/Badge';
 import { Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { Icon } from '@/shared/ui/icon';
-import type { FeedbackSubmission } from '../types';
 import type { WorkoutReview, MealReview } from '@/types/advisorreview';
 
 export interface FeedbackCardProps {
-  submission?: FeedbackSubmission; // Optional để backward compatible
-  workoutReview?: WorkoutReview; // New prop để fetch trực tiếp
-  mealReview?: MealReview; // New prop cho meal reviews
-  onAction?: (action: string, submission: FeedbackSubmission) => void;
+  workoutReview?: WorkoutReview;
+  mealReview?: MealReview;
+  onAction?: (action: string) => void;
 }
-
-const normalizeWorkoutReviewToFeedback = (review: WorkoutReview): FeedbackSubmission => {
-  // Determine status based on hasComments and lastCommentFrom
-  let status: FeedbackSubmission['status'] = 'pending';
-  if (review.hasComments) {
-    if (review.lastCommentFrom === 'advisor') {
-      status = 'reviewed';
-    } else if (review.lastCommentFrom === 'customer' || review.lastCommentFrom === 'user') {
-      status = 'rework';
-    }
-  }
-
-  return {
-    id: review.workoutLogId,
-    customerName: review.userName,
-    customerEmail: '', // API không có email
-    customerAvatar: undefined,
-    submittedAt: review.createdAt,
-    workoutName: `${review.exerciseName} - Ngày ${review.dayNumber}`,
-    focusArea: review.exerciseName,
-    notesFromCustomer: undefined,
-    mediaType: 'video' as const,
-    mediaUrl: review.videoUrl,
-    thumbnailUrl: undefined,
-    status,
-    advisorNotes: review.hasComments && review.lastCommentFrom === 'advisor' ? 'Đã có nhận xét' : undefined,
-    category: 'training' as const,
-  };
-};
-
-const normalizeMealReviewToFeedback = (review: MealReview): FeedbackSubmission => {
-  // Determine status based on hasComments and lastCommentFrom
-  let status: FeedbackSubmission['status'] = 'pending';
-  if (review.hasComments) {
-    if (review.lastCommentFrom === 'advisor') {
-      status = 'reviewed';
-    } else if (review.lastCommentFrom === 'user' || review.lastCommentFrom === 'customer') {
-      status = 'rework';
-    }
-  }
-
-  return {
-    id: review.mealLogId,
-    customerName: review.userName,
-    customerEmail: '', // API không có email
-    customerAvatar: undefined,
-    submittedAt: review.createdAt,
-    workoutName: `${review.mealType} - Ngày ${review.dayNumber}`,
-    focusArea: review.mealType,
-    notesFromCustomer: undefined,
-    mediaType: 'image' as const,
-    mediaUrl: review.photoUrl,
-    thumbnailUrl: review.photoUrl,
-    status,
-    advisorNotes: review.hasComments && review.lastCommentFrom === 'advisor' ? 'Đã có nhận xét' : undefined,
-    category: 'nutrition' as const,
-  };
-};
 
 const formatDateTime = (iso: string) => {
   const date = new Date(iso);
@@ -87,31 +27,10 @@ const formatDateTime = (iso: string) => {
   });
 };
 
-export const FeedbackCard: React.FC<FeedbackCardProps> = ({ submission: submissionProp, workoutReview, mealReview, onAction }) => {
-  // Normalize workoutReview hoặc mealReview nếu có, hoặc dùng submission prop (backward compatible)
-  const submission = useMemo(() => {
-    if (submissionProp) {
-      return submissionProp;
-    }
-    
-    if (workoutReview) {
-      console.log('📊 [FeedbackCard] Normalizing workout review:', workoutReview);
-      const normalized = normalizeWorkoutReviewToFeedback(workoutReview);
-      console.log('✅ [FeedbackCard] Normalized submission:', normalized);
-      return normalized;
-    }
-    
-    if (mealReview) {
-      console.log('📊 [FeedbackCard] Normalizing meal review:', mealReview);
-      const normalized = normalizeMealReviewToFeedback(mealReview);
-      console.log('✅ [FeedbackCard] Normalized submission:', normalized);
-      return normalized;
-    }
-    
-    return null;
-  }, [submissionProp, workoutReview, mealReview]);
+export const FeedbackCard: React.FC<FeedbackCardProps> = ({ workoutReview, mealReview, onAction }) => {
+  const review = workoutReview || mealReview;
 
-  if (!submission) {
+  if (!review) {
     return (
       <Card className="h-full flex flex-col">
         <div className="flex items-center justify-center p-8 text-sm text-[var(--text-secondary)]">
@@ -121,8 +40,14 @@ export const FeedbackCard: React.FC<FeedbackCardProps> = ({ submission: submissi
     );
   }
 
+  const isWorkout = !!workoutReview;
+  const displayName = isWorkout 
+    ? `${workoutReview.exerciseName} - Ngày ${workoutReview.dayNumber}`
+    : `${mealReview!.mealType} - Ngày ${mealReview!.dayNumber}`;
+  const mediaUrl = isWorkout ? workoutReview.videoUrl : mealReview!.photoUrl;
+
   const handleMenuClick = (action: string) => {
-    onAction?.(action, submission);
+    onAction?.(action);
   };
 
   const menuItems: MenuProps['items'] = [
@@ -132,23 +57,22 @@ export const FeedbackCard: React.FC<FeedbackCardProps> = ({ submission: submissi
   ];
 
   const renderMedia = () => {
-    if (submission.mediaType === 'video') {
+    if (isWorkout) {
       return (
         <video
           controls
           preload="metadata"
-          poster={submission.thumbnailUrl}
           className="h-52 w-full object-cover rounded-lg"
         >
-          <source src={submission.mediaUrl} />
+          <source src={mediaUrl} />
           Trình duyệt không hỗ trợ phát video.
         </video>
       );
     }
     return (
       <img
-        src={submission.mediaUrl}
-        alt={submission.workoutName}
+        src={mediaUrl}
+        alt={displayName}
         className="h-52 w-full object-cover rounded-lg"
         loading="lazy"
       />
@@ -163,20 +87,15 @@ export const FeedbackCard: React.FC<FeedbackCardProps> = ({ submission: submissi
           <Flex align="center" gap={12} wrap className="flex-1 min-w-0">
             <Avatar 
               size={52} 
-              src={submission.customerAvatar} 
               className="flex-shrink-0"
             >
-              {submission.customerName.charAt(0)}
+              {review.userName.charAt(0)}
             </Avatar>
             <div className="min-w-0 flex-1">
-              <div className="text-base font-semibold text-[var(--text)] mb-1">{submission.customerName}</div>
-              <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] mb-1">
-                <Icon name="mdi:email-outline" size={14} />
-                <span className="truncate">{submission.customerEmail}</span>
-              </div>
+              <div className="text-base font-semibold text-[var(--text)] mb-1">{review.userName}</div>
               <div className="flex items-center gap-1.5 text-xs text-[var(--text-tertiary)]">
                 <Icon name="mdi:clock-outline" size={12} />
-                <span>{formatDateTime(submission.submittedAt)}</span>
+                <span>{formatDateTime(review.createdAt)}</span>
               </div>
             </div>
           </Flex>
@@ -195,9 +114,9 @@ export const FeedbackCard: React.FC<FeedbackCardProps> = ({ submission: submissi
         <div className="flex flex-col gap-3.5 flex-1 min-h-0">
           {/* Workout Name with Tag */}
           <div className="flex items-center gap-2 flex-wrap">
-            <Icon name="mdi:dumbbell" size={18} className="text-[var(--primary)]" />
-            <span className="text-base font-semibold text-[var(--text)]">{submission.workoutName}</span>
-            {(workoutReview?.hasComments || mealReview?.hasComments) && (
+            <Icon name={isWorkout ? "mdi:dumbbell" : "mdi:food-apple"} size={18} className="text-[var(--primary)]" />
+            <span className="text-base font-semibold text-[var(--text)]">{displayName}</span>
+            {review.hasComments && (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-50 border border-green-200">
                 <Icon name="mdi:check-circle" size={14} className="text-green-600" />
                 <span className="text-xs font-medium text-green-700">Đã đánh giá</span>
@@ -205,32 +124,10 @@ export const FeedbackCard: React.FC<FeedbackCardProps> = ({ submission: submissi
             )}
           </div>
 
-          {/* Customer Notes */}
-          {submission.notesFromCustomer && (
-            <div className="rounded-lg bg-[var(--bg-secondary)] p-3.5 border-l-4 border-[var(--primary)]">
-              <div className="flex items-center gap-2 mb-2">
-                <Icon name="mdi:message-text-outline" size={16} className="text-[var(--primary)]" />
-                <span className="text-xs font-semibold text-[var(--text-secondary)]">Ghi chú từ khách hàng</span>
-              </div>
-              <p className="text-sm text-[var(--text)] leading-relaxed pl-6">{submission.notesFromCustomer}</p>
-            </div>
-          )}
-
           {/* Media */}
           <div className="rounded-lg overflow-hidden border border-[var(--border)]">
             {renderMedia()}
           </div>
-
-          {/* Advisor Notes */}
-          {submission.advisorNotes && (
-            <div className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--bg-secondary)] p-3.5">
-              <div className="flex items-center gap-2 mb-2">
-                <Icon name="mdi:clipboard-text-outline" size={16} className="text-[var(--text-secondary)]" />
-                <span className="text-xs font-semibold text-[var(--text-secondary)]">Nhận xét trước đó</span>
-              </div>
-              <p className="text-sm text-[var(--text)] leading-relaxed pl-6">{submission.advisorNotes}</p>
-            </div>
-          )}
         </div>
 
         {/* Action Button */}
