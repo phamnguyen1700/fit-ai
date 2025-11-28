@@ -31,6 +31,165 @@ const formatIngredientName = (ingredientId: string) => {
     .join(' ');
 };
 
+type MenuHeaderProps = {
+  menuNumber: number;
+  mealsCount: number;
+  calories: number;
+  isExpanded: boolean;
+  onClick: () => void;
+};
+const MenuHeader = ({ menuNumber, mealsCount, calories, isExpanded, onClick }: MenuHeaderProps) => (
+  <div onClick={onClick} style={{
+    padding: '16px 20px',
+    cursor: 'pointer',
+    backgroundColor: isExpanded ? 'var(--primay-extralight)' : 'var(--bg)',
+    borderRadius: isExpanded ? '8px 8px 0 0' : '8px',
+    transition: 'all 0.2s ease',
+  }}>
+    <Flex justify="space-between" align="center">
+      <Flex gap={10} align="center">
+        <Icon name="mdi:food" size={20} color="var(--primary)" />
+        <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>Menu {menuNumber}</span>
+        <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+          • {mealsCount} bữa • {formatNumber(calories)} kcal
+        </span>
+      </Flex>
+      <Icon name={isExpanded ? 'mdi:chevron-up' : 'mdi:chevron-down'} size={20} color="var(--text-secondary)" />
+    </Flex>
+  </div>
+);
+
+type MenuContentProps = {
+  menu: {
+    menuNumber: number;
+    meals: Array<{
+      type: string;
+      customName?: string;
+      totalCalories: number;
+      ingredients: Array<{
+        id: string;
+        ingredientId?: string;
+        weight: number;
+        calories: number;
+        carbs: number;
+        protein: number;
+        fat: number;
+      }>;
+    }>;
+  };
+};
+const MenuContent = ({ menu }: MenuContentProps) => (
+  <div style={{ padding: '16px 20px 20px' }}>
+    {menu.meals.map((meal, index: number) => {
+      const mealTitle =
+        meal.type === 'custom'
+          ? meal.customName || MEAL_LABEL[meal.type]
+          : MEAL_LABEL[meal.type] || `Bữa ${index + 1}`;
+
+      return (
+        <div key={`${menu.menuNumber}-${meal.type}-${index}`} style={{
+          marginBottom: index === menu.meals.length - 1 ? 0 : 16,
+          padding: 16,
+          backgroundColor: 'var(--bg-secondary)',
+          borderRadius: 8,
+          border: '1px solid var(--border)',
+        }}>
+          {/* Meal Header */}
+          <Flex gap={10} align="center" style={{ marginBottom: 12 }}>
+            <Icon name="mdi:food-apple" size={18} color="var(--success)" />
+            <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{mealTitle}</span>
+            <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+              • {formatNumber(meal.totalCalories)} kcal
+            </span>
+          </Flex>
+
+          {/* Ingredients Table */}
+          <div style={{ overflow: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <thead>
+                <tr style={{ backgroundColor: 'var(--bg)' }}>
+                  <th style={{
+                    padding: '10px 12px',
+                    textAlign: 'left',
+                    fontWeight: 600,
+                    color: 'var(--text-secondary)',
+                    borderBottom: '2px solid var(--border)',
+                  }}>Nguyên liệu</th>
+                  <th style={{
+                    padding: '10px 12px',
+                    textAlign: 'center',
+                    fontWeight: 600,
+                    color: 'var(--text-secondary)',
+                    width: 100,
+                    borderBottom: '2px solid var(--border)',
+                  }}>Trọng lượng</th>
+                  <th style={{
+                    padding: '10px 12px',
+                    textAlign: 'center',
+                    fontWeight: 600,
+                    color: 'var(--text-secondary)',
+                    width: 90,
+                    borderBottom: '2px solid var(--border)',
+                  }}>Calories</th>
+                  <th style={{
+                    padding: '10px 12px',
+                    textAlign: 'center',
+                    fontWeight: 600,
+                    color: 'var(--text-secondary)',
+                    width: 80,
+                    borderBottom: '2px solid var(--border)',
+                  }}>Carbs</th>
+                  <th style={{
+                    padding: '10px 12px',
+                    textAlign: 'center',
+                    fontWeight: 600,
+                    color: 'var(--text-secondary)',
+                    width: 80,
+                    borderBottom: '2px solid var(--border)',
+                  }}>Protein</th>
+                  <th style={{
+                    padding: '10px 12px',
+                    textAlign: 'center',
+                    fontWeight: 600,
+                    color: 'var(--text-secondary)',
+                    width: 80,
+                    borderBottom: '2px solid var(--border)',
+                  }}>Fat</th>
+                </tr>
+              </thead>
+              <tbody>
+                {meal.ingredients.map((ingredient, i: number) => (
+                  <tr key={ingredient.id} style={{
+                    borderBottom: i === meal.ingredients.length - 1 ? 'none' : '1px solid var(--border)',
+                  }}>
+                    <td style={{ padding: '10px 12px', color: 'var(--text)' }}>
+                      {ingredient.ingredientId ? formatIngredientName(ingredient.ingredientId) : 'Nguyên liệu'}
+                    </td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--text)' }}>
+                      {formatNumber(ingredient.weight)}g
+                    </td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--text)' }}>
+                      {formatNumber(Math.round(ingredient.calories))}
+                    </td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--text)' }}>
+                      {formatNumber(Math.round(ingredient.carbs || 0))}g
+                    </td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--text)' }}>
+                      {formatNumber(Math.round(ingredient.protein || 0))}g
+                    </td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--text)' }}>
+                      {formatNumber(Math.round(ingredient.fat || 0))}g
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+);
 export const MealPlanDetailModal: React.FC<MealPlanDetailModalProps> = ({
   open,
   plan,
@@ -72,140 +231,6 @@ export const MealPlanDetailModal: React.FC<MealPlanDetailModalProps> = ({
   if (!plan) {
     return null;
   }
-
-  const MenuHeader = ({ menuNumber, mealsCount, calories, isExpanded, onClick }: any) => (
-    <div onClick={onClick} style={{
-      padding: '16px 20px',
-      cursor: 'pointer',
-      backgroundColor: isExpanded ? 'var(--primay-extralight)' : 'var(--bg)',
-      borderRadius: isExpanded ? '8px 8px 0 0' : '8px',
-      transition: 'all 0.2s ease',
-    }}>
-      <Flex justify="space-between" align="center">
-        <Flex gap={10} align="center">
-          <Icon name="mdi:food" size={20} color="var(--primary)" />
-          <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>Menu {menuNumber}</span>
-          <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-            • {mealsCount} bữa • {formatNumber(calories)} kcal
-          </span>
-        </Flex>
-        <Icon name={isExpanded ? 'mdi:chevron-up' : 'mdi:chevron-down'} size={20} color="var(--text-secondary)" />
-      </Flex>
-    </div>
-  );
-
-  const MenuContent = ({ menu }: any) => (
-    <div style={{ padding: '16px 20px 20px' }}>
-      {menu.meals.map((meal: any, index: number) => {
-        const mealTitle =
-          meal.type === 'custom'
-            ? meal.customName || MEAL_LABEL[meal.type]
-            : MEAL_LABEL[meal.type] || `Bữa ${index + 1}`;
-
-        return (
-          <div key={`${menu.menuNumber}-${meal.type}-${index}`} style={{
-            marginBottom: index === menu.meals.length - 1 ? 0 : 16,
-            padding: 16,
-            backgroundColor: 'var(--bg-secondary)',
-            borderRadius: 8,
-            border: '1px solid var(--border)',
-          }}>
-            {/* Meal Header */}
-            <Flex gap={10} align="center" style={{ marginBottom: 12 }}>
-              <Icon name="mdi:food-apple" size={18} color="var(--success)" />
-              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{mealTitle}</span>
-              <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-                • {formatNumber(meal.totalCalories)} kcal
-              </span>
-            </Flex>
-
-            {/* Ingredients Table */}
-            <div style={{ overflow: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                <thead>
-                  <tr style={{ backgroundColor: 'var(--bg)' }}>
-                    <th style={{
-                      padding: '10px 12px',
-                      textAlign: 'left',
-                      fontWeight: 600,
-                      color: 'var(--text-secondary)',
-                      borderBottom: '2px solid var(--border)',
-                    }}>Nguyên liệu</th>
-                    <th style={{
-                      padding: '10px 12px',
-                      textAlign: 'center',
-                      fontWeight: 600,
-                      color: 'var(--text-secondary)',
-                      width: 100,
-                      borderBottom: '2px solid var(--border)',
-                    }}>Trọng lượng</th>
-                    <th style={{
-                      padding: '10px 12px',
-                      textAlign: 'center',
-                      fontWeight: 600,
-                      color: 'var(--text-secondary)',
-                      width: 90,
-                      borderBottom: '2px solid var(--border)',
-                    }}>Calories</th>
-                    <th style={{
-                      padding: '10px 12px',
-                      textAlign: 'center',
-                      fontWeight: 600,
-                      color: 'var(--text-secondary)',
-                      width: 80,
-                      borderBottom: '2px solid var(--border)',
-                    }}>Carbs</th>
-                    <th style={{
-                      padding: '10px 12px',
-                      textAlign: 'center',
-                      fontWeight: 600,
-                      color: 'var(--text-secondary)',
-                      width: 80,
-                      borderBottom: '2px solid var(--border)',
-                    }}>Protein</th>
-                    <th style={{
-                      padding: '10px 12px',
-                      textAlign: 'center',
-                      fontWeight: 600,
-                      color: 'var(--text-secondary)',
-                      width: 80,
-                      borderBottom: '2px solid var(--border)',
-                    }}>Fat</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {meal.ingredients.map((ingredient: any, i: number) => (
-                    <tr key={ingredient.id} style={{
-                      borderBottom: i === meal.ingredients.length - 1 ? 'none' : '1px solid var(--border)',
-                    }}>
-                      <td style={{ padding: '10px 12px', color: 'var(--text)' }}>
-                        {ingredient.ingredientId ? formatIngredientName(ingredient.ingredientId) : 'Nguyên liệu'}
-                      </td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--text)' }}>
-                        {formatNumber(ingredient.weight)}g
-                      </td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--text)' }}>
-                        {formatNumber(Math.round(ingredient.calories))}
-                      </td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--text)' }}>
-                        {formatNumber(Math.round(ingredient.carbs || 0))}g
-                      </td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--text)' }}>
-                        {formatNumber(Math.round(ingredient.protein || 0))}g
-                      </td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--text)' }}>
-                        {formatNumber(Math.round(ingredient.fat || 0))}g
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
 
   return (
     <Modal

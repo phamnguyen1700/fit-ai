@@ -14,6 +14,7 @@ import {
   UpdateSubscriptionRequest,
 } from '@/types/subscription'
 import { IApiResponse } from '@/shared/api/http'
+import { APIError } from '@/types/utils/APIError'
 
 export const useGetActiveProducts = (params?: SubscriptionParams) => {
   return useQuery<IApiResponse<SubscriptionProductsResponse>>({
@@ -48,9 +49,9 @@ export const useCreateSubscriptionProduct = () => {
         toast.error(response.message || 'Tạo gói subscription thất bại')
       }
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       console.error('Create subscription error:', err)
-      const errorMessage = err?.response?.data?.message || err?.message || 'Tạo gói subscription thất bại. Vui lòng thử lại.'
+      const errorMessage = (err as APIError)?.response?.data?.message || (err as Error)?.message || 'Tạo gói subscription thất bại. Vui lòng thử lại.'
       toast.error(errorMessage)
     },
   })
@@ -75,9 +76,9 @@ export const useUpdateSubscriptionProduct = () => {
         toast.error(response.message || 'Cập nhật gói subscription thất bại')
       }
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       console.error('Update subscription error:', err)
-      const errorMessage = err?.response?.data?.message || err?.message || 'Cập nhật gói subscription thất bại. Vui lòng thử lại.'
+      const errorMessage = (err as APIError)?.response?.data?.message || (err as Error)?.message || 'Cập nhật gói subscription thất bại. Vui lòng thử lại.'
       toast.error(errorMessage)
     },
   })
@@ -102,9 +103,9 @@ export const useDeleteSubscriptionProduct = () => {
         toast.error(response.message || 'Xóa gói subscription thất bại')
       }
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       console.error('Delete subscription error:', err)
-      const errorMessage = err?.response?.data?.message || err?.message || 'Xóa gói subscription thất bại. Vui lòng thử lại.'
+      const errorMessage = (err as APIError)?.response?.data?.message || (err as Error)?.message || 'Xóa gói subscription thất bại. Vui lòng thử lại.'
       toast.error(errorMessage)
     },
   })

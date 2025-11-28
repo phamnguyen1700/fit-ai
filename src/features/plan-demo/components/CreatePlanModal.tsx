@@ -6,6 +6,7 @@ import { Form, InputNumber } from 'antd';
 import type { CreatePlanFormData } from '@/types/plan';
 import { useCreateWorkoutDemo } from '@/tanstack/hooks/workoutdemo';
 import toast from 'react-hot-toast';
+import { ValidationError } from '@/types/utils/APIError';
 
 interface CreatePlanModalProps {
   open: boolean;
@@ -102,8 +103,8 @@ export const CreatePlanModal: React.FC<CreatePlanModalProps> = ({
 
       onSubmit(formData, workoutDemoId);
       form.resetFields();
-    } catch (error: any) {
-      if (error?.errorFields) {
+    } catch (error: unknown) {
+      if ((error as ValidationError)?.errorFields) {
         console.error('Validation failed:', error);
       } else {
         console.error('Create workout demo failed:', error);

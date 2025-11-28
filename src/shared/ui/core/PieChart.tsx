@@ -9,6 +9,7 @@ import {
   ChartOptions,
   ChartData,
   Plugin,
+  ChartDataset,
 } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 
@@ -44,7 +45,7 @@ export const PieChart: React.FC<PieChartProps> = ({
   className,
   options: optionsOverride,
 }) => {
-  const chartRef = useRef<any>(null);
+  const chartRef = useRef<ChartJS<'doughnut'> | null>(null);
 
   const labels = useMemo(() => data.map(d => d.label), [data]);
   const rawValues = useMemo(() => data.map(d => d.value), [data]);
@@ -111,7 +112,7 @@ export const PieChart: React.FC<PieChartProps> = ({
           // per-arc functions are supported — keep if you want dynamic shading
           backgroundColor: (ctx) => {
             // ctx.raw is value; use dataset backgroundColor if provided
-            const ds = ctx.dataset as any;
+            const ds = ctx.dataset as ChartDataset<'doughnut'>;
             const index = ctx.dataIndex;
             if (ds?.backgroundColor && Array.isArray(ds.backgroundColor)) return ds.backgroundColor[index];
             return '#ccc';

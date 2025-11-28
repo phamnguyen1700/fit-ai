@@ -6,6 +6,7 @@ import { Form, InputNumber } from 'antd';
 import type { CreateMealPlanFormData } from '@/types/plan';
 import { useCreateMealDemo } from '@/tanstack/hooks/mealdemo';
 import toast from 'react-hot-toast';
+import { ValidationError } from '@/types/utils/APIError';
 
 interface CreateMealPlanModalProps {
   open: boolean;
@@ -96,8 +97,8 @@ export const CreateMealPlanModal: React.FC<CreateMealPlanModalProps> = ({
       toast.success('Tạo kế hoạch dinh dưỡng thành công!');
       onSubmit(formData, mealDemoId);
       form.resetFields();
-    } catch (error: any) {
-      if (error?.errorFields) {
+    } catch (error: unknown) {
+      if ((error as ValidationError)?.errorFields) {
         console.error('Validation failed:', error);
       } else {
         console.error('Create meal demo failed:', error);

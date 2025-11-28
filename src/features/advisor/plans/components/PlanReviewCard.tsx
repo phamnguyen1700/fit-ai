@@ -47,9 +47,11 @@ export type MappedPlanReview = {
   createdAt: string,
   reviewStatus: string,
   submittedAt: string,
-  workoutDetails?: any,
-  mealDetails?: any,
+  workoutDetails?: unknown,
+  mealDetails?: unknown,
   apiSource: PendingPlan,
+  advisorNotes?: string;
+  healthIssues?: string[];
 };
 
 const mapPendingPlanToPlanReview = (plan: PendingPlan): MappedPlanReview => {

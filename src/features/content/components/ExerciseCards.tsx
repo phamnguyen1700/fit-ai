@@ -4,6 +4,7 @@ import { ExerciseCard, Pagination, EditExercisePopup, Modal } from '@/shared/ui'
 import { Row, Col } from '@/shared/ui';
 import { useGetExercises, useDeleteExerciseMutation } from '@/tanstack/hooks/exercise';
 import { Exercise } from '@/types/exercise';
+import { ExerciseItem } from '@/shared/ui/common/EditExercisePopup';
 
 interface ExerciseCardsProps {
   className?: string;
@@ -39,6 +40,7 @@ const convertExerciseToUIFormat = (exercise: Exercise) => ({
   description: exercise.description,
 });
 
+
 const ExerciseCards: React.FC<ExerciseCardsProps> = ({ 
   className,
   searchQuery = '',
@@ -46,7 +48,7 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
-  const [selectedExercise, setSelectedExercise] = useState<any>(null);
+  const [selectedExercise, setSelectedExercise] = useState<ExerciseItem | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [exerciseToDelete, setExerciseToDelete] = useState<{ id: string; name: string } | null>(null);
   
@@ -179,7 +181,7 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({
     setSelectedExercise(null);
   };
 
-  const handleSaveExercise = (updatedExercise: any) => {
+  const handleSaveExercise = (updatedExercise: ExerciseItem) => {
     console.log('Save exercise:', updatedExercise);
     handleCloseEditPopup();
   };
@@ -360,7 +362,7 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({
             </p>
             {exerciseToDelete && (
               <p className="text-gray-600">
-                <span className="font-semibold text-red-600">"{exerciseToDelete.name}"</span>
+                <span className="font-semibold text-red-600">&quot;{exerciseToDelete.name}&quot;</span>
               </p>
             )}
             <p className="text-sm text-gray-500">

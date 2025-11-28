@@ -2,7 +2,7 @@
 import React from 'react';
 import { Pagination } from './Pagination';
 
-export interface CardTableProps<T = any> {
+export interface CardTableProps<T = unknown> {
   items: T[];
   renderItem: (item: T, index: number) => React.ReactNode;
   pageSize?: number; 

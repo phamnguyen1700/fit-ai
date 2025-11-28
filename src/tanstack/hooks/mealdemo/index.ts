@@ -15,6 +15,7 @@ import type {
 } from '@/types/mealdemo';
 import type { IApiResponse } from '@/shared/api/http';
 import toast from 'react-hot-toast';
+import { APIError } from '@/types/utils/APIError';
 
 export const MEAL_DEMO_QUERY_KEY = 'meal-demo-list';
 export const MEAL_DEMO_DETAIL_QUERY_KEY = 'meal-demo-detail';
@@ -71,8 +72,8 @@ export const useCreateMealDemo = () => {
         toast.error(response.message || 'Tạo thực đơn mẫu thất bại');
       }
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || error?.message || 'Không thể tạo thực đơn mẫu. Vui lòng thử lại.';
+    onError: (error: unknown) => {
+      const message = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Không thể tạo thực đơn mẫu. Vui lòng thử lại.';
       toast.error(message);
     },
   });
@@ -92,8 +93,8 @@ export const useUpdateMealDemo = () => {
         toast.error(response.message || 'Cập nhật kế hoạch dinh dưỡng thất bại');
       }
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || error?.message || 'Cập nhật kế hoạch dinh dưỡng thất bại. Vui lòng thử lại.';
+    onError: (error: unknown) => {
+      const message = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Cập nhật kế hoạch dinh dưỡng thất bại. Vui lòng thử lại.';
       toast.error(message);
     },
   });
@@ -112,8 +113,8 @@ export const useUpdateMealDemoAll = () => {
         toast.error(response.message || 'Cập nhật thực đơn mẫu thất bại');
       }
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || error?.message || 'Không thể cập nhật thực đơn mẫu. Vui lòng thử lại.';
+    onError: (error: unknown) => {
+      const message = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Không thể cập nhật thực đơn mẫu. Vui lòng thử lại.';
       toast.error(message);
     },
   });
@@ -138,9 +139,9 @@ export const useUpdateMealDemoDetail = () => {
         toast.error(response.message || 'Cập nhật chi tiết thực đơn mẫu thất bại');
       }
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Update meal demo detail - Error:', error);
-      const message = error?.response?.data?.message || error?.message || 'Không thể cập nhật chi tiết thực đơn mẫu. Vui lòng thử lại.';
+      const message = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Không thể cập nhật chi tiết thực đơn mẫu. Vui lòng thử lại.';
       toast.error(message);
     },
   });
@@ -164,9 +165,9 @@ export const useDeleteMealDemo = () => {
         toast.error(response.message || 'Vô hiệu hóa thực đơn mẫu thất bại');
       }
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Delete meal demo - Error:', error);
-      const message = error?.response?.data?.message || error?.message || 'Không thể vô hiệu hóa thực đơn mẫu. Vui lòng thử lại.';
+      const message = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Không thể vô hiệu hóa thực đơn mẫu. Vui lòng thử lại.';
       toast.error(message);
     },
   });
@@ -190,9 +191,9 @@ export const useHardDeleteMealDemo = () => {
         toast.error(response.message || 'Xóa vĩnh viễn thực đơn mẫu thất bại');
       }
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Hard delete meal demo - Error:', error);
-      const message = error?.response?.data?.message || error?.message || 'Không thể xóa vĩnh viễn thực đơn mẫu. Vui lòng thử lại.';
+      const message = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Không thể xóa vĩnh viễn thực đơn mẫu. Vui lòng thử lại.';
       toast.error(message);
     },
   });

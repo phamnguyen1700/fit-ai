@@ -10,6 +10,8 @@ import { useUpdateWorkoutDemoDay } from '@/tanstack/hooks/workoutdemo';
 import { useGetExerciseCategories } from '@/tanstack/hooks/exercisecategory';
 import { useGetExercises } from '@/tanstack/hooks/exercise';
 import toast from 'react-hot-toast';
+import { ExerciseCategory } from '@/types/exercisecategory';
+import { ValidationError } from '@/types/utils/APIError';
 
 // Component để chọn exercise dựa trên category
 const ExerciseSelectField: React.FC<{
@@ -175,7 +177,7 @@ const WorkoutPlanDetailUpdateModal: React.FC<WorkoutPlanDetailUpdateModalProps> 
     console.log('Categories response:', categoriesResponse);
     
     // Kiểm tra nhiều cấu trúc response có thể
-    let categories: any[] = [];
+    let categories: ExerciseCategory[] = [];
     
     if (categoriesResponse?.data) {
       // Structure: IApiResponse<ExerciseCategoryListResponse>
@@ -395,7 +397,7 @@ const WorkoutPlanDetailUpdateModal: React.FC<WorkoutPlanDetailUpdateModalProps> 
       onUpdated?.();
       handleCancel();
     } catch (error) {
-      if (error && (error as any).errorFields) {
+      if (error && (error as ValidationError).errorFields) {
         return;
       }
       console.error('Failed to update workout day details', error);

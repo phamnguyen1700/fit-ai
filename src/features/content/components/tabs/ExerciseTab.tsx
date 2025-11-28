@@ -16,7 +16,7 @@ const ExerciseTab = () => {
 
   const createExerciseMutation = useCreateExercise();
 
-  const handleDropdownSelect = (option: any) => {
+  const handleDropdownSelect = (option: unknown) => {
     console.log("Selected exercise option:", option);
     // Xử lý logic cho exercise categories
   };

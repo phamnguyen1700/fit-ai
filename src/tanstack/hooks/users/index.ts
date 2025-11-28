@@ -3,6 +3,7 @@ import toast from 'react-hot-toast'
 import { registerService, getUsersService, updateUserStatusService, getUserDetail } from '@/tanstack/services/users'
 import { Params, UserState, UserDetail } from '@/types/users'
 import { IApiResponse } from '@/shared/api/http'
+import { APIError } from '@/types/utils/APIError'
 
 export const useRegisterMutation = () => 
   useMutation({
@@ -13,7 +14,7 @@ export const useRegisterMutation = () =>
       }
       console.log('Register response:', response)
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       console.error('Register error:', err)
       toast.error('Đăng ký thất bại. Vui lòng thử lại.')
     },
@@ -44,9 +45,9 @@ export const useUpdateUserStatusMutation = () => {
         toast.error(response.message || 'Cập nhật trạng thái người dùng thất bại')
       }
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       console.error('Update user status error:', err)
-      const errorMessage = err?.response?.data?.message || err?.message || 'Cập nhật trạng thái người dùng thất bại. Vui lòng thử lại.'
+      const errorMessage = (err as APIError)?.response?.data?.message || (err as Error)?.message || 'Cập nhật trạng thái người dùng thất bại. Vui lòng thử lại.'
       toast.error(errorMessage)
     },
   })

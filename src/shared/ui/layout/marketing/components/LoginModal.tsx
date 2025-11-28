@@ -10,6 +10,7 @@ import { useRegisterMutation } from '@/tanstack/hooks/users';
 import { Icon } from '@/shared/ui/icon';
 import { Row, Col } from '@/shared/ui/core/Grid';
 import { useRouter } from 'next/navigation';
+import { APIError } from '@/types/utils/APIError';
 
 const carouselSlides = [
   {
@@ -101,8 +102,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             setLoginError(response.message);
           }
         },
-        onError: (error: any) => {
-          const errorMessage = error?.response?.data?.message || error?.message || 'Đăng nhập thất bại';
+        onError: (error: unknown) => {
+          const errorMessage = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Đăng nhập thất bại';
           setLoginError(errorMessage);
         }
       })
@@ -121,8 +122,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             setLoginError(response.message);
           }
         },
-        onError: (error: any) => {
-          const errorMessage = error?.response?.data?.message || error?.message || 'Đăng nhập thất bại';
+        onError: (error: unknown) => {
+          const errorMessage = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Đăng nhập thất bại';
           setLoginError(errorMessage);
         }
       })

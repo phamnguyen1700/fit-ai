@@ -6,7 +6,7 @@ import { Avatar } from '@/shared/ui/core/Avatar';
 import { Icon } from '@/shared/ui/icon';
 import { Breadcrumb } from '@/shared/ui/core/Breadcrumb';
 import { CardTable } from '@/shared/ui/core/CardTable';
-import type { CustomerDetail as CustomerDetailModel, CustomerMeasurementEntry } from '@/types/advisordashboard';
+import type { CustomerDetail as CustomerDetailModel, CustomerMeasurementEntry, CustomerProfileResponse } from '@/types/advisordashboard';
 import { useParams } from 'next/navigation';
 import { useCustomerProfile } from '@/tanstack/hooks/advisordashboard';
 
@@ -46,7 +46,7 @@ export interface CustomerDetailProps {
   customer?: CustomerDetailModel; // Optional để có thể fetch trực tiếp
 }
 
-const normalizeCustomerProfile = (profileData: any): CustomerDetailModel => {
+const normalizeCustomerProfile = (profileData: CustomerProfileResponse): CustomerDetailModel => {
   const profile = profileData?.profile || {};
   const bodyStats = profileData?.bodyStats || {};
   const goals = profileData?.goals || {};
@@ -65,7 +65,7 @@ const normalizeCustomerProfile = (profileData: any): CustomerDetailModel => {
   };
 
   // Normalize measurements
-  const normalizedMeasurements = measurementHistory.map((m: any) => ({
+  const normalizedMeasurements = measurementHistory.map(m => ({
     date: m?.date || '',
     weight: Number(m?.weight ?? 0),
     bodyFat: m?.bodyFatPercent,

@@ -56,7 +56,7 @@ function hexToRgba(hex: string, alpha = 1) {
  * Inside the function you can still access ctx.dataIndex / ctx.datasetIndex to get point info.
  */
 function makeHalfAsOpaque(ctx: ScriptableContext<'line'>) {
-  const ds = ctx.dataset as any;
+  const ds = ctx.dataset as ChartDataset<'line'>;
   const c = Array.isArray(ds.backgroundColor) ? ds.backgroundColor[ctx.dataIndex ?? 0] : ds.backgroundColor;
   if (!c || typeof c !== 'string') return c;
   return hexToRgba(c, 0.45);
@@ -112,7 +112,7 @@ export const LineChart: React.FC<LineChartProps> = ({
       pointRadius: (ctx: ScriptableContext<'line'>) => adjustRadiusBasedOnData(ctx),
       pointBackgroundColor: (ctx: ScriptableContext<'line'>) => {
         // try to return dataset backgroundColor or fallback to series color
-        const ds = ctx.dataset as any;
+        const ds = ctx.dataset as ChartDataset<'line'>;
         if (ds?.backgroundColor && typeof ds.backgroundColor === 'string') return ds.backgroundColor;
         if (Array.isArray(ds?.backgroundColor)) return ds.backgroundColor[ctx.dataIndex ?? 0];
         return s.color;
@@ -147,9 +147,9 @@ export const LineChart: React.FC<LineChartProps> = ({
       elements: {
         line: {
           fill: false,
-          backgroundColor: (ctx: any) => {
-            const ds = ctx.dataset as any;
-            return Array.isArray(ds.backgroundColor) ? ds.backgroundColor[ctx.dataIndex] : ds.backgroundColor;
+          backgroundColor: (ctx: ScriptableContext<'line'>) => {
+            const ds = ctx.dataset as ChartDataset<'line'>;
+            return Array.isArray(ds.backgroundColor) ? ds.backgroundColor[ctx.dataIndex ?? 0] : ds.backgroundColor;
           },
         },
         point: {

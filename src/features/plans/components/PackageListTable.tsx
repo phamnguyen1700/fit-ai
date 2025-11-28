@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Table2, type TableColumn } from "@/shared/ui/core/Table2";
+import { Table2, TableColumn,  } from "@/shared/ui/core/Table2";
 import { Button } from "@/shared/ui/core/Button";
 import { Pagination } from "@/shared/ui/core/Pagination";
 import Dropdown from "@/features/content/components/Dropdown";
@@ -68,7 +68,7 @@ const PackageListTable: React.FC<PackageListTableProps> = ({
     console.log('Products array:', products);
     
     // Map array of products to PackageData format
-    const result = products.map((product: any) => ({
+    const result = products.map((product) => ({
       id: product.id || '',
       key: product.id || '',
       name: product.name || '',

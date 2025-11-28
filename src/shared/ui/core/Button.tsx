@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button as AntButton, ButtonProps as AntButtonProps } from 'antd';
+import type { ButtonType } from 'antd/es/button';
 
 interface ButtonProps extends Omit<AntButtonProps, 'size' | 'type' | 'variant'> {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'dashed' | 'link' | 'text' | 'solid';
@@ -16,7 +17,7 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   // Map custom variants to Ant Design types
-  const getAntType = (variant: string) => {
+  const getAntType = (variant: string): ButtonType => {
     switch (variant) {
       case 'primary': return 'primary';
       case 'secondary': return 'default';
@@ -31,7 +32,7 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   // Map custom sizes to Ant Design sizes
-  const getAntSize = (size: string) => {
+  const getAntSize = (size: string): 'small' | 'middle' | 'large' => {
     switch (size) {
       case 'sm': return 'small';
       case 'md': return 'middle';
@@ -90,8 +91,8 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <AntButton
-      type={getAntType(variant) as any}
-      size={getAntSize(size) as any}
+      type={getAntType(variant)}
+      size={getAntSize(size)}
       className={className}
       style={{
         ...getCustomStyle(),

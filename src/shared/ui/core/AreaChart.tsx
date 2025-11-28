@@ -10,6 +10,7 @@ import {
   ChartOptions,
   ChartData,
   ChartDataset,
+  ScriptableContext,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
@@ -51,7 +52,7 @@ export const AreaChart: React.FC<AreaChartProps> = ({
         label: s.name,
         data: s.data,
         borderColor: color,
-        backgroundColor: (ctx: any) => {
+        backgroundColor: (ctx: ScriptableContext<'line'>) => {
           const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, ctx.chart.height);
           gradient.addColorStop(0, color + (fillOpacity < 1 ? Math.floor(fillOpacity * 255).toString(16).padStart(2, '0') : ''));
           gradient.addColorStop(1, color + '00');

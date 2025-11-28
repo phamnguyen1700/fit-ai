@@ -19,6 +19,8 @@ import type {
 import toast from 'react-hot-toast';
 import { useGetExercises } from '@/tanstack/hooks/exercise';
 import type { Exercise } from '@/types/exercise';
+import { APIError } from '@/types/utils/APIError';
+import { MappedPlanReview } from './PlanReviewCard';
 
 const { TextArea } = Input;
 export type SubmittedPlanReview = {
@@ -27,7 +29,7 @@ export type SubmittedPlanReview = {
   advisorNotes?: string;
 };
 interface PlanReviewModalProps {
-  plan: any;
+  plan: MappedPlanReview | null;
   isOpen: boolean;
   isSubmitting?: boolean;
   onClose: () => void;
@@ -63,7 +65,7 @@ export const PlanReviewModal: React.FC<PlanReviewModalProps> = ({
   const { data: exerciseResponse } = useGetExercises();
   const exerciseOptions: Exercise[] = exerciseResponse?.data ?? [];
 
-  const detail = detailResponse?.data as any;
+  const detail = detailResponse?.data;
   const mealDays = mealDaysState;
   const workoutDays = workoutDaysState;
   const hasMealPlan = mealDays.length > 0;
@@ -157,7 +159,7 @@ const handleWorkoutFieldChange = (
   dayNumber: number,
   exerciseIndex: number,
   field: keyof WorkoutPlanExerciseDetail,
-  value: any
+  value: unknown
 ) => {
   setWorkoutDaysState((prev) =>
     prev.map((day) =>
@@ -183,7 +185,7 @@ const handleMealFieldChange = (
   dayNumber: number,
   mealIndex: number,
   field: keyof MealDetail,
-  value: any
+  value: unknown
 ) => {
   setMealDaysState((prev) =>
     prev.map((day) =>
@@ -204,7 +206,7 @@ const handleMealFoodChange = (
   mealIndex: number,
   foodIndex: number,
   field: keyof MealFoodDetail,
-  value: any
+  value: unknown
 ) => {
   setMealDaysState((prev) =>
     prev.map((day) =>
@@ -230,7 +232,7 @@ const handleMealFoodChange = (
 const handleMealDayFieldChange = (
   dayNumber: number,
   field: keyof MealPlanDayDetail,
-  value: any
+  value: unknown
 ) => {
   setMealDaysState((prev) =>
     prev.map((day) => (day.dayNumber === dayNumber ? { ...day, [field]: value } : day))
@@ -281,8 +283,8 @@ const handleWorkoutExerciseSelect = (
       toast.success('Đã lưu workout plan');
       refetchDetail();
       setIsEditingWorkout(false);
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Lưu workout plan thất bại');
+    } catch (error: unknown) {
+      toast.error((error as APIError)?.response?.data?.message || 'Lưu workout plan thất bại');
     } finally {
       setIsSavingWorkout(false);
     }
@@ -296,8 +298,8 @@ const handleWorkoutExerciseSelect = (
       toast.success('Đã lưu meal plan');
       refetchDetail();
       setIsEditingMeal(false);
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Lưu meal plan thất bại');
+    } catch (error: unknown) {
+      toast.error((error as APIError)?.response?.data?.message || 'Lưu meal plan thất bại');
     } finally {
       setIsSavingMeal(false);
     }

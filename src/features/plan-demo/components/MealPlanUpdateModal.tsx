@@ -6,6 +6,7 @@ import { Form, InputNumber } from 'antd';
 import type { MealDemo } from '@/types/mealdemo';
 import type { UpdateMealDemoPayload } from '@/types/mealdemo';
 import { useUpdateMealDemo } from '@/tanstack/hooks/mealdemo';
+import { ValidationError } from '@/types/utils/APIError';
 
 interface MealPlanUpdateModalProps {
   isOpen: boolean;
@@ -78,7 +79,7 @@ export const MealPlanUpdateModal: React.FC<MealPlanUpdateModalProps> = ({
         handleCancel();
       }
     } catch (error) {
-      if (error && (error as any).errorFields) {
+      if (error && (error as ValidationError).errorFields) {
         return;
       }
       console.error('Failed to update meal plan', error);

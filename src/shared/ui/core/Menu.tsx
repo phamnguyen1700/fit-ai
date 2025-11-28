@@ -21,7 +21,7 @@ function mapItems(items: MenuItemType[]): Required<MenuProps>['items'] {
     key: item.key,
     label: item.label,
     icon: item.icon,
-    children: item.children ? (mapItems(item.children) as any) : undefined,
+    children: item.children ? (mapItems(item.children)) : undefined,
   }));
 }
 
@@ -40,7 +40,7 @@ export const Menu: React.FC<MenuWrapperProps> = ({
       theme={variant}
       selectedKeys={selectedKeys}
       onClick={(info) => onItemClick?.(info.key)}
-      items={mapItems(items) as any}
+      items={mapItems(items)}
       className={`custom-menu${className ? ` ${className}` : ''}`}
       style={{
         background: 'transparent',

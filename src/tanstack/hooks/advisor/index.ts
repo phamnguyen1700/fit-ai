@@ -3,6 +3,7 @@ import { getAdvisorsService, getAdvisorDetailService, softDeleteAdvisorService, 
 import { AdvisorListResponse, AdvisorParams, AdvisorDetail, UpdateAdvisorProfileRequest } from '@/types/advisor'
 import { IApiResponse } from '@/shared/api/http'
 import toast from 'react-hot-toast'
+import { APIError } from '@/types/utils/APIError'
 
 export const useGetAdvisors = (params?: AdvisorParams) => {
   return useQuery<IApiResponse<AdvisorListResponse>>({
@@ -52,10 +53,10 @@ export const useSoftDeleteAdvisor = () => {
         throw new Error(response.message || 'Tạm dừng advisor thất bại')
       }
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Soft delete advisor error:', error)
-      console.error('Error response:', error?.response)
-      const errorMessage = error?.response?.data?.message || error?.message || 'Tạm dừng advisor thất bại. Vui lòng thử lại.'
+      console.error('Error response:', (error as APIError)?.response)
+      const errorMessage = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Tạm dừng advisor thất bại. Vui lòng thử lại.'
       toast.error(errorMessage)
     },
   })
@@ -87,10 +88,10 @@ export const useReactivateAdvisor = () => {
         throw new Error(response.message || 'Khởi động lại advisor thất bại')
       }
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Reactivate advisor error:', error)
-      console.error('Error response:', error?.response)
-      const errorMessage = error?.response?.data?.message || error?.message || 'Khởi động lại advisor thất bại. Vui lòng thử lại.'
+      console.error('Error response:', (error as APIError)?.response)
+      const errorMessage = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Khởi động lại advisor thất bại. Vui lòng thử lại.'
       toast.error(errorMessage)
     },
   })
@@ -122,10 +123,10 @@ export const useUpdateAdvisorProfile = () => {
         throw new Error(response.message || 'Cập nhật thông tin advisor thất bại')
       }
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Update advisor profile error:', error)
-      console.error('Error response:', error?.response)
-      const errorMessage = error?.response?.data?.message || error?.message || 'Cập nhật thông tin advisor thất bại. Vui lòng thử lại.'
+      console.error('Error response:', (error as APIError)?.response)
+      const errorMessage = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Cập nhật thông tin advisor thất bại. Vui lòng thử lại.'
       toast.error(errorMessage)
     },
   })

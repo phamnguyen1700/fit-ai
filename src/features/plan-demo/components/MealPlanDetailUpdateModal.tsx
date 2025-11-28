@@ -9,6 +9,8 @@ import type { UpdateMealDemoSessionPayload, UpdateMealDemoIngredientPayload } fr
 import { useUpdateMealDemoDetail } from '@/tanstack/hooks/mealdemo';
 import { useSearchMealIngredients } from '@/tanstack/hooks/mealingredient';
 import toast from 'react-hot-toast';
+import { ValidationError } from 'next/dist/compiled/amphtml-validator';
+import { NamePath } from 'antd/es/form/interface';
 
 /**
  * Props của component MealPlanDetailUpdateModal
@@ -83,7 +85,19 @@ const normalizeMenus = (menus: MealDemoDetailMenu[]): FormMenuValue[] => {
     })),
   }));
 };
-
+type IngredientOption = {
+  label: string;
+  value: string | null;
+  food: {
+    id: string | null;
+    name: string;
+    baseWeight: number;
+    calories: number;
+    carbs: number;
+    protein: number;
+    fat: number;
+  }
+};
 const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
   isOpen,
   onClose,
@@ -94,16 +108,16 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
 }) => {
   // Form instance để quản lý form state
   const [form] = Form.useForm<{ menus: FormMenuValue[] }>();
-  
+
   // Hook để update meal plan detail
   const { mutateAsync: updateMealDemoDetail, isPending } = useUpdateMealDemoDetail();
-  
+
   // State để track form values trực tiếp (để đảm bảo update ngay lập tức)
   const [formMenusState, setFormMenusState] = React.useState<FormMenuValue[]>([]);
-  
+
   // Normalize menus từ props sang form format (memoized để tránh re-calculate không cần thiết)
   const normalizedMenus = React.useMemo(() => normalizeMenus(menus), [menus]);
-  
+
   // State cho search nguyên liệu
   const [ingredientSearchTerm, setIngredientSearchTerm] = React.useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = React.useState('');
@@ -186,7 +200,7 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
     return match ? parseFloat(match[1]) : 0;
   };
 
-  const calculateNutrition = (food: any, weight: number) => {
+  const calculateNutrition = (food: IngredientOption['food'], weight: number) => {
     const baseWeight = food.baseWeight || 100;
     const multiplier = baseWeight > 0 ? weight / baseWeight : 1;
     return {
@@ -213,9 +227,9 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
     // Chọn data source: nếu có search thì dùng searchData, không thì dùng baseData
     const data = searchParams ? ingredientSearchData : baseIngredientData;
     const foods = data?.data?.foods ?? [];
-    
+
     // Map foods từ API sang format cho Select
-    const optionsFromApi = foods.map((food: any) => {
+    const optionsFromApi = foods.map((food) => {
       const baseWeight = parseWeightInGrams(food.weight) || 100;
       const normalizedFood = {
         id: food.food_id,
@@ -227,7 +241,7 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
         fat: parseNumericValue(food.fat),
         url: food.food_url,
       };
-      
+
       return {
         label: food.food_name,
         value: food.food_id,
@@ -236,7 +250,7 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
     });
 
     // Thêm các nguyên liệu hiện tại từ normalizedMenus vào options nếu chưa có
-    const currentIngredients: any[] = [];
+    const currentIngredients: IngredientOption[] = [];
     if (normalizedMenus.length > 0) {
       normalizedMenus.forEach((menu) => {
         menu.sessions.forEach((session) => {
@@ -245,8 +259,8 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
             const hasFoodId = ing.foodId !== null && ing.foodId !== undefined && ing.foodId !== '';
             if (hasFoodId && ing.name) {
               // Kiểm tra xem đã có trong options chưa
-              const exists = optionsFromApi.some((opt: any) => opt.value === ing.foodId);
-              if (!exists && !currentIngredients.some((ci: any) => ci.value === ing.foodId)) {
+              const exists = optionsFromApi.some((opt) => opt.value === ing.foodId);
+              if (!exists && !currentIngredients.some((ci) => ci.value === ing.foodId)) {
                 currentIngredients.push({
                   label: ing.name,
                   value: ing.foodId,
@@ -264,18 +278,18 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
             } else if (ing.name && !hasFoodId) {
               // Nếu có name nhưng không có foodId, tìm trong API options trước
               const foundInApi = optionsFromApi.find(
-                (opt: any) => opt.label === ing.name || opt.food?.name === ing.name
+                (opt) => opt.label === ing.name || opt.food?.name === ing.name
               );
-              
+
               if (foundInApi) {
                 // Nếu tìm thấy trong API, dùng option đó
-                if (!currentIngredients.some((ci: any) => ci.value === foundInApi.value)) {
+                if (!currentIngredients.some((ci) => ci.value === foundInApi.value)) {
                   currentIngredients.push(foundInApi);
                 }
               } else {
                 // Nếu không tìm thấy, tạo option tạm với value cố định dựa trên name
                 const tempValue = `temp_${ing.name}`;
-                if (!currentIngredients.some((ci: any) => ci.value === tempValue)) {
+                if (!currentIngredients.some((ci) => ci.value === tempValue)) {
                   currentIngredients.push({
                     label: ing.name,
                     value: tempValue,
@@ -296,7 +310,7 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
         });
       });
     }
-    
+
     return [...currentIngredients, ...optionsFromApi];
   }, [baseIngredientData, ingredientSearchData, searchParams, normalizedMenus]);
 
@@ -344,7 +358,7 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
           })),
         })),
       }));
-      
+
       form.setFieldsValue({ menus: menusToSet });
       setFormMenusState(menusToSet);
     }
@@ -368,11 +382,11 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
    */
   const mergedMenus = React.useMemo(() => {
     if (!isOpen) return normalizedMenus;
-    
+
     // Ưu tiên formMenusState (được update trực tiếp trong handlers)
     // Nếu formMenusState rỗng, dùng watchedMenus hoặc normalizedMenus
     let sourceMenus: FormMenuValue[] = [];
-    
+
     if (formMenusState.length > 0) {
       sourceMenus = formMenusState;
     } else if (Array.isArray(watchedMenus) && watchedMenus.length > 0) {
@@ -381,20 +395,20 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
       // Nếu cả formMenusState và watchedMenus đều rỗng, dùng normalizedMenus
       sourceMenus = normalizedMenus;
     }
-    
+
     if (sourceMenus.length > 0) {
       return sourceMenus.map((menu, index) => {
         const originalMenu = normalizedMenus[index];
         if (originalMenu) {
           const menuSessions = menu.sessions || [];
           const originalSessions = originalMenu.sessions || [];
-          
-          const mergedSessions = menuSessions.map((session: any, sessionIndex: number) => {
+
+          const mergedSessions = menuSessions.map((session, sessionIndex: number) => {
             const originalSession = originalSessions[sessionIndex];
-            const sessionName = session.sessionName || 
-              originalSession?.sessionName || 
+            const sessionName = session.sessionName ||
+              originalSession?.sessionName ||
               `Bữa ${sessionIndex + 1}`;
-            
+
             return {
               ...session,
               sessionName: sessionName,
@@ -432,12 +446,12 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
       hasFixedFoodIds.current = false;
       return;
     }
-    
+
     // Chỉ fix một lần khi ingredientOptions đã load đầy đủ
     if (hasFixedFoodIds.current) {
       return;
     }
-    
+
     if (ingredientOptions.length > 0 && formMenusState.length > 0) {
       let needsUpdate = false;
       const updatedMenus = formMenusState.map((menu) => ({
@@ -449,8 +463,8 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
             if ((!ing.foodId || ing.foodId === '' || ing.foodId === null) && ing.name) {
               // Tìm option theo name (không phân biệt hoa thường)
               const foundOption = ingredientOptions.find(
-                (opt: any) => 
-                  opt.label?.toLowerCase() === ing.name?.toLowerCase() || 
+                (opt) =>
+                  opt.label?.toLowerCase() === ing.name?.toLowerCase() ||
                   opt.food?.name?.toLowerCase() === ing.name?.toLowerCase()
               );
               if (foundOption?.value) {
@@ -599,35 +613,35 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
          */
         const sessions: UpdateMealDemoSessionPayload[] = (menu.sessions ?? [])
           .map((session, sessionIndex) => {
-          // Đảm bảo sessionName luôn có giá trị - ưu tiên từ form values, sau đó từ normalizedMenus
+            // Đảm bảo sessionName luôn có giá trị - ưu tiên từ form values, sau đó từ normalizedMenus
             const originalMenu = normalizedMenus.find(m => m.id === menu.id);
-          const sessionName = session.sessionName || 
-              originalMenu?.sessions[sessionIndex]?.sessionName || 
+            const sessionName = session.sessionName ||
+              originalMenu?.sessions[sessionIndex]?.sessionName ||
               `Bữa ${sessionIndex + 1}`;
-            
+
             // Filter và map ingredients: chỉ lấy những ingredient có name và foodId hợp lệ
-          const ingredients: UpdateMealDemoIngredientPayload[] = (session.ingredients ?? [])
+            const ingredients: UpdateMealDemoIngredientPayload[] = (session.ingredients ?? [])
               .filter((ingredient) => {
                 // Chỉ lấy ingredient có name và foodId không rỗng
-                return ingredient.name && 
-                       ingredient.foodId && 
-                       ingredient.foodId !== null && 
-                       ingredient.foodId !== '';
+                return ingredient.name &&
+                  ingredient.foodId &&
+                  ingredient.foodId !== null &&
+                  ingredient.foodId !== '';
               })
-            .map((ingredient) => ({
-              name: ingredient.name,
-              weight: ingredient.weight ?? 0,
-              calories: ingredient.calories ?? 0,
-              carbs: ingredient.carbs ?? 0,
-              protein: ingredient.protein ?? 0,
-              fat: ingredient.fat ?? 0,
-              foodId: ingredient.foodId || '',
-            }));
+              .map((ingredient) => ({
+                name: ingredient.name,
+                weight: ingredient.weight ?? 0,
+                calories: ingredient.calories ?? 0,
+                carbs: ingredient.carbs ?? 0,
+                protein: ingredient.protein ?? 0,
+                fat: ingredient.fat ?? 0,
+                foodId: ingredient.foodId || '',
+              }));
 
-          return {
-            sessionName: sessionName,
-            ingredients,
-          };
+            return {
+              sessionName: sessionName,
+              ingredients,
+            };
           })
           // Chỉ gửi các session có ít nhất 1 ingredient hợp lệ
           .filter((session) => session.ingredients.length > 0);
@@ -651,7 +665,7 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
       onUpdated?.();
       handleCancel();
     } catch (error) {
-      if (error && (error as any).errorFields) {
+      if (error && (error as ValidationError).errorFields) {
         return;
       }
       console.error('Failed to update meal plan detail', error);
@@ -730,16 +744,16 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                     </p>
                   </div>
                   <Flex gap={12} align="center">
-                  <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-                    {sessions.length} bữa ăn
-                  </span>
+                    <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+                      {sessions.length} bữa ăn
+                    </span>
                     <Button
                       variant="secondary"
                       size="sm"
                       onClick={() => handleAddSession(menuIndex)}
-                      style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
                         gap: 6,
                         border: '1px dashed var(--border)',
                       }}
@@ -752,9 +766,9 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
 
                 {/* Empty state cho sessions: Hiển thị khi menu chưa có bữa ăn nào */}
                 {!sessions.length ? (
-                  <div style={{ 
-                    padding: 24, 
-                    color: 'var(--text-secondary)', 
+                  <div style={{
+                    padding: 24,
+                    color: 'var(--text-secondary)',
                     textAlign: 'center',
                     border: '1px dashed var(--border)',
                     borderRadius: 8,
@@ -801,8 +815,8 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                             >
                               <Input
                                 placeholder="Nhập tên bữa ăn (ví dụ: Bữa sáng, Bữa trưa...)"
-                                style={{ 
-                                  fontSize: 16, 
+                                style={{
+                                  fontSize: 16,
                                   fontWeight: 600,
                                   border: 'none',
                                   borderBottom: '2px solid var(--border)',
@@ -817,15 +831,15 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                                   e.target.style.borderBottomColor = 'var(--border)';
                                 }}
                               />
-                          </Form.Item>
+                            </Form.Item>
                             <Flex gap={8} align="center">
                               <Button
                                 variant="secondary"
                                 size="sm"
                                 onClick={() => handleAddIngredient(menuIndex, sessionIndex)}
-                                style={{ 
-                                  display: 'flex', 
-                                  alignItems: 'center', 
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
                                   gap: 6,
                                   border: '1px dashed var(--border)',
                                 }}
@@ -838,7 +852,7 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                                   variant="secondary"
                                   size="sm"
                                   onClick={() => handleRemoveSession(menuIndex, sessionIndex)}
-                                  style={{ 
+                                  style={{
                                     color: 'var(--error)',
                                     borderColor: 'var(--error)',
                                   }}
@@ -851,9 +865,9 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
 
                           {/* Empty state cho ingredients: Hiển thị khi session chưa có nguyên liệu */}
                           {!ingredients.length ? (
-                            <div style={{ 
-                              padding: 20, 
-                              color: 'var(--text-secondary)', 
+                            <div style={{
+                              padding: 20,
+                              color: 'var(--text-secondary)',
                               textAlign: 'center',
                               border: '1px dashed var(--border)',
                               borderRadius: 8,
@@ -932,8 +946,8 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                                           ingredientSearchTerm.length > 0 && ingredientSearchTerm.length < 2
                                             ? 'Nhập ít nhất 2 ký tự để tìm kiếm nguyên liệu'
                                             : isLoadingIngredients
-                                            ? 'Đang tải nguyên liệu...'
-                                            : 'Không tìm thấy nguyên liệu phù hợp'
+                                              ? 'Đang tải nguyên liệu...'
+                                              : 'Không tìm thấy nguyên liệu phù hợp'
                                         }
                                         /**
                                          * Handler khi user chọn nguyên liệu mới
@@ -946,12 +960,12 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                                          * 5. Cập nhật form values: foodId, name, calories, carbs, protein, fat
                                          */
                                         onChange={(value) => {
-                                          const selectedOption = ingredientOptions.find((opt: any) => opt.value === value);
+                                          const selectedOption = ingredientOptions.find((opt) => opt.value === value);
                                           if (selectedOption?.food) {
                                             const food = selectedOption.food;
-                                            const currentWeight = form.getFieldValue(['menus', menuIndex, 'sessions', sessionIndex, 'ingredients', ingredientIndex, 'weight'] as any) || food.baseWeight || 100;
+                                            const currentWeight = form.getFieldValue(['menus', menuIndex, 'sessions', sessionIndex, 'ingredients', ingredientIndex, 'weight'] as NamePath) || food.baseWeight || 100;
                                             const nutrition = calculateNutrition(food, currentWeight);
-                                            
+
                                             form.setFieldsValue({
                                               menus: form.getFieldValue('menus')?.map((m: FormMenuValue, mi: number) => {
                                                 if (mi !== menuIndex) return m;
@@ -987,109 +1001,109 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                                       <Input type="hidden" />
                                     </Form.Item>
 
-                                  {/* 
+                                    {/* 
                                     Form field: Trọng lượng nguyên liệu
                                     - Range: 1-5000g
                                     - Auto-update: Khi thay đổi trọng lượng, tự động tính lại giá trị dinh dưỡng
                                   */}
-                                  <Form.Item
-                                    name={['menus', menuIndex, 'sessions', sessionIndex, 'ingredients', ingredientIndex, 'weight']}
-                                    label="Trọng lượng (g)"
-                                    rules={[{ type: 'number', min: 1, max: 5000, message: '1 - 5000g' }]}
-                                    style={{ marginBottom: 0 }}
-                                  >
-                                    <InputNumber
-                                      min={1}
-                                      max={5000}
-                                      style={{ width: '100%' }}
-                                      addonAfter="g"
-                                      /**
-                                       * Handler khi user thay đổi trọng lượng
-                                       * 
-                                       * Khi thay đổi trọng lượng:
-                                       * 1. Lấy foodId hiện tại từ form
-                                       * 2. Tìm option tương ứng
-                                       * 3. Tính toán lại giá trị dinh dưỡng dựa trên trọng lượng mới
-                                       * 4. Cập nhật calories, carbs, protein, fat trong form
-                                       */
-                                      onChange={(value) => {
-                                        const currentFoodId = form.getFieldValue(['menus', menuIndex, 'sessions', sessionIndex, 'ingredients', ingredientIndex, 'foodId'] as any);
-                                        if (currentFoodId && value) {
-                                          const selectedOption = ingredientOptions.find((opt: any) => opt.value === currentFoodId);
-                                          if (selectedOption?.food) {
-                                            const nutrition = calculateNutrition(selectedOption.food, Number(value));
-                                            form.setFieldsValue({
-                                              [`menus.${menuIndex}.sessions.${sessionIndex}.ingredients.${ingredientIndex}.calories`]: nutrition.calories,
-                                              [`menus.${menuIndex}.sessions.${sessionIndex}.ingredients.${ingredientIndex}.carbs`]: nutrition.carbs,
-                                              [`menus.${menuIndex}.sessions.${sessionIndex}.ingredients.${ingredientIndex}.protein`]: nutrition.protein,
-                                              [`menus.${menuIndex}.sessions.${sessionIndex}.ingredients.${ingredientIndex}.fat`]: nutrition.fat,
-                                            });
+                                    <Form.Item
+                                      name={['menus', menuIndex, 'sessions', sessionIndex, 'ingredients', ingredientIndex, 'weight']}
+                                      label="Trọng lượng (g)"
+                                      rules={[{ type: 'number', min: 1, max: 5000, message: '1 - 5000g' }]}
+                                      style={{ marginBottom: 0 }}
+                                    >
+                                      <InputNumber
+                                        min={1}
+                                        max={5000}
+                                        style={{ width: '100%' }}
+                                        addonAfter="g"
+                                        /**
+                                         * Handler khi user thay đổi trọng lượng
+                                         * 
+                                         * Khi thay đổi trọng lượng:
+                                         * 1. Lấy foodId hiện tại từ form
+                                         * 2. Tìm option tương ứng
+                                         * 3. Tính toán lại giá trị dinh dưỡng dựa trên trọng lượng mới
+                                         * 4. Cập nhật calories, carbs, protein, fat trong form
+                                         */
+                                        onChange={(value) => {
+                                          const currentFoodId = form.getFieldValue(['menus', menuIndex, 'sessions', sessionIndex, 'ingredients', ingredientIndex, 'foodId'] as NamePath);
+                                          if (currentFoodId && value) {
+                                            const selectedOption = ingredientOptions.find((opt) => opt.value === currentFoodId);
+                                            if (selectedOption?.food) {
+                                              const nutrition = calculateNutrition(selectedOption.food, Number(value));
+                                              form.setFieldsValue({
+                                                [`menus.${menuIndex}.sessions.${sessionIndex}.ingredients.${ingredientIndex}.calories`]: nutrition.calories,
+                                                [`menus.${menuIndex}.sessions.${sessionIndex}.ingredients.${ingredientIndex}.carbs`]: nutrition.carbs,
+                                                [`menus.${menuIndex}.sessions.${sessionIndex}.ingredients.${ingredientIndex}.protein`]: nutrition.protein,
+                                                [`menus.${menuIndex}.sessions.${sessionIndex}.ingredients.${ingredientIndex}.fat`]: nutrition.fat,
+                                              });
+                                            }
                                           }
-                                        }
-                                      }}
-                                    />
-                                  </Form.Item>
+                                        }}
+                                      />
+                                    </Form.Item>
 
-                                  {/* 
+                                    {/* 
                                     Form fields: Giá trị dinh dưỡng
                                     - Calories: Số nguyên (kcal)
                                     - Carbs, Protein, Fat: Số thập phân 1 chữ số (gram)
                                     - Có thể chỉnh sửa thủ công hoặc tự động tính khi thay đổi nguyên liệu/trọng lượng
                                   */}
-                                  <Form.Item
-                                    name={['menus', menuIndex, 'sessions', sessionIndex, 'ingredients', ingredientIndex, 'calories']}
-                                    label="Calories"
-                                    rules={[{ type: 'number', min: 0, message: '≥ 0' }]}
-                                    style={{ marginBottom: 0 }}
-                                  >
-                                    <InputNumber min={0} style={{ width: '100%' }} />
-                                  </Form.Item>
-
-                                  <Form.Item
-                                    name={['menus', menuIndex, 'sessions', sessionIndex, 'ingredients', ingredientIndex, 'carbs']}
-                                    label="Carbs (g)"
-                                    rules={[{ type: 'number', min: 0, message: '≥ 0' }]}
-                                    style={{ marginBottom: 0 }}
-                                  >
-                                    <InputNumber min={0} step={0.1} style={{ width: '100%' }} />
-                                  </Form.Item>
-
-                                  <Form.Item
-                                    name={['menus', menuIndex, 'sessions', sessionIndex, 'ingredients', ingredientIndex, 'protein']}
-                                    label="Protein (g)"
-                                    rules={[{ type: 'number', min: 0, message: '≥ 0' }]}
-                                    style={{ marginBottom: 0 }}
-                                  >
-                                    <InputNumber min={0} step={0.1} style={{ width: '100%' }} />
-                                  </Form.Item>
-
-                                  <Form.Item
-                                    name={['menus', menuIndex, 'sessions', sessionIndex, 'ingredients', ingredientIndex, 'fat']}
-                                    label="Fat (g)"
-                                    rules={[{ type: 'number', min: 0, message: '≥ 0' }]}
-                                    style={{ marginBottom: 0 }}
-                                  >
-                                    <InputNumber min={0} step={0.1} style={{ width: '100%' }} />
-                                  </Form.Item>
-                                  
-                                  {/* Button xóa nguyên liệu */}
-                                  <Form.Item style={{ marginBottom: 0 }}>
-                                    <Button
-                                      variant="secondary"
-                                      size="sm"
-                                      onClick={() => handleRemoveIngredient(menuIndex, sessionIndex, ingredientIndex)}
-                                      style={{ 
-                                        color: 'var(--error)',
-                                        borderColor: 'var(--error)',
-                                        minWidth: 'auto',
-                                        padding: '4px 8px',
-                                      }}
-                                      title="Xóa nguyên liệu"
+                                    <Form.Item
+                                      name={['menus', menuIndex, 'sessions', sessionIndex, 'ingredients', ingredientIndex, 'calories']}
+                                      label="Calories"
+                                      rules={[{ type: 'number', min: 0, message: '≥ 0' }]}
+                                      style={{ marginBottom: 0 }}
                                     >
-                                      <Icon name="mdi:delete-outline" size={18} />
-                                    </Button>
-                                  </Form.Item>
-                                </div>
+                                      <InputNumber min={0} style={{ width: '100%' }} />
+                                    </Form.Item>
+
+                                    <Form.Item
+                                      name={['menus', menuIndex, 'sessions', sessionIndex, 'ingredients', ingredientIndex, 'carbs']}
+                                      label="Carbs (g)"
+                                      rules={[{ type: 'number', min: 0, message: '≥ 0' }]}
+                                      style={{ marginBottom: 0 }}
+                                    >
+                                      <InputNumber min={0} step={0.1} style={{ width: '100%' }} />
+                                    </Form.Item>
+
+                                    <Form.Item
+                                      name={['menus', menuIndex, 'sessions', sessionIndex, 'ingredients', ingredientIndex, 'protein']}
+                                      label="Protein (g)"
+                                      rules={[{ type: 'number', min: 0, message: '≥ 0' }]}
+                                      style={{ marginBottom: 0 }}
+                                    >
+                                      <InputNumber min={0} step={0.1} style={{ width: '100%' }} />
+                                    </Form.Item>
+
+                                    <Form.Item
+                                      name={['menus', menuIndex, 'sessions', sessionIndex, 'ingredients', ingredientIndex, 'fat']}
+                                      label="Fat (g)"
+                                      rules={[{ type: 'number', min: 0, message: '≥ 0' }]}
+                                      style={{ marginBottom: 0 }}
+                                    >
+                                      <InputNumber min={0} step={0.1} style={{ width: '100%' }} />
+                                    </Form.Item>
+
+                                    {/* Button xóa nguyên liệu */}
+                                    <Form.Item style={{ marginBottom: 0 }}>
+                                      <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        onClick={() => handleRemoveIngredient(menuIndex, sessionIndex, ingredientIndex)}
+                                        style={{
+                                          color: 'var(--error)',
+                                          borderColor: 'var(--error)',
+                                          minWidth: 'auto',
+                                          padding: '4px 8px',
+                                        }}
+                                        title="Xóa nguyên liệu"
+                                      >
+                                        <Icon name="mdi:delete-outline" size={18} />
+                                      </Button>
+                                    </Form.Item>
+                                  </div>
                                 );
                               })}
                             </div>
@@ -1097,15 +1111,15 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
                         </div>
                       );
                     })}
-                    
+
                     {/* Button thêm bữa ăn ở cuối danh sách */}
                     <Button
                       variant="secondary"
                       size="md"
                       onClick={() => handleAddSession(menuIndex)}
-                      style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
                         justifyContent: 'center',
                         gap: 8,
                         border: '1px dashed var(--border)',

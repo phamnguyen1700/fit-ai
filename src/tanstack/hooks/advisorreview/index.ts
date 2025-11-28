@@ -4,6 +4,7 @@ import { IApiResponse } from '@/shared/api/http';
 import { WorkoutReviewResponse, MealReviewResponse, WorkoutReviewRequest } from '@/types/advisorreview';
 import { getPendingWorkoutReviewsService, getPendingMealReviewsService, submitWorkoutReviewService } from '@/tanstack/services/advisorreview';
 import toast from 'react-hot-toast';
+import { APIError } from '@/types/utils/APIError';
 
 export const usePendingWorkoutReviews = () => {
   const query = useQuery<IApiResponse<WorkoutReviewResponse>>({
@@ -67,9 +68,9 @@ export const useSubmitWorkoutReview = () => {
         toast.error(response.message || 'Đánh giá workout thất bại');
       }
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('❌ [Hook] Submit workout review error:', error);
-      const errorMessage = error?.response?.data?.message || error?.message || 'Đánh giá workout thất bại. Vui lòng thử lại.';
+      const errorMessage = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Đánh giá workout thất bại. Vui lòng thử lại.';
       toast.error(errorMessage);
     },
   });

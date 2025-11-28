@@ -590,7 +590,7 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({
       title: '',
       key: 'action',
       width: 60,
-      render: (_: any, record: MealIngredient) => (
+      render: (_: unknown, record: MealIngredient) => (
         <Button
           variant="ghost"
           size="sm"

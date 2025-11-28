@@ -6,6 +6,7 @@ import { Form, InputNumber } from 'antd';
 import type { WorkoutDemoDetail } from '@/types/workoutdemo';
 import type { UpdateWorkoutDemoPayload } from '@/types/workoutdemo';
 import { useUpdateWorkoutDemo } from '@/tanstack/hooks/workoutdemo';
+import { ValidationError } from '@/types/utils/APIError';
 
 interface WorkoutPlanUpdateModalProps {
   isOpen: boolean;
@@ -75,7 +76,7 @@ export const WorkoutPlanUpdateModal: React.FC<WorkoutPlanUpdateModalProps> = ({
         handleCancel();
       }
     } catch (error) {
-      if (error && (error as any).errorFields) {
+      if (error && (error as ValidationError).errorFields) {
         return;
       }
       console.error('Failed to update workout plan', error);

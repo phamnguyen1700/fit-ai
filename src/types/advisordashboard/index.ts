@@ -106,6 +106,7 @@ export interface AdvisorDashboardCustomerDetailResponse {
 }
 
 export interface CustomerProfileResponse {
+  userId?: string;
   profile?: {
     name?: string;
     age?: number;

@@ -14,7 +14,7 @@ export const useLoginMutation = () =>
         toast.success(response.message || 'Đăng nhập thành công')
       }
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       console.error('Login error:', err)
     },
   })
@@ -30,7 +30,7 @@ export const useAdvisorLoginMutation = () =>
         toast.success(response.message || 'Đăng nhập thành công')
       }
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       console.error('Advisor login error:', err)
     },
   })

@@ -4,11 +4,13 @@ import { Table as AntTable, TableProps as AntTableProps } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 
 import type { Key } from 'react';
+import { AnyObject } from 'antd/es/_util/type';
 
-export interface TableColumn<T = any> {
+export interface TableColumn<T = AnyObject> {
   title?: React.ReactNode;
   dataIndex?: string;
   key?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   render?: (value: any, record: T, index: number) => React.ReactNode;
   width?: string | number;
   align?: 'left' | 'right' | 'center';
@@ -20,7 +22,7 @@ export interface TableColumn<T = any> {
   responsive?: ('xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl')[];
 }
 
-export interface TableProps<T = any> extends Omit<AntTableProps<T>, 'columns'> {
+export interface TableProps<T = AnyObject> extends Omit<AntTableProps<T>, 'columns'> {
   columns: TableColumn<T>[];
   dataSource: T[];
   loading?: boolean;
@@ -60,7 +62,7 @@ export interface TableProps<T = any> extends Omit<AntTableProps<T>, 'columns'> {
     defaultExpandedRowKeys?: readonly React.Key[];
     defaultExpandAllRows?: boolean;
     expandedRowRender?: (record: T, index: number, indent: number, expanded: boolean) => React.ReactNode;
-    expandIcon?: (props: any) => React.ReactNode;
+    expandIcon?: (props: unknown) => React.ReactNode;
     expandRowByClick?: boolean;
     onExpand?: (expanded: boolean, record: T) => void;
     onExpandedRowsChange?: (expandedKeys: readonly React.Key[]) => void;
@@ -76,7 +78,7 @@ export interface TableProps<T = any> extends Omit<AntTableProps<T>, 'columns'> {
   style?: React.CSSProperties;
 }
 
-export const Table2 = <T extends Record<string, any> = any>({
+export const Table2 = <T extends AnyObject = AnyObject>({
   columns,
   dataSource,
   loading = false,
@@ -134,16 +136,16 @@ export const Table2 = <T extends Record<string, any> = any>({
         className="custom-table"
         {...restProps}
       />
-      </div>
-);
+    </div>
+  );
 };
 
 //      
-      // Export default for convenience
-      export default Table2;
-      
-      // Export specific table utilities
-    //   export type { TableColumn, TableProps };
-      
-      // Re-export useful Ant Design table types
-      export type { ColumnsType, ColumnType } from 'antd/es/table';
+// Export default for convenience
+export default Table2;
+
+// Export specific table utilities
+//   export type { TableColumn, TableProps };
+
+// Re-export useful Ant Design table types
+export type { ColumnsType, ColumnType } from 'antd/es/table';

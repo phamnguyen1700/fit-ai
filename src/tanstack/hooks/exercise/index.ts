@@ -3,6 +3,7 @@ import { getExercisesService, createExerciseService, updateExerciseService, dele
 import { Exercise, ExerciseParams, UpdateExerciseData, CreateExerciseData } from '@/types/exercise'
 import { IApiResponse } from '@/shared/api/http'
 import toast from 'react-hot-toast'
+import { APIError } from '@/types/utils/APIError'
 
 export const useGetExercises = (params?: ExerciseParams) => {
   return useQuery<IApiResponse<Exercise[]>>({
@@ -30,9 +31,9 @@ export const useCreateExercise = () => {
         toast.error(response.message || 'Tạo bài tập thất bại')
       }
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Create exercise error:', error)
-      const errorMessage = error?.response?.data?.message || error?.message || 'Tạo bài tập thất bại. Vui lòng thử lại.'
+      const errorMessage = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Tạo bài tập thất bại. Vui lòng thử lại.'
       toast.error(errorMessage)
     },
   })
@@ -56,9 +57,9 @@ export const useUpdateExerciseMutation = () => {
         toast.error(response.message || 'Cập nhật bài tập thất bại')
       }
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Update exercise error:', error)
-      const errorMessage = error?.response?.data?.message || error?.message || 'Cập nhật bài tập thất bại. Vui lòng thử lại.'
+      const errorMessage = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Cập nhật bài tập thất bại. Vui lòng thử lại.'
       toast.error(errorMessage)
     },
   })
@@ -82,9 +83,9 @@ export const useDeleteExerciseMutation = () => {
         toast.error(response.message || 'Xóa bài tập thất bại')
       }
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Delete exercise error:', error)
-      const errorMessage = error?.response?.data?.message || error?.message || 'Xóa bài tập thất bại. Vui lòng thử lại.'
+      const errorMessage = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Xóa bài tập thất bại. Vui lòng thử lại.'
       toast.error(errorMessage)
     },
   })

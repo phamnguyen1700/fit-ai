@@ -1,4 +1,5 @@
 // httpClient.ts
+import { APIError } from '@/types/utils/APIError';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 export interface IApiResponse<T> {
@@ -58,13 +59,13 @@ class HttpClient {
     };
   }
 
-  private handleError<T>(error: any): IApiResponse<T> {
+  private handleError<T>(error: unknown): IApiResponse<T> {
     return {
       data: undefined,
       success: false,
       message:
-        error?.response?.data?.message ||
-        error?.message ||
+        (error as APIError)?.response?.data?.message ||
+        (error as Error)?.message ||
         'Something went wrong',
     };
   }
@@ -78,7 +79,7 @@ class HttpClient {
     }
   }
 
-  async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<IApiResponse<T>> {
+  async post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<IApiResponse<T>> {
     try {
       const res = await this.instance.post<T>(url, data, config);
       return this.handleResponse(res as AxiosResponse<{ data: T, message: string }>);
@@ -87,7 +88,7 @@ class HttpClient {
     }
   }
 
-  async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<IApiResponse<T>> {
+  async put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<IApiResponse<T>> {
     try {
       const res = await this.instance.put<T>(url, data, config);
       return this.handleResponse(res as AxiosResponse<{ data: T, message: string }>);

@@ -3,6 +3,15 @@ import React, { useState, useEffect } from "react";
 import { Icon } from "../icon";
 import { useUpdateExerciseMutation } from "@/tanstack/hooks/exercise";
 import { UpdateExerciseData } from "@/types/exercise";
+export type ExerciseItem = {
+  id: string;
+  title: string;
+  videoThumbnail: string;
+  categoryId: string;
+  muscleGroup: string;
+  difficulty: "Beginner" | "Intermediate" | "Advanced";
+  description: string;
+}
 
 interface EditExercisePopupProps {
   isOpen: boolean;
@@ -16,7 +25,7 @@ interface EditExercisePopupProps {
     difficulty: string;
     description: string;
   } | null;
-  onSave?: (updatedExercise: any) => void; // Optional callback
+  onSave?: (updatedExercise: ExerciseItem) => void; // Optional callback
 }
 
 export const EditExercisePopup: React.FC<EditExercisePopupProps> = ({
@@ -230,7 +239,7 @@ export const EditExercisePopup: React.FC<EditExercisePopupProps> = ({
               <label className="block text-xs font-semibold text-gray-700 mb-1.5">
                 Tải lên Video mới (tùy chọn)
               </label>
-              
+
               {/* Custom File Upload Button */}
               <div className="relative">
                 <input
@@ -291,7 +300,7 @@ export const EditExercisePopup: React.FC<EditExercisePopupProps> = ({
               <div className="mt-2 flex items-start gap-1.5">
                 <Icon name="mdi:information" size={14} className="text-blue-500 mt-0.5 flex-shrink-0" />
                 <p className="text-xs text-gray-600 leading-relaxed">
-                  {videoFile 
+                  {videoFile
                     ? 'Video này sẽ thay thế video hiện tại khi bạn lưu thay đổi.'
                     : 'Bỏ trống để giữ nguyên video hiện tại. Chỉ upload khi muốn thay đổi video.'
                   }

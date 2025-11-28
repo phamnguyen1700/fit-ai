@@ -3,6 +3,7 @@ import { createWorkoutDemoService, deleteWorkoutDemoService, getWorkoutDemoDetai
 import { WorkoutDemoDetailResponse, WorkoutDemoListParams, WorkoutDemoListResponse, CreateWorkoutDemoPayload, CreateWorkoutDemoResponse, UpdateWorkoutDemoDetailPayload, UpdateWorkoutDemoDetailResponse, UpdateWorkoutDemoPayload, UpdateWorkoutDemoResponse, UpdateWorkoutDemoDayPayload } from '@/types/workoutdemo'
 import { IApiResponse } from '@/shared/api/http'
 import toast from 'react-hot-toast'
+import { APIError } from '@/types/utils/APIError'
 
 export const WORKOUT_DEMO_QUERY_KEY = 'workout-demo-list'
 export const WORKOUT_DEMO_DETAIL_QUERY_KEY = 'workout-demo-detail'
@@ -53,8 +54,8 @@ export const useCreateWorkoutDemo = () => {
         toast.error(response.message || 'Tạo kế hoạch tập luyện thất bại')
       }
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || error?.message || 'Không thể tạo kế hoạch tập luyện. Vui lòng thử lại.'
+    onError: (error: unknown) => {
+      const message = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Không thể tạo kế hoạch tập luyện. Vui lòng thử lại.'
       toast.error(message)
     },
   })
@@ -74,8 +75,8 @@ export const useUpdateWorkoutDemoDetail = () => {
         toast.error(response.message || 'Cập nhật chi tiết kế hoạch thất bại')
       }
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || error?.message || 'Cập nhật chi tiết kế hoạch thất bại. Vui lòng thử lại.'
+    onError: (error: unknown) => {
+      const message = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Cập nhật chi tiết kế hoạch thất bại. Vui lòng thử lại.'
       toast.error(message)
     },
   })
@@ -95,8 +96,8 @@ export const useUpdateWorkoutDemo = () => {
         toast.error(response.message || 'Cập nhật kế hoạch luyện tập thất bại')
       }
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || error?.message || 'Cập nhật kế hoạch luyện tập thất bại. Vui lòng thử lại.'
+    onError: (error: unknown) => {
+      const message = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Cập nhật kế hoạch luyện tập thất bại. Vui lòng thử lại.'
       toast.error(message)
     },
   })
@@ -116,8 +117,8 @@ export const useDeleteWorkoutDemo = () => {
         toast.error(response.message || 'Không thể vô hiệu hóa kế hoạch luyện tập')
       }
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || error?.message || 'Không thể vô hiệu hóa kế hoạch luyện tập. Vui lòng thử lại.'
+    onError: (error: unknown) => {
+      const message = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Không thể vô hiệu hóa kế hoạch luyện tập. Vui lòng thử lại.'
       toast.error(message)
     },
   })
@@ -137,8 +138,8 @@ export const useHardDeleteWorkoutDemo = () => {
         toast.error(response.message || 'Không thể xóa kế hoạch luyện tập')
       }
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || error?.message || 'Không thể xóa kế hoạch luyện tập. Vui lòng thử lại.'
+    onError: (error: unknown) => {
+      const message = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Không thể xóa kế hoạch luyện tập. Vui lòng thử lại.'
       toast.error(message)
     },
   })
@@ -158,8 +159,8 @@ export const useUpdateWorkoutDemoDay = () => {
         toast.error(response.message || 'Cập nhật bài tập thất bại')
       }
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || error?.message || 'Cập nhật bài tập thất bại. Vui lòng thử lại.'
+    onError: (error: unknown) => {
+      const message = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Cập nhật bài tập thất bại. Vui lòng thử lại.'
       toast.error(message)
     },
   })
