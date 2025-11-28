@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { Icon } from '@/shared/ui/icon';
 import type { MealPlanDayDetail, MealDetail } from '@/types/planreview';
 
 const mealTypeLabelMap: Record<string, string> = {
@@ -21,7 +20,7 @@ const getMealTypeLabel = (type: string) => {
   return mealTypeLabelMap[type] || type;
 };
 
-const MealCard: React.FC<{ meal: MealDetail; index: number }> = ({ meal, index }) => {
+const MealCard: React.FC<{ meal: MealDetail; index: number }> = ({ meal }) => {
   return (
     <div className="rounded-lg border border-[var(--border)] bg-white p-4 mb-4">
       {/* Meal Header */}

@@ -30,7 +30,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
   className = "",
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize] = useState(10);
 
   // Default sample data for demonstration
   const defaultTransactions: TransactionData[] = [
@@ -206,7 +206,7 @@ const getStatusBadge = (status: string) => {
       dataIndex: 'amount',
       key: 'amount',
       align: 'center',
-      render: (amount: number, record: TransactionData) => (
+      render: (amount: number) => (
         <div className="text-center font-medium">
           {formatPrice(amount)}
         </div>
@@ -236,7 +236,7 @@ const getStatusBadge = (status: string) => {
       dataIndex: 'status',
       key: 'status',
       align: 'center',
-      render: (status: string, record: TransactionData) => (
+      render: (status: string) => (
         <div className="flex justify-center">
           {getStatusBadge(status)}
         </div>

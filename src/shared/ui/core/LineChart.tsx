@@ -99,7 +99,7 @@ export const LineChart: React.FC<LineChartProps> = ({
   }, [labels, maxLen]);
 
   const chartData: ChartData<'line'> = useMemo(() => {
-    const datasets: ChartDataset<'line'>[] = series.map((s, _idx) => ({
+    const datasets: ChartDataset<'line'>[] = series.map((s) => ({
       label: s.name,
       data: s.data.slice(0, maxLen),
       borderColor: s.color,

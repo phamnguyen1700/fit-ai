@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { IApiResponse } from '@/shared/api/http';
-import { WorkoutReviewResponse, MealReviewResponse, WorkoutReviewRequest, WorkoutReviewSubmitResponse } from '@/types/advisorreview';
+import { WorkoutReviewResponse, MealReviewResponse, WorkoutReviewRequest } from '@/types/advisorreview';
 import { getPendingWorkoutReviewsService, getPendingMealReviewsService, submitWorkoutReviewService } from '@/tanstack/services/advisorreview';
 import toast from 'react-hot-toast';
 

@@ -25,7 +25,6 @@ const menuItems: { key: string; label: React.ReactNode; icon?: React.ReactNode }
 
 export const AdvisorSider: React.FC<AdvisorSiderProps> = ({
   collapsed = false,
-  onCollapse: _onCollapse, // unused
   width = 230,
   collapsedWidth = 80,
 }) => {

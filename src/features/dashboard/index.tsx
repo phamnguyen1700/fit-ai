@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+
 import ReportTable from './components/ReportTable';
 import ChartReport from './components/ChartReport';
 

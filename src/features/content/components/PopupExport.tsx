@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Modal, Button, Progress } from "@/shared/ui";
-import { Icon, icons } from "@/shared/ui/icon";
+import { Icon } from "@/shared/ui/icon";
 
 export interface PopupExportProps {
   isOpen: boolean;
@@ -50,8 +50,6 @@ export const PopupExport: React.FC<PopupExportProps> = ({
     setExportState('exporting');
     setExportProgress(0);
 
-    // Generate filename based on current date
-    const now = new Date();
     const fileName = `dinhduong_sep_2025.${fileFormat}`;
     setExportedFileName(fileName);
 

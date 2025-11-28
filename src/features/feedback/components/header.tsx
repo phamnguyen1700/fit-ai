@@ -1,10 +1,8 @@
 "use client";
 import React, { useState } from "react";
-import Tabs3, { Tab3Item } from "../../../shared/ui/core/Tabs3";
 import Tabs4, { Tab4Item } from "../../../shared/ui/core/Tabs4";
 import { Segmented } from "../../../shared/ui/core/Segmented";
 import { SearchInput } from "../../../shared/ui/layout/admin/components/SearchInput";
-import { Select } from "../../../shared/ui/core/Select";
 import Filter from "@/shared/ui/core/Filter";
 import { FilterConfig } from "@/shared/ui/core/Filter";
 

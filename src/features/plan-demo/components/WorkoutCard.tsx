@@ -3,7 +3,7 @@ import { Card, Flex, Button } from '@/shared/ui';
 import { Icon } from '@/shared/ui/icon';
 import type { WorkoutDemo } from '@/types/workoutdemo';
 import WorkoutDetailModal from './WorkoutDetailModal';
-import { useDeleteWorkoutDemo, useGetWorkoutDemoDetail, useHardDeleteWorkoutDemo, WORKOUT_DEMO_DETAIL_QUERY_KEY } from '@/tanstack/hooks/workoutdemo';
+import { useDeleteWorkoutDemo, useGetWorkoutDemoDetail, useHardDeleteWorkoutDemo } from '@/tanstack/hooks/workoutdemo';
 import { Dropdown, App } from 'antd';
 import type { MenuProps } from 'antd';
 import WorkoutPlanUpdateModal from './WorkoutPlanUpdateModal';

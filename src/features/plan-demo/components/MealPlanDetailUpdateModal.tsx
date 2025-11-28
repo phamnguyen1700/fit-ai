@@ -5,7 +5,7 @@ import { Modal, Button, Flex, Card } from '@/shared/ui';
 import { Form, InputNumber, Input, Select } from 'antd';
 import { Icon } from '@/shared/ui/icon';
 import type { MealDemoDetailMenu } from '@/types/mealdemo';
-import type { UpdateMealDemoDetailPayload, UpdateMealDemoSessionPayload, UpdateMealDemoIngredientPayload } from '@/types/mealdemo';
+import type { UpdateMealDemoSessionPayload, UpdateMealDemoIngredientPayload } from '@/types/mealdemo';
 import { useUpdateMealDemoDetail } from '@/tanstack/hooks/mealdemo';
 import { useSearchMealIngredients } from '@/tanstack/hooks/mealingredient';
 import toast from 'react-hot-toast';
@@ -440,11 +440,11 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
     
     if (ingredientOptions.length > 0 && formMenusState.length > 0) {
       let needsUpdate = false;
-      const updatedMenus = formMenusState.map((menu, menuIndex) => ({
+      const updatedMenus = formMenusState.map((menu) => ({
         ...menu,
-        sessions: (menu.sessions || []).map((session, sessionIndex) => ({
+        sessions: (menu.sessions || []).map((session) => ({
           ...session,
-          ingredients: (session.ingredients || []).map((ing: FormIngredientValue, ingredientIndex: number) => {
+          ingredients: (session.ingredients || []).map((ing: FormIngredientValue) => {
             // Nếu foodId là null, empty string hoặc không có, nhưng có name, tìm option theo name
             if ((!ing.foodId || ing.foodId === '' || ing.foodId === null) && ing.name) {
               // Tìm option theo name (không phân biệt hoa thường)
@@ -518,7 +518,6 @@ const MealPlanDetailUpdateModal: React.FC<MealPlanDetailUpdateModalProps> = ({
 
   const handleAddSession = (menuIndex: number) => {
     const currentMenus = formMenusState.length > 0 ? formMenusState : mergedMenus;
-    const menu = currentMenus[menuIndex];
     const updatedMenus = currentMenus.map((m, mi) => {
       if (mi !== menuIndex) return m;
       return {

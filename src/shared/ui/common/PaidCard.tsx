@@ -1,7 +1,7 @@
 import React from 'react';
 import { Flex, Button } from '@/shared/ui';
 import { Avatar } from '@/shared/ui';
-import { Icon, icons } from '@/shared/ui/icon';
+import { Icon } from '@/shared/ui/icon';
 
 export interface PaidCardProps {
     avatarUrl: string;

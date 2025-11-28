@@ -31,7 +31,7 @@ const PriceManaTable: React.FC<PriceManaTableProps> = ({
   className = "",
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize] = useState(10);
 
   // Default sample data for demonstration
   const defaultPriceData: PriceData[] = [
@@ -186,7 +186,7 @@ const PriceManaTable: React.FC<PriceManaTableProps> = ({
       dataIndex: 'originalPrice',
       key: 'originalPrice',
       align: 'center',
-      render: (price: number, record: PriceData) => (
+      render: (price: number) => (
         <div className="text-center font-medium">
           {formatPrice(price)}
         </div>
@@ -198,7 +198,7 @@ const PriceManaTable: React.FC<PriceManaTableProps> = ({
       dataIndex: 'discountPercent',
       key: 'discountPercent',
       align: 'center',
-      render: (percent: number, record: PriceData) => (
+      render: (percent: number) => (
         <div className="text-center">
           {formatDiscountPercent(percent)}
         </div>
@@ -210,7 +210,7 @@ const PriceManaTable: React.FC<PriceManaTableProps> = ({
       dataIndex: 'finalPrice',
       key: 'finalPrice',
       align: 'center',
-      render: (price: number, record: PriceData) => (
+      render: (price: number) => (
         <div className="text-center font-medium text-green-600">
           {formatPrice(price)}
         </div>
@@ -222,7 +222,7 @@ const PriceManaTable: React.FC<PriceManaTableProps> = ({
       dataIndex: 'applyDate',
       key: 'applyDate',
       align: 'center',
-      render: (date: string, record: PriceData) => (
+      render: (date: string) => (
         <div className="text-center flex items-center justify-center gap-2">
           <span>{date}</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">

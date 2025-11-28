@@ -13,9 +13,8 @@ interface ImportExportRecord {
 }
 
 const TableImEx: React.FC = () => {
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize] = useState(10);
 
   // Sample data based on the image
   const dataSource: ImportExportRecord[] = [
@@ -183,11 +182,6 @@ const TableImEx: React.FC = () => {
       ellipsis: true,
     },
   ];
-
-  const handleRowSelectionChange = (selectedRowKeys: React.Key[], selectedRows: ImportExportRecord[]) => {
-    setSelectedRowKeys(selectedRowKeys);
-    console.log('Selected rows:', selectedRows);
-  };
 
   // Pagination logic
   const totalPages = Math.ceil(dataSource.length / pageSize);

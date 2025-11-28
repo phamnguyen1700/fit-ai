@@ -6,11 +6,12 @@ import { Flex } from '@/shared/ui/core/Flex';
 import { Icon } from '@/shared/ui/icon';
 import { CardTable } from '@/shared/ui/core/CardTable';
 import {
+  MappedPlanReview,
   PlanReviewCard,
   PlanReviewCardDataProvider,
   usePlanReviewCardData,
 } from './components/PlanReviewCard';
-import { PlanReviewModal } from './components/PlanReviewModal';
+import { PlanReviewModal, SubmittedPlanReview } from './components/PlanReviewModal';
 import { approvePlanService } from '@/tanstack/services/planreview';
 import toast from 'react-hot-toast';
 
@@ -55,15 +56,15 @@ export const AdvisorPlanReviews: React.FC = () => (
 const AdvisorPlanReviewsContent: React.FC = () => {
   const { plans, isLoading, isError, error, refetch } = usePlanReviewCardData();
   const [activeType, setActiveType] = useState<PlanTypeFilter>('all');
-  const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [selectedPlan, setSelectedPlan] = useState<MappedPlanReview | null>(null);
   const [isReviewModalOpen, setReviewModalOpen] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
 
   const summary = useMemo(() => {
     const total = plans.length;
-    const workout = plans.filter((p: any) => p.planType === 'workout').length;
-    const meal = plans.filter((p: any) => p.planType === 'meal').length;
-    const combined = plans.filter((p: any) => p.planType === 'combined').length;
+    const workout = plans.filter(p => p.planType === 'workout').length;
+    const meal = plans.filter(p => p.planType === 'meal').length;
+    const combined = plans.filter(p => p.planType === 'combined').length;
 
     return { total, workout, meal, combined };
   }, [plans]);
@@ -72,15 +73,15 @@ const AdvisorPlanReviewsContent: React.FC = () => {
     if (activeType === 'all') {
       return plans;
     }
-    return plans.filter((plan: any) => plan.planType === activeType);
+    return plans.filter(plan => plan.planType === activeType);
   }, [plans, activeType]);
 
-  const handleReview = (plan: any) => {
+  const handleReview = (plan: MappedPlanReview) => {
     setSelectedPlan(plan);
     setReviewModalOpen(true);
   };
 
-  const handleSubmitReview = async (payload: any) => {
+  const handleSubmitReview = async (payload: SubmittedPlanReview) => {
     if (!payload?.planId) return;
 
     try {
@@ -90,10 +91,11 @@ const AdvisorPlanReviewsContent: React.FC = () => {
       setReviewModalOpen(false);
       setSelectedPlan(null);
       refetch();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
       const message =
-        err?.response?.data?.message ||
-        err?.message ||
+        error?.response?.data?.message ||
+        error?.message ||
         'Duyệt plan thất bại. Vui lòng thử lại.';
       toast.error(message);
     } finally {
@@ -144,11 +146,10 @@ const AdvisorPlanReviewsContent: React.FC = () => {
                   key={tab.value}
                   type="button"
                   onClick={() => setActiveType(tab.value)}
-                  className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-                    isActive
+                  className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${isActive
                       ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
                       : 'bg-[var(--bg)] text-[var(--text-secondary)] border-[var(--border)] hover:text-[var(--text)] hover:border-[var(--primary)]/40'
-                  }`}
+                    }`}
                 >
                   <Icon
                     name={tab.icon}
@@ -185,7 +186,7 @@ const AdvisorPlanReviewsContent: React.FC = () => {
             <CardTable
               items={filteredPlans}
               pageSize={6}
-              renderItem={(item: any) => (
+              renderItem={(item: MappedPlanReview) => (
                 <PlanReviewCard key={item.id} plan={item} onReview={handleReview} />
               )}
             />

@@ -2,7 +2,6 @@
 import React, { useState, useMemo } from "react";
 import { Table2, type TableColumn } from "@/shared/ui/core/Table2";
 import { Button } from "@/shared/ui/core/Button";
-import { Rate } from "@/shared/ui/core/Rate";
 import { Pagination } from "@/shared/ui/core/Pagination";
 import { StarFilled } from "@ant-design/icons";
 
@@ -143,7 +142,7 @@ const mockFeedbackData: FeedbackData[] = [
 
 const ReviewFeedbackTable: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize] = useState(10);
 
   // Calculate pagination data
   const totalItems = mockFeedbackData.length;
@@ -202,7 +201,7 @@ const ReviewFeedbackTable: React.FC = () => {
       key: "actions",
       width: 200,
       align: "center",
-      render: (_, record) => (
+      render: () => (
         <div className="action-buttons">
           <Button
             variant="secondary"

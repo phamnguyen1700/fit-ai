@@ -21,7 +21,7 @@ const NewUserTable: React.FC<NewUserTableProps> = ({ users }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState<'free' | 'premium'>('free');
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize] = useState(5);
 
   // Ensure users is always an array and filter users based on active tab
   const safeUsers = users || [];
@@ -82,42 +82,6 @@ const NewUserTable: React.FC<NewUserTableProps> = ({ users }) => {
       align: 'center' as const,
     },
   ];
-
-  // Card layout for mobile
-  const renderUserCard = (user: User) => (
-    <div className="user-card bg-white border border-gray-200 rounded-lg p-4 mb-4 shadow-sm">
-      <div className="flex items-center space-x-3">
-        {/* Avatar */}
-        <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-          <span className="text-lg font-semibold text-gray-600">
-            {user.name.split(' ').map(n => n[0]).join('')}
-          </span>
-        </div>
-        
-        {/* User Info */}
-        <div className="flex-1">
-          <div className="font-medium text-gray-900 mb-1">{user.name}</div>
-          <div className="text-sm text-gray-500 mb-1">
-            <span className="text-gray-400">Email:</span> {user.email}
-          </div>
-          <div className="text-sm text-gray-500">
-            <span className="text-gray-400">Ngày/Giờ:</span> {user.expirationDate}
-          </div>
-        </div>
-        
-        {/* Plan Badge */}
-        <div className="flex flex-col items-end">
-          <span className={`px-3 py-1 rounded-full text-sm font-medium border ${
-            user.planType === 'free' 
-              ? 'bg-gray-50 text-gray-700 border-gray-200' 
-              : 'bg-orange-50 text-orange-700 border-orange-200'
-          }`}>
-            {user.planType === 'free' ? 'Free Trial' : 'Premium'}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <Card>

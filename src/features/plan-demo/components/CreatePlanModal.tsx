@@ -3,7 +3,7 @@
 import React from 'react';
 import { Modal, Input, Select, Button, Flex } from '@/shared/ui';
 import { Form, InputNumber } from 'antd';
-import type { CreatePlanFormData, Gender } from '@/types/plan';
+import type { CreatePlanFormData } from '@/types/plan';
 import { useCreateWorkoutDemo } from '@/tanstack/hooks/workoutdemo';
 import toast from 'react-hot-toast';
 

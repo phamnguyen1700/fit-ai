@@ -125,11 +125,10 @@ const mockData: PublicFeedbackData[] = [
 
 const PublicFeedbackTable: React.FC<PublicFeedbackTableProps> = ({
   className = '',
-  onEdit,
   onDelete,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize] = useState(10);
 
   // Calculate pagination data
   const totalItems = mockData.length;

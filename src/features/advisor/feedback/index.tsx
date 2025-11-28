@@ -82,14 +82,6 @@ export const AdvisorFeedbackRequests: React.FC = () => {
 		return reviews;
 	}, [mealApiData]);
 
-	// Combine all reviews for summary and filtering
-	const allReviews = useMemo(() => {
-		return {
-			workouts: workoutReviews,
-			meals: mealReviews,
-		};
-	}, [workoutReviews, mealReviews]);
-
 	// Compute summary from both workout and meal reviews
 	const summary = useMemo(() => {
 		const total = workoutReviews.length + mealReviews.length;

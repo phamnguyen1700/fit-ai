@@ -28,7 +28,6 @@ export const AdvisorCard: React.FC<AdvisorCardProps> = ({
     email,
     phone,
     avatarUrl,
-    specialty,
     experience,
     clients,
     rating,

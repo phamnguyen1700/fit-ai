@@ -9,7 +9,7 @@ import MealPlanDetailUpdateModal from '../MealPlanDetailUpdateModal';
 import MealPlanUpdateModal from '../MealPlanUpdateModal';
 import type { MealPlanDetail, DayMeal, Meal, MealIngredient } from '@/types/plan';
 import { useGetMealDemoList, useGetMealDemoDetail, useDeleteMealDemo, useHardDeleteMealDemo } from '@/tanstack/hooks/mealdemo';
-import type { MealDemo, MealDemoDetailMenu, MealDemoDetailSession, UpdateMealDemoPayload } from '@/types/mealdemo';
+import type { MealDemo, MealDemoDetailMenu, MealDemoDetailSession } from '@/types/mealdemo';
 import { App } from 'antd';
 
 const MealTab: React.FC = () => {
@@ -35,7 +35,6 @@ const MealTab: React.FC = () => {
   const {
     data: mealDemoResponse,
     isPending: isMealDemoLoading,
-    isFetching: isMealDemoFetching,
     isError: isMealDemoError,
     refetch,
   } = useGetMealDemoList(listParams);
@@ -178,7 +177,7 @@ const MealTab: React.FC = () => {
     setActiveMealDemoId(null);
   };
 
-  const handlePlanUpdated = async (payload: UpdateMealDemoPayload) => {
+  const handlePlanUpdated = async () => {
     if (activeMealDemoId) {
       await refetch();
       await refetchMealDemoDetail();

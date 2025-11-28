@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getExercisesService, createExerciseService, updateExerciseService, deleteExerciseService } from '@/tanstack/services/exercise'
-import { Exercise, ExerciseParams, ExerciseState, UpdateExerciseData, CreateExerciseData } from '@/types/exercise'
+import { Exercise, ExerciseParams, UpdateExerciseData, CreateExerciseData } from '@/types/exercise'
 import { IApiResponse } from '@/shared/api/http'
 import toast from 'react-hot-toast'
 

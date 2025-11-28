@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Card, Row, Col, Segmented } from '@/shared/ui';
+import { Card, Row, Col } from '@/shared/ui';
 import { PieChart } from '@/shared/ui';
 import { LineChart } from '@/shared/ui';
 import { SeriesItem } from '@/shared/ui/core/LineChart';
@@ -17,7 +17,7 @@ const lineColors = {
 };
 
 export const ChartReport: React.FC = () => {
-  const [period, setPeriod] = React.useState<Period>('day');
+  const [period] = React.useState<Period>('day');
 
   // Fake pie data
   const pieData = [

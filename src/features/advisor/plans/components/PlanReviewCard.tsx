@@ -6,8 +6,16 @@ import { Avatar } from '@/shared/ui/core/Avatar';
 import { Flex } from '@/shared/ui/core/Flex';
 import { Icon } from '@/shared/ui/icon';
 import { usePendingPlans } from '@/tanstack/hooks/planreview';
+import { PendingPlan } from '@/types/planreview';
 
-const PlanReviewCardDataContext = createContext<any>(undefined);
+type PlanReviewCardDataContextType = {
+  plans: MappedPlanReview[];
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+  refetch: () => void;
+}
+const PlanReviewCardDataContext = createContext<PlanReviewCardDataContextType>({} as PlanReviewCardDataContextType);
 
 const normalizeGender = (gender?: string) => {
   if (!gender) return undefined;
@@ -18,7 +26,33 @@ const normalizeGender = (gender?: string) => {
   return 'other';
 };
 
-const mapPendingPlanToPlanReview = (plan: any) => {
+export type MappedPlanReview = {
+  id: string,
+  userId: string,
+  userName: string,
+  userEmail: string,
+  userAvatar?: string,
+  userGender?: string;
+  planName: string;
+  planType: string,
+  goal: string;
+  duration: string;
+  startDate?: string;
+  endDate?: string;
+  status: string,
+  totalDays: number,
+  completedDays: number,
+  progress: number,
+  generatedBy: string,
+  createdAt: string,
+  reviewStatus: string,
+  submittedAt: string,
+  workoutDetails?: any,
+  mealDetails?: any,
+  apiSource: PendingPlan,
+};
+
+const mapPendingPlanToPlanReview = (plan: PendingPlan): MappedPlanReview => {
   const mapped = {
     id: plan.planId,
     userId: plan.userId,
@@ -44,6 +78,7 @@ const mapPendingPlanToPlanReview = (plan: any) => {
     mealDetails: undefined,
     apiSource: plan,
   };
+
   return mapped;
 };
 
@@ -78,8 +113,8 @@ export const usePlanReviewCardData = () => {
 };
 
 type PlanReviewCardProps = {
-  plan: any;
-  onReview?: (plan: any) => void;
+  plan: MappedPlanReview;
+  onReview?: (plan: MappedPlanReview) => void;
 };
 
 const formatDateTime = (iso: string) => {
@@ -105,9 +140,9 @@ export const PlanReviewCard: React.FC<PlanReviewCardProps> = ({ plan, onReview }
         {/* Header Section */}
         <Flex align="center" justify="space-between" className="flex-shrink-0 pb-3 border-b border-[var(--border)]">
           <Flex align="center" gap={12} wrap className="flex-1 min-w-0">
-            <Avatar 
-              size={52} 
-              src={plan.userAvatar} 
+            <Avatar
+              size={52}
+              src={plan.userAvatar}
               className="flex-shrink-0"
             >
               {plan.userName.charAt(0)}

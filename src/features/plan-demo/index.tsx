@@ -7,7 +7,6 @@ import { WorkoutDetailsModal } from './components/WorkoutDetailsModal';
 import { CreateMealPlanModal } from './components/CreateMealPlanModal';
 import { MealDetailsModal } from './components/MealDetailsModal';
 import type { CreatePlanFormData, DayWorkout, CreateMealPlanFormData, DayMeal } from '@/types/plan';
-import FeedbackTab from './components/tabs/FeedbackTab';
 
 import MealTab from './components/tabs/MealTab';
 import WorkoutTab from './components/tabs/WorkoutTab';
@@ -25,18 +24,6 @@ export const PlanDemoPage: React.FC = () => {
 
   const handleTabChange = (key: string) => {
     setActiveTab(key);
-  };
-
-  const handleViewPlan = (id: string) => {
-    console.log('View plan:', id);
-  };
-
-  const handleEditPlan = (id: string) => {
-    console.log('Edit plan:', id);
-  };
-
-  const handleDeletePlan = (id: string) => {
-    console.log('Delete plan:', id);
   };
 
   const handleExport = () => {

@@ -2,13 +2,12 @@
 
 import React, { useMemo, useState } from 'react';
 import { Card } from '@/shared/ui/core/Card';
-import { Flex } from '@/shared/ui/core/Flex';
 import { Icon } from '@/shared/ui/icon';
 import { MonthlyCustomerFilter } from './components/MonthlyCustomerFilter';
 import { MonthlyCustomerTable } from './components/MonthlyCustomerTable';
 import { useRouter } from 'next/navigation';
 import { useAdvisorDashboardCustomers } from '@/tanstack/hooks/advisordashboard';
-import type { MonthlyCustomer } from '@/types/advisordashboard';
+import type { AdvisorDashboardCustomer, MonthlyCustomer } from '@/types/advisordashboard';
 
 const MONTH_OPTIONS_COUNT = 6;
 
@@ -58,7 +57,21 @@ const ensureEngagement = (value?: string): MonthlyCustomer['engagement'] => {
   return 'medium';
 };
 
-const normalizeCustomer = (customer: any, fallbackMonth: string, index: number): MonthlyCustomer => {
+type ExtendedAdvisorCustomer = AdvisorDashboardCustomer & {
+  completedSessions?: number;
+  totalSessions?: number;
+  targetSessions?: number;
+  userId?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  profilePictureUrl?: string;
+  coachingGoal?: string;
+  planName?: string;
+  monthlyProgress?: number;
+  lastCheckin?: string;
+  month?: string;
+};
+const normalizeCustomer = (customer: ExtendedAdvisorCustomer, fallbackMonth: string, index: number): MonthlyCustomer => {
   const sessionsCompleted = Number(customer?.sessionsCompleted ?? customer?.completedSessions ?? 0);
   const sessionsTarget = Number(customer?.totalSessions ?? customer?.sessionsTarget ?? customer?.targetSessions ?? 0) || 1;
   const derivedProgress = Math.round(Math.min(100, Math.max(0, (sessionsCompleted / sessionsTarget) * 100)));
@@ -148,7 +161,7 @@ export const AdvisorMonthlyCustomers: React.FC = () => {
       return [] as MonthlyCustomer[];
     }
 
-    const normalized = data.data.customers.map((customer: any, index: number) => {
+    const normalized = data.data.customers.map((customer: AdvisorDashboardCustomer, index: number) => {
       const normalizedCustomer = normalizeCustomer(customer, selectedMonth, index);
       console.log(`📝 [Component] Customer ${index}:`, customer, '→', normalizedCustomer);
       return normalizedCustomer;

@@ -2,7 +2,6 @@
 'use client';
 
 import React from 'react';
-import { ThemeToggle } from '@/shared/ui';
 import { SettingPage } from '@/features/setting';
 
 export default function AdminSettingsPage() {

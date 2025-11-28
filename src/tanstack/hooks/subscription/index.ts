@@ -12,7 +12,6 @@ import {
   SubscriptionProductsResponse,
   CreateSubscriptionRequest,
   UpdateSubscriptionRequest,
-  CreateSubscriptionResponse 
 } from '@/types/subscription'
 import { IApiResponse } from '@/shared/api/http'
 

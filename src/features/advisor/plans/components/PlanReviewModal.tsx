@@ -21,25 +21,18 @@ import { useGetExercises } from '@/tanstack/hooks/exercise';
 import type { Exercise } from '@/types/exercise';
 
 const { TextArea } = Input;
-
+export type SubmittedPlanReview = {
+  planId: string;
+  status: 'approved' | 'rejected';
+  advisorNotes?: string;
+};
 interface PlanReviewModalProps {
   plan: any;
   isOpen: boolean;
   isSubmitting?: boolean;
   onClose: () => void;
-  onSubmit: (payload: any) => void;
+  onSubmit: (payload: SubmittedPlanReview) => void;
 }
-
-const formatDateTime = (iso: string) => {
-  const date = new Date(iso);
-  return date.toLocaleString('vi-VN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-};
 
 export const PlanReviewModal: React.FC<PlanReviewModalProps> = ({
   plan,

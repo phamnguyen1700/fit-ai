@@ -22,7 +22,7 @@ const RegisterPackageChart: React.FC = () => {
       <div className="flex flex-col items-center">
         <MultiCircleChart values={chartData} colors={chartColors} size={280} strokeWidth={14} />
         <div className="mt-8 w-full flex flex-col items-center">
-          {legend.map((item, idx) => (
+          {legend.map((item) => (
             <div key={item.label} className="flex items-center gap-3 mb-2 w-56 justify-between">
               <div className="flex items-center gap-2">
                 <span className="inline-block w-4 h-4 rounded-full" style={{ background: item.color }}></span>

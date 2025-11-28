@@ -9,7 +9,6 @@ import {
   ChartOptions,
   ChartData,
   Plugin,
-  ChartType,
 } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 

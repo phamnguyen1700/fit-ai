@@ -46,13 +46,13 @@ class HttpClient {
     );
   }
 
-  private handleResponse<T>(res: AxiosResponse<any>): IApiResponse<T> {
+  private handleResponse<T>(res: AxiosResponse<{ data: T, message: string }>): IApiResponse<T> {
     // Handle nested response structure: data.data
     const responseData = res.data?.data || res.data;
     const message = res.data?.message || 'OK';
     
     return {
-      data: responseData,
+      data: responseData as T,
       success: true,
       message: message,
     };
@@ -72,7 +72,7 @@ class HttpClient {
   async get<T>(url: string, config?: AxiosRequestConfig): Promise<IApiResponse<T>> {
     try {
       const res = await this.instance.get<T>(url, config);
-      return this.handleResponse(res);
+      return this.handleResponse(res as AxiosResponse<{ data: T, message: string }>);
     } catch (err) {
       return this.handleError<T>(err);
     }
@@ -81,7 +81,7 @@ class HttpClient {
   async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<IApiResponse<T>> {
     try {
       const res = await this.instance.post<T>(url, data, config);
-      return this.handleResponse(res);
+      return this.handleResponse(res as AxiosResponse<{ data: T, message: string }>);
     } catch (err) {
       return this.handleError<T>(err);
     }
@@ -90,7 +90,7 @@ class HttpClient {
   async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<IApiResponse<T>> {
     try {
       const res = await this.instance.put<T>(url, data, config);
-      return this.handleResponse(res);
+      return this.handleResponse(res as AxiosResponse<{ data: T, message: string }>);
     } catch (err) {
       return this.handleError<T>(err);
     }
@@ -99,7 +99,7 @@ class HttpClient {
   async delete<T>(url: string, config?: AxiosRequestConfig): Promise<IApiResponse<T>> {
     try {
       const res = await this.instance.delete<T>(url, config);
-      return this.handleResponse(res);
+      return this.handleResponse(res as AxiosResponse<{ data: T, message: string }>);
     } catch (err) {
       return this.handleError<T>(err);
     }

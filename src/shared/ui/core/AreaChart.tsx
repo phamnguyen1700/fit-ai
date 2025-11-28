@@ -44,7 +44,7 @@ export const AreaChart: React.FC<AreaChartProps> = ({
 
   const chartData: ChartData<'line'> = {
     labels: effectiveLabels,
-    datasets: series.map((s, idx) => {
+    datasets: series.map((s) => {
       const color = s.color;
       const fillOpacity = s.fillOpacity ?? 0.2;
       return {

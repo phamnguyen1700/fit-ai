@@ -38,7 +38,7 @@ export const QuickTask: React.FC = () => {
             >
                 <div className="text text-base font-semibold mb-3" style={{ color: 'white' }}>Tác vụ nhanh</div>
                 <div className="flex flex-col gap-3">
-                    {actions.map((a, _idx) => (
+                    {actions.map((a) => (
                         <button
                             key={a.key}
                             onClick={a.onClick}

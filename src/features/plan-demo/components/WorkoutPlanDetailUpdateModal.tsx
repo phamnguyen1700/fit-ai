@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Modal, Button, Flex, Card } from '@/shared/ui';
-import { Form, InputNumber, Input, Select, FormInstance } from 'antd';
+import { Form, InputNumber, Input, Select } from 'antd';
 import { Icon } from '@/shared/ui/icon';
 import type { WorkoutDemoDay } from '@/types/workoutdemo';
 import type { UpdateWorkoutDemoExercisePayload, UpdateWorkoutDemoDayPayload } from '@/types/workoutdemo';
@@ -126,7 +126,6 @@ const normalizeDays = (days: WorkoutDemoDay[], totalDays?: number | null): FormD
   // Nếu totalDays được cung cấp và lớn hơn số ngày hiện có, tạo thêm các ngày mới
   if (totalDays && totalDays > normalized.length) {
     const existingDays = new Set(normalized.map(d => d.day));
-    const maxDay = Math.max(...normalized.map(d => d.day), 0);
     
     for (let dayNum = 1; dayNum <= totalDays; dayNum++) {
       if (!existingDays.has(dayNum)) {

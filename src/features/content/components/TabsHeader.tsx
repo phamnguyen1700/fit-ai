@@ -1,11 +1,10 @@
 "use client";
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '../../../shared/ui/core/Button';
 import { SearchInput } from '../../../shared/ui/layout/admin/components/SearchInput';
-import { Icon, icons } from '../../../shared/ui/icon';
+import { Icon } from '../../../shared/ui/icon';
 import { Card } from '../../../shared/ui/core/Card';
 import Filter, { FilterConfig } from '../../../shared/ui/core/Filter';
-import Dropdown from './Dropdown';
 
 interface DropdownOption {
   key: string;
@@ -33,29 +32,11 @@ export const TabsHeader: React.FC<TabsHeaderProps> = ({
   searchPlaceholder = "Tìm kiếm người dùng, kế hoạch...",
   onSearch,
   onAddNew,
-  onImportExport,
-  onEdit,
-  onDropdownSelect,
   onLevelFilter,
   addButtonText = "Thêm bài tập",
-  importExportButtonText = "Nhập/ Xuất dữ liệu",
   addButtonIcon = "mdi:plus",
   className = "",
-  dropdownOptions: customDropdownOptions,
-  defaultActiveOption = "all"
 }) => {
-  const [activeOption, setActiveOption] = useState<string>(defaultActiveOption);
-
-  // Use custom options if provided
-  const dropdownOptions = customDropdownOptions?.map(option => ({
-    ...option,
-    isActive: activeOption === option.key
-  })) || [];
-
-  const handleDropdownSelect = (option: DropdownOption) => {
-    setActiveOption(option.key);
-    onDropdownSelect?.(option);
-  };
 
   // Filter configuration for level - memoize to prevent recreation
   const levelFilters: FilterConfig[] = React.useMemo(() => [

@@ -1,12 +1,11 @@
 "use client";
 import React, { useState } from "react";
 import { Table2, type TableColumn } from "@/shared/ui/core/Table2";
-import { Badge } from "@/shared/ui/core/Badge";
 import { Button } from "@/shared/ui/core/Button";
 import { Pagination } from "@/shared/ui/core/Pagination";
 import Dropdown from "@/features/content/components/Dropdown";
 import { useGetActiveProducts, useUpdateSubscriptionProduct, useDeleteSubscriptionProduct } from "@/tanstack/hooks/subscription";
-import { SubscriptionProduct, UpdateSubscriptionRequest } from "@/types/subscription";
+import { UpdateSubscriptionRequest } from "@/types/subscription";
 import EditPackageModal from "./EditPackageModal";
 import { Modal } from "@/shared/ui/core/Modal";
 import { Icon } from "@/shared/ui/icon";
@@ -30,12 +29,11 @@ interface PackageListTableProps {
 
 const PackageListTable: React.FC<PackageListTableProps> = ({
   onEdit,
-  onDelete,
   onStatusChange,
   className = "",
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize] = useState(10);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<PackageData | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -103,12 +101,6 @@ const PackageListTable: React.FC<PackageListTableProps> = ({
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }
-  };
-
-  const handlePageSizeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newPageSize = parseInt(event.target.value);
-    setPageSize(newPageSize);
-    setCurrentPage(1); // Reset to first page when changing page size
   };
 
   // Format price with VND currency
@@ -246,7 +238,7 @@ const getStatusBadge = (status: string) => {
       dataIndex: 'price',
       key: 'price',
       align: 'center',
-      render: (price: number, record: PackageData) => (
+      render: (price: number) => (
         <div className="text-center font-medium">
           {formatPrice(price)}
         </div>

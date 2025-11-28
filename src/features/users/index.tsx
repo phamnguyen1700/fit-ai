@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { UserTable } from './components/UserTable';
 import { Card } from '@/shared/ui/core/Card';
 import type { UserCardProps } from '@/shared/ui/common/UserCard';
 import { useGetUsers } from '@/tanstack/hooks/users';
+import { User } from '@/types/users';
 
 // Helper function để convert API user data sang UserCardProps format
-const convertApiUserToUserCard = (user: any, index: number): UserCardProps => {
+const convertApiUserToUserCard = (user: User, index: number): UserCardProps => {
   const displayName = user.firstName && user.lastName 
     ? `${user.firstName} ${user.lastName}`
     : user.username || user.email.split('@')[0] || `User ${index + 1}`;
@@ -26,7 +27,7 @@ const convertApiUserToUserCard = (user: any, index: number): UserCardProps => {
 
 export const UserPage: React.FC = () => {
   // Gọi useQuery để fetch real data
-  const { data: usersResponse, isLoading, error } = useGetUsers({ 
+  const { data: usersResponse } = useGetUsers({ 
     page: 1, 
     pageSize: 20 
   });

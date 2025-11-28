@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Card } from "../core/Card";
 import { Button } from "../core/Button";
-import { Icon, icons } from "../icon";
+import { Icon } from "../icon";
 
 interface MealCardProps {
   title: string;

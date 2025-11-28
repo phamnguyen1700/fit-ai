@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Icon } from "../icon";
-import { Button } from "../core/Button";
 import { useUpdateExerciseMutation } from "@/tanstack/hooks/exercise";
 import { UpdateExerciseData } from "@/types/exercise";
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Avatar, Badge, Button, Progress, Flex, Row, Col, Input } from '@/shared/ui';
+import { Card, Avatar, Badge, Button, Flex, Row, Col, Input } from '@/shared/ui';
 import { Icon } from '@/shared/ui/icon';
 
 interface Client {

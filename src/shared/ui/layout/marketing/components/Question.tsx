@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Card } from '@/shared/ui/core/Card';
 
 export interface QuestionItem {
   id: string;

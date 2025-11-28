@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef } from "react";
-import { Modal, Button, Progress, Card } from "@/shared/ui";
+import { Modal, Button, Progress } from "@/shared/ui";
 import { Icon, icons } from "@/shared/ui/icon";
 
 export interface PopupImportProps {
@@ -118,14 +118,6 @@ export const PopupImport: React.FC<PopupImportProps> = ({
     setSelectedFile(null);
     setUploadProgress(0);
     onClose();
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   const formatDateTime = (date: Date) => {

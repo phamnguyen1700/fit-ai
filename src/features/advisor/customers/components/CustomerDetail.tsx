@@ -7,7 +7,7 @@ import { Icon } from '@/shared/ui/icon';
 import { Breadcrumb } from '@/shared/ui/core/Breadcrumb';
 import { CardTable } from '@/shared/ui/core/CardTable';
 import type { CustomerDetail as CustomerDetailModel, CustomerMeasurementEntry } from '@/types/advisordashboard';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useCustomerProfile } from '@/tanstack/hooks/advisordashboard';
 
 interface InfoItemProps {
@@ -128,7 +128,6 @@ const formatMeasurementValue = (value: string | number | undefined) => {
 };
 
 export const CustomerDetail: React.FC<CustomerDetailProps> = ({ customer: customerProp }) => {
-  const router = useRouter();
   const params = useParams();
   const userId = params?.id as string;
 

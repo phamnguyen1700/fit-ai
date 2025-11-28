@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useMemo } from 'react';
-import { ExerciseCard, Card, Pagination, EditExercisePopup, Modal } from '@/shared/ui';
+import { ExerciseCard, Pagination, EditExercisePopup, Modal } from '@/shared/ui';
 import { Row, Col } from '@/shared/ui';
 import { useGetExercises, useDeleteExerciseMutation } from '@/tanstack/hooks/exercise';
 import { Exercise } from '@/types/exercise';

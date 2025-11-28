@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Table2, TableColumn } from '../../../shared/ui/core/Table2';
 import { Pagination } from '../../../shared/ui/core/Pagination';
 import { Button } from '../../../shared/ui/core/Button';
-import { Icon } from '@iconify/react';
 
 interface AdminData {
   id: number;
@@ -20,7 +19,7 @@ interface AdminManaProps {
 
 const AdminMana: React.FC<AdminManaProps> = ({ className = "" }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize] = useState(10);
   
   // Function to get status class for styling
   const getStatusClass = (status: string) => {

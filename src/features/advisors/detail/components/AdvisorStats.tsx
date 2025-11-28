@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Progress, Row, Col, Flex } from '@/shared/ui';
+import { Card, Row, Col } from '@/shared/ui';
 
 interface AdvisorStatsProps {
     advisorData: {

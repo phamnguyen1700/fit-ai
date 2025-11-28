@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { Card, Button } from "@/shared/ui";
 import { Icon, icons } from "@/shared/ui/icon";
-import styles from "./PopupContent.module.css";
 
 export interface PopupContentProps {
   isVisible: boolean;

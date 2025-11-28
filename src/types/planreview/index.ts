@@ -75,5 +75,7 @@ export interface PlanReviewDetail {
 
 export type PendingPlanResponse = PendingPlan[];
 
-export interface PlanReviewDetailResponse extends PlanReviewDetail {}
+export interface PlanReviewDetailResponse extends PlanReviewDetail {
+  message: string;
+}
 

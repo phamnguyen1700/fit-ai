@@ -4,7 +4,6 @@ import { Icon } from '@/shared/ui/icon';
 import type { PlanCardProps } from '@/types/plan';
 
 export const PlanCard: React.FC<PlanCardProps> = ({
-  id,
   userName,
   userAvatar,
   userGender,

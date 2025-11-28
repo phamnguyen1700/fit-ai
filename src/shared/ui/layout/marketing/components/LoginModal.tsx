@@ -47,7 +47,7 @@ type LoginModalProps = {
   role?: 'admin' | 'advisor';
 };
 
-export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, role }) => {
+export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   const [activeKey, setActiveKey] = useState<'login' | 'register'>('login');
   const [loginError, setLoginError] = useState<string>('');
   const [registerError, setRegisterError] = useState<string>('');

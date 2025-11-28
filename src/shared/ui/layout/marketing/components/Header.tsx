@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Button } from 'antd';
 import { LoginModal } from './LoginModal';
 
 export default function Header() {

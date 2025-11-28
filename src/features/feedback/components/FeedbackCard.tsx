@@ -37,7 +37,6 @@ const FeedbackCard: React.FC<FeedbackCardProps> = ({
   content,
   status,
   onApprove,
-  onReject,
   onDelete,
   onPublish,
   onHide,

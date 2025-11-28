@@ -25,7 +25,6 @@ const Header: React.FC<HeaderProps> = ({
   className = "",
 }) => {
   const [activeDateRange, setActiveDateRange] = useState<string>("day");
-  const [activeCategory, setActiveCategory] = useState<string>(activeTab);
   const [filterValues, setFilterValues] = useState<Record<string, string>>({
     packageType: '',
     status: '',
@@ -103,7 +102,6 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   const handleCategoryChange = (key: string) => {
-    setActiveCategory(key);
     onCategoryChange?.(key);
   };
 

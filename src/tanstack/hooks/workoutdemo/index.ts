@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createWorkoutDemoService, deleteWorkoutDemoService, getWorkoutDemoDetailService, getWorkoutDemoListService, updateWorkoutDemoDetailService, hardDeleteWorkoutDemoService, updateWorkoutDemoService, updateWorkoutDemoDayService } from '@/tanstack/services/workoutdemo'
-import { WorkoutDemoDetailResponse, WorkoutDemoListParams, WorkoutDemoListResponse, CreateWorkoutDemoPayload, CreateWorkoutDemoResponse, UpdateWorkoutDemoDetailPayload, UpdateWorkoutDemoDetailResponse, UpdateWorkoutDemoPayload, UpdateWorkoutDemoResponse, UpdateWorkoutDemoExercisePayload, UpdateWorkoutDemoDayPayload } from '@/types/workoutdemo'
+import { WorkoutDemoDetailResponse, WorkoutDemoListParams, WorkoutDemoListResponse, CreateWorkoutDemoPayload, CreateWorkoutDemoResponse, UpdateWorkoutDemoDetailPayload, UpdateWorkoutDemoDetailResponse, UpdateWorkoutDemoPayload, UpdateWorkoutDemoResponse, UpdateWorkoutDemoDayPayload } from '@/types/workoutdemo'
 import { IApiResponse } from '@/shared/api/http'
 import toast from 'react-hot-toast'
 

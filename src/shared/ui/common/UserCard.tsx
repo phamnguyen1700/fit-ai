@@ -41,8 +41,7 @@ export const UserCard: React.FC<UserCardProps> = ({
     console.log("Toggling user status for ID:", userId);
     console.log("Modal function available:", typeof modal.confirm);
     const action = isActive ? "vô hiệu hóa" : "kích hoạt";
-    const newStatus = isActive ? "inactive" : "active";
-
+    
     console.log("About to show modal confirm...");
     modal.confirm({
       title: `Xác nhận ${action} người dùng`,
