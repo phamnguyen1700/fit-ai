@@ -1,305 +1,190 @@
 "use client";
-import React, { useState, useMemo } from 'react';
-import FeedbackCard from './FeedbackCard';
-import { Pagination } from '../../../shared/ui/core/Pagination';
 
-interface FeedbackItem {
+import React from 'react';
+
+import FeedbackCard from './FeedbackCard';
+import { Pagination } from '@/shared/ui/core/Pagination';
+import { useFeedbackList } from '@/tanstack/hooks/feedback';
+import type { FeedbackItem as ApiFeedbackItem } from '@/types/feedback';
+
+type FeedbackStatus = 'pending' | 'approved' | 'rejected' | 'published';
+
+export interface FeedbackCardsItem {
   id: string;
   userAvatar?: string;
   userName: string;
   date: string;
   rating: number;
   content: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: FeedbackStatus;
 }
 
 interface FeedbackCardsProps {
-  feedbacks?: FeedbackItem[];
+  feedbacks?: FeedbackCardsItem[];
+  state?: number;
+  itemsPerPage?: number;
+  className?: string;
   onApprove?: (id: string) => void;
   onReject?: (id: string) => void;
   onDelete?: (id: string) => void;
-  itemsPerPage?: number;
-  className?: string;
+  onPublish?: (id: string) => void;
+  onHide?: (id: string) => void;
+  onRestore?: (id: string) => void;
 }
 
+const STATUS_MAP: Record<number, FeedbackStatus> = {
+  0: 'pending',
+  1: 'approved',
+  2: 'rejected',
+  3: 'published',
+};
+
+const fallbackStatus = (state?: number | string): FeedbackStatus => {
+  if (typeof state === 'string') {
+    const normalized = state.toLowerCase() as FeedbackStatus;
+    return ['pending', 'approved', 'rejected', 'published'].includes(normalized)
+      ? normalized
+      : 'pending';
+  }
+  return STATUS_MAP[state ?? -1] ?? 'pending';
+};
+
+const formatDate = (value?: string): string => {
+  if (!value) return '—';
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return parsed.toLocaleDateString('vi-VN');
+};
+
+const fallbackAvatarUrl =
+  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=80&q=80';
+
+const mapApiItemToCard = (item: ApiFeedbackItem, index: number): FeedbackCardsItem => {
+  const avatar =
+    (item as { avatarUrl?: string }).avatarUrl ??
+    (item as { userAvatar?: string }).userAvatar ??
+    fallbackAvatarUrl;
+
+  const name =
+    item.userName ??
+    (item as { userFullName?: string }).userFullName ??
+    (item as { userEmail?: string }).userEmail ??
+    'Người dùng ẩn danh';
+
+  const content =
+    (item.content as string) ??
+    (item as { feedback?: string }).feedback ??
+    'Không có nội dung.';
+
+  const stateValue =
+    (item as { state?: number }).state ??
+    (item as { status?: number | string }).status;
+
+  return {
+    id: item.id ?? `feedback-${index}`,
+    userAvatar: avatar,
+    userName: name,
+    date: formatDate((item as { updatedAt?: string }).updatedAt ?? item.createdAt),
+    rating:
+      typeof item.rating === 'number' && !Number.isNaN(item.rating) ? item.rating : 0,
+    content,
+    status: fallbackStatus(stateValue),
+  };
+};
+
 const FeedbackCards: React.FC<FeedbackCardsProps> = ({
-  feedbacks = [],
+  feedbacks,
+  state,
+  itemsPerPage = 10,
+  className = '',
   onApprove,
   onReject,
   onDelete,
-  itemsPerPage = 10,
-  className = ""
+  onPublish,
+  onHide,
+  onRestore,
 }) => {
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  // Mock data nếu không có data được truyền vào
-  const mockFeedbacks: FeedbackItem[] = [
-    {
-      id: "1",
-      userAvatar: "",
-      userName: "Cameron Williamson",
-      date: "09/09/2025",
-      rating: 5.0,
-      content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-      status: "pending"
-    },
-    {
-      id: "2", 
-      userAvatar: "",
-      userName: "Sarah Johnson",
-      date: "08/09/2025",
-      rating: 4.5,
-      content: "Excellent app! Very helpful for tracking my fitness goals and meal planning.",
-      status: "approved"
-    },
-    {
-      id: "3",
-      userAvatar: "",
-      userName: "Michael Chen", 
-      date: "07/09/2025",
-      rating: 3.0,
-      content: "Good app but could use some improvements in the user interface.",
-      status: "rejected"
-    },
-    {
-      id: "4",
-      userAvatar: "",
-      userName: "Emily Davis",
-      date: "06/09/2025", 
-      rating: 4.8,
-      content: "Love the workout tracking feature! Makes it easy to stay motivated.",
-      status: "approved"
-    },
-    {
-      id: "5",
-      userAvatar: "",
-      userName: "James Wilson",
-      date: "05/09/2025",
-      rating: 5.0,
-      content: "Amazing fitness app! The nutrition tracking is incredibly detailed and helpful.",
-      status: "pending"
-    },
-    {
-      id: "6",
-      userAvatar: "",
-      userName: "Jessica Brown",
-      date: "04/09/2025",
-      rating: 4.2,
-      content: "Great features overall. The meal planning section is particularly useful.",
-      status: "approved"
-    },
-    {
-      id: "7",
-      userAvatar: "",
-      userName: "David Miller",
-      date: "03/09/2025",
-      rating: 2.5,
-      content: "App crashes sometimes and the sync with wearables needs improvement.",
-      status: "rejected"
-    },
-    {
-      id: "8",
-      userAvatar: "",
-      userName: "Lisa Anderson",
-      date: "02/09/2025",
-      rating: 4.7,
-      content: "Fantastic app for fitness enthusiasts! The progress tracking is excellent.",
-      status: "approved"
-    },
-    {
-      id: "9",
-      userAvatar: "",
-      userName: "Robert Taylor",
-      date: "01/09/2025",
-      rating: 5.0,
-      content: "Best fitness app I've used! The personalized workout plans are amazing.",
-      status: "approved"
-    },
-    {
-      id: "10",
-      userAvatar: "",
-      userName: "Amanda White",
-      date: "31/08/2025",
-      rating: 4.0,
-      content: "Good app with useful features. The calorie tracking is very accurate.",
-      status: "pending"
-    },
-    {
-      id: "11",
-      userAvatar: "",
-      userName: "Kevin Martinez",
-      date: "30/08/2025",
-      rating: 3.8,
-      content: "Decent app but the user interface could be more intuitive.",
-      status: "approved"
-    },
-    {
-      id: "12",
-      userAvatar: "",
-      userName: "Rachel Garcia",
-      date: "29/08/2025",
-      rating: 4.9,
-      content: "Absolutely love this app! The community features are really motivating.",
-      status: "approved"
-    },
-    {
-      id: "13",
-      userAvatar: "",
-      userName: "Thomas Lopez",
-      date: "28/08/2025",
-      rating: 4.3,
-      content: "Great workout suggestions and the nutrition database is comprehensive.",
-      status: "pending"
-    },
-    {
-      id: "14",
-      userAvatar: "",
-      userName: "Michelle Lee",
-      date: "27/08/2025",
-      rating: 5.0,
-      content: "Perfect for tracking both workouts and meals. Highly recommended!",
-      status: "approved"
-    },
-    {
-      id: "15",
-      userAvatar: "",
-      userName: "Christopher Hill",
-      date: "26/08/2025",
-      rating: 3.5,
-      content: "Good functionality but sometimes slow to load data.",
-      status: "rejected"
-    },
-    {
-      id: "16",
-      userAvatar: "",
-      userName: "Stephanie Clark",
-      date: "25/08/2025",
-      rating: 4.6,
-      content: "Excellent fitness tracking app with detailed analytics and reports.",
-      status: "approved"
-    },
-    {
-      id: "17",
-      userAvatar: "",
-      userName: "Daniel Rodriguez",
-      date: "24/08/2025",
-      rating: 4.1,
-      content: "Very helpful for meal planning and workout scheduling.",
-      status: "approved"
-    },
-    {
-      id: "18",
-      userAvatar: "",
-      userName: "Jennifer Walker",
-      date: "23/08/2025",
-      rating: 5.0,
-      content: "Outstanding app! The AI recommendations are spot on.",
-      status: "pending"
-    },
-    {
-      id: "19",
-      userAvatar: "",
-      userName: "Matthew Hall",
-      date: "22/08/2025",
-      rating: 3.2,
-      content: "Basic functionality works well but lacks advanced features.",
-      status: "rejected"
-    },
-    {
-      id: "20",
-      userAvatar: "",
-      userName: "Nicole Young",
-      date: "21/08/2025",
-      rating: 4.4,
-      content: "Great app for beginners! Easy to use and very informative.",
-      status: "approved"
-    },
-    {
-      id: "21",
-      userAvatar: "",
-      userName: "Andrew King",
-      date: "20/08/2025",
-      rating: 4.8,
-      content: "Love the social features and the ability to share progress with friends.",
-      status: "approved"
-    },
-    {
-      id: "22",
-      userAvatar: "",
-      userName: "Rebecca Wright",
-      date: "19/08/2025",
-      rating: 5.0,
-      content: "This app has completely transformed my fitness journey!",
-      status: "pending"
-    }
-  ];
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const effectiveDataProvided = feedbacks && feedbacks.length > 0;
 
-  const displayFeedbacks = feedbacks.length > 0 ? feedbacks : mockFeedbacks;
+  const queryParams = React.useMemo(
+    () => ({
+      pageNumber: currentPage,
+      pageSize: itemsPerPage,
+      state,
+    }),
+    [currentPage, itemsPerPage, state]
+  );
 
-  // Pagination logic
-  const totalPages = Math.ceil(displayFeedbacks.length / itemsPerPage);
-  
-  const currentPageData = useMemo(() => {
+  const { data, isLoading, isError } = useFeedbackList(queryParams);
+
+  const fetchedFeedbacks = React.useMemo(
+    () => (data?.data?.items ?? []).map(mapApiItemToCard),
+    [data?.data?.items]
+  );
+
+  const pagedProvidedFeedbacks = React.useMemo(() => {
+    if (!effectiveDataProvided || !feedbacks) return [];
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return displayFeedbacks.slice(startIndex, endIndex);
-  }, [displayFeedbacks, currentPage, itemsPerPage]);
+    return feedbacks.slice(startIndex, startIndex + itemsPerPage);
+  }, [effectiveDataProvided, feedbacks, currentPage, itemsPerPage]);
+
+  const displayFeedbacks = effectiveDataProvided
+    ? pagedProvidedFeedbacks
+    : fetchedFeedbacks;
+
+  const totalPages = effectiveDataProvided
+    ? Math.max(1, Math.ceil((feedbacks?.length ?? 0) / itemsPerPage))
+    : Math.max(1, data?.data?.totalPages ?? (fetchedFeedbacks.length > 0 ? 1 : 0));
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    // Scroll to top when changing pages (optional)
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleApprove = (id: string) => {
-    console.log("Approve feedback:", id);
-    onApprove?.(id);
-  };
-
-  const handleReject = (id: string) => {
-    console.log("Reject feedback:", id);
-    onReject?.(id);
-  };
-
-  const handleDelete = (id: string) => {
-    console.log("Delete feedback:", id);
-    onDelete?.(id);
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   return (
     <div className={`feedback-cards-container ${className}`}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {currentPageData.map((feedback) => (
-          <FeedbackCard
-            key={feedback.id}
-            id={feedback.id}
-            userAvatar={feedback.userAvatar}
-            userName={feedback.userName}
-            date={feedback.date}
-            rating={feedback.rating}
-            content={feedback.content}
-            status={feedback.status}
-            onApprove={handleApprove}
-            onReject={handleReject}
-            onDelete={handleDelete}
-            className="h-fit"
-          />
-        ))}
-      </div>
-
-      {displayFeedbacks.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">Không có phản hồi nào</p>
+      {isError ? (
+        <div className="py-10 text-center text-sm text-red-500">
+          Không thể tải danh sách feedback.
+        </div>
+      ) : isLoading && !effectiveDataProvided ? (
+        <div className="py-10 text-center text-sm text-secondary">Đang tải feedback...</div>
+      ) : displayFeedbacks.length === 0 ? (
+        <div className="py-12 text-center text-gray-500 text-lg">Không có phản hồi nào</div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {displayFeedbacks.map((feedback) => (
+            <FeedbackCard
+              key={feedback.id}
+              id={feedback.id}
+              userAvatar={feedback.userAvatar}
+              userName={feedback.userName}
+              date={feedback.date}
+              rating={feedback.rating}
+              content={feedback.content}
+              status={feedback.status}
+              onApprove={onApprove}
+              onReject={onReject}
+              onDelete={onDelete}
+              onPublish={onPublish}
+              onHide={onHide}
+              onRestore={onRestore}
+              className="h-fit"
+            />
+          ))}
         </div>
       )}
 
-      {/* Pagination */}
-      {displayFeedbacks.length > itemsPerPage && (
+      {displayFeedbacks.length > 0 && totalPages > 1 && (
         <div className="mt-8 flex justify-center">
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={handlePageChange}
-            showPageNumbers={true}
+            showPageNumbers
             maxVisiblePages={5}
             className="pagination-feedback"
           />
