@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import QuickReportTable from './components/QuickReportTable';
 import ChartReport from './components/ChartReport';
 import QuickTask from './components/QuickTask';
 import FeedbackReport from './components/FeedbackReport';
@@ -174,7 +173,6 @@ const fakeUsers = [
 ];
 
 const components = [
-  QuickReportTable,
   ChartReport,
   QuickTask,
   FeedbackReport,
