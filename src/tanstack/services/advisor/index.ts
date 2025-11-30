@@ -5,7 +5,7 @@ export const getAdvisorsService = (params?: AdvisorParams) =>
   get<AdvisorListResponse>(`account/api/advisor`, { params })
 
 export const getAdvisorDetailService = (advisorId: string) =>
-  get<AdvisorDetail>(`account/api/advisor/${advisorId}`)
+  get<AdvisorDetail>(`account/api/advisor/${advisorId}/detail`)
 
 export const softDeleteAdvisorService = (advisorId: string) => {
   console.log('Calling soft delete endpoint for advisor:', advisorId)

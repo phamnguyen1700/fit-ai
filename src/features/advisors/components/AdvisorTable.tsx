@@ -8,29 +8,50 @@ import { App } from 'antd';
 
 const resolveAvatarUrl = (path?: string) => {
   if (!path) return undefined;
-  if (path.startsWith('http')) return path;
+  if (path.startsWith('http')) return encodeURI(path);
 
   const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || '';
   const normalizedPath = path.replace(/^\/+/, '');
 
-  return baseUrl ? `${baseUrl}/${normalizedPath}` : path;
+  const resolved = baseUrl ? `${baseUrl}/${normalizedPath}` : path;
+  return encodeURI(resolved);
+};
+
+const normalizeSpecialties = (specialties?: string[] | string) => {
+  if (Array.isArray(specialties)) {
+    return specialties;
+  }
+
+  if (typeof specialties === 'string') {
+    return specialties
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
 };
 
 const mapAdvisorToCardProps = (advisor: Advisor): AdvisorCardProps => {
   const fullName = `${advisor.firstName ?? ''} ${advisor.lastName ?? ''}`.trim();
+  const specialties = normalizeSpecialties(advisor.specialties);
+  const totalCustomers =
+    typeof advisor.totalCustomers === 'number'
+      ? advisor.totalCustomers
+      : advisor.customers?.length ?? 0;
 
   return {
     id: advisor.id,
     name: fullName || advisor.email,
     email: advisor.email,
-    phone: advisor.phone,
+    phone: advisor.phone || 'Chưa cập nhật',
     avatarUrl: resolveAvatarUrl(advisor.profilePicture),
-    specialty: advisor.specialties || 'Chưa cập nhật',
+    specialty: specialties.length ? specialties.join(', ') : 'Chưa cập nhật',
     experience:
       typeof advisor.yearsExperience === 'number'
         ? `${advisor.yearsExperience} năm`
         : 'Chưa cập nhật',
-    clients: 0,
+    clients: totalCustomers,
     rating: typeof advisor.rating === 'number' ? advisor.rating : 0,
     statusLabel: advisor.isActive ? 'Hoạt động' : 'Ngưng hoạt động',
     isActive: advisor.isActive,

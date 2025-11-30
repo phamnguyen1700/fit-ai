@@ -9,16 +9,19 @@ import { AdvisorSpecialty } from './components/AdvisorSpecialty';
 import { AdvisorAchievements } from './components/AdvisorAchievements';
 import { ManagedClientsList } from './components/ManagedClientsList';
 import { useAdvisorDetail, useSoftDeleteAdvisor, useReactivateAdvisor, useUpdateAdvisorProfile } from '@/tanstack/hooks/advisor';
-import { AdvisorDetail, Achievement } from '@/types/advisor';
+import { AdvisorDetail, Achievement, AdvisorCustomer } from '@/types/advisor';
 import { Skeleton, App } from 'antd';
 import toast from 'react-hot-toast';
 
 const resolveAvatarUrl = (avatar?: string) => {
     if (!avatar) return undefined;
-    if (avatar.startsWith('http')) return avatar;
+    if (avatar.startsWith('http')) {
+        return encodeURI(avatar);
+    }
     const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || '';
     const normalized = avatar.replace(/^\/+/, '');
-    return base ? `${base}/${normalized}` : avatar;
+    const resolved = base ? `${base}/${normalized}` : avatar;
+    return encodeURI(resolved);
 };
 
 type AdvisorDetailView = {
@@ -60,6 +63,16 @@ const mapAdvisorDetailToProfile = (advisor?: AdvisorDetail): AdvisorDetailView |
     : typeof advisor.certifications === 'string'
     ? advisor.certifications.split(',').map((item: string) => item.trim()).filter(Boolean)
         : [];
+    const rawSpecialties = advisor.specialties as string[] | string | undefined;
+    const specialtiesArray = Array.isArray(rawSpecialties)
+        ? rawSpecialties
+        : typeof rawSpecialties === 'string'
+        ? rawSpecialties.split(',').map((item: string) => item.trim()).filter(Boolean)
+        : [];
+    const customers = advisor.customers ?? [];
+    const activeCustomers = customers.filter((customer) => customer.subscriptionStatus === 'Active').length;
+    const totalCustomers =
+        typeof advisor.totalCustomers === 'number' ? advisor.totalCustomers : customers.length;
 
     return {
         id: advisor.id,
@@ -67,11 +80,11 @@ const mapAdvisorDetailToProfile = (advisor?: AdvisorDetail): AdvisorDetailView |
         email: advisor.email,
         phone: advisor.phone || 'Chưa cập nhật',
         avatar: resolveAvatarUrl(advisor.profilePicture) || 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5',
-        specialty: advisor.specialties || 'Chưa cập nhật',
+        specialty: specialtiesArray.length ? specialtiesArray.join(', ') : 'Chưa cập nhật',
         experience: typeof advisor.yearsExperience === 'number' ? `${advisor.yearsExperience} năm` : 'Chưa cập nhật',
         rating: typeof advisor.rating === 'number' ? advisor.rating : 0,
-        totalClients: advisor.totalClients ?? 0,
-        activeClients: advisor.activeClients ?? 0,
+        totalClients: totalCustomers,
+        activeClients: activeCustomers,
         completedPrograms: advisor.completedPrograms ?? 0,
         status: advisor.isActive ? 'Hoạt động' : 'Ngưng hoạt động',
         isActive: advisor.isActive,
@@ -105,7 +118,9 @@ export const AdvisorDetailPage: React.FC<AdvisorDetailPageProps> = ({ advisorId 
         availability: '',
     });
 
-    const advisorDetail = useMemo(() => mapAdvisorDetailToProfile(data?.data as AdvisorDetail | undefined), [data?.data]);
+    const advisorData = data?.data as AdvisorDetail | undefined;
+    const advisorDetail = useMemo(() => mapAdvisorDetailToProfile(advisorData), [advisorData]);
+    const advisorCustomers = useMemo<AdvisorCustomer[]>(() => advisorData?.customers ?? [], [advisorData]);
 
     // Initialize form data when advisor detail is loaded
     useEffect(() => {
@@ -131,82 +146,6 @@ export const AdvisorDetailPage: React.FC<AdvisorDetailPageProps> = ({ advisorId 
             });
         }
     }, [advisorDetail, isEditing]);
-
-    // Mock data khách hàng đang quản lý
-    const managedClients = [
-        {
-            id: '1',
-            name: 'Trần Văn An',
-            email: 'tran.van.an@example.com',
-            avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
-            program: 'Giảm cân',
-            startDate: '01/10/2024',
-            progress: 65,
-            status: 'Đang hoạt động',
-            sessionsCompleted: 12,
-            totalSessions: 20
-        },
-        {
-            id: '2',
-            name: 'Nguyễn Thị Bình',
-            email: 'nguyen.thi.binh@example.com',
-            avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-            program: 'Tăng cơ',
-            startDate: '15/09/2024',
-            progress: 80,
-            status: 'Đang hoạt động',
-            sessionsCompleted: 16,
-            totalSessions: 20
-        },
-        {
-            id: '3',
-            name: 'Lê Hoàng Cường',
-            email: 'le.hoang.cuong@example.com',
-            avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d',
-            program: 'Thể hình thi đấu',
-            startDate: '20/08/2024',
-            progress: 45,
-            status: 'Đang hoạt động',
-            sessionsCompleted: 9,
-            totalSessions: 20
-        },
-        {
-            id: '4',
-            name: 'Phạm Thu Hương',
-            email: 'pham.thu.huong@example.com',
-            avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',
-            program: 'Giảm cân',
-            startDate: '05/11/2024',
-            progress: 30,
-            status: 'Đang hoạt động',
-            sessionsCompleted: 6,
-            totalSessions: 20
-        },
-        {
-            id: '5',
-            name: 'Hoàng Văn Đức',
-            email: 'hoang.van.duc@example.com',
-            avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
-            program: 'Tăng cơ',
-            startDate: '12/07/2024',
-            progress: 95,
-            status: 'Sắp hoàn thành',
-            sessionsCompleted: 19,
-            totalSessions: 20
-        },
-        {
-            id: '6',
-            name: 'Vũ Thị Mai',
-            email: 'vu.thi.mai@example.com',
-            avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f',
-            program: 'Yoga & Thể hình',
-            startDate: '25/09/2024',
-            progress: 55,
-            status: 'Đang hoạt động',
-            sessionsCompleted: 11,
-            totalSessions: 20
-        }
-    ];
 
     const breadcrumbItems = [
         { title: 'Trang chủ', href: '/admin/dashboard' },
@@ -455,7 +394,7 @@ export const AdvisorDetailPage: React.FC<AdvisorDetailPageProps> = ({ advisorId 
             {/* Bottom Section - Quản lý khách hàng */}
             <Row gutter={[24, 24]} className="mt-6">
                 <Col span={24}>
-                    <ManagedClientsList clients={managedClients} />
+                    <ManagedClientsList clients={advisorCustomers} />
                 </Col>
             </Row>
         </Card>

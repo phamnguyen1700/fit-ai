@@ -7,11 +7,13 @@ export interface Advisor {
   phone?: string;
   bio?: string;
   certifications?: string;
-  specialties?: string;
+  specialties?: string[] | string;
   yearsExperience?: number;
   profilePicture?: string;
   availability?: string;
   rating?: number;
+  totalCustomers?: number;
+  customers?: AdvisorCustomer[];
   accountLockedUntil?: string | null;
   isActive: boolean;
   lastCreate?: string;
@@ -26,11 +28,12 @@ export interface AdvisorParams {
 
 export type AdvisorListResponse = Advisor[];
 
-export interface AdvisorDetail extends Omit<Advisor, 'certifications'> {
+export interface AdvisorDetail extends Omit<Advisor, 'certifications' | 'specialties'> {
   certifications?: string[] | string;
+  specialties?: string[];
   workingHours?: string;
-  totalClients?: number;
-  activeClients?: number;
+  totalCustomers?: number;
+  customers?: AdvisorCustomer[];
   completedPrograms?: number;
   bio?: string;
   achievements?: Achievement[];
@@ -40,6 +43,17 @@ export interface Achievement {
   year: string;
   title: string;
   organization: string;
+}
+
+export interface AdvisorCustomer {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string | null;
+  goal: string;
+  subscriptionStatus: string;
+  subscriptionStartDate: string | null;
+  subscriptionEndDate: string | null;
 }
 
 export interface UpdateAdvisorProfileRequest {
