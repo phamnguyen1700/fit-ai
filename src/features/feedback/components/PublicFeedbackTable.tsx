@@ -4,16 +4,55 @@ import { Table2, TableColumn } from '@/shared/ui/core/Table2';
 import { Button } from '@/shared/ui/core/Button';
 import { Pagination } from '@/shared/ui/core/Pagination';
 import { StarFilled } from "@ant-design/icons";
+import { useFeedbackList, useTogglePublicFeedback } from '@/tanstack/hooks/feedback';
+import type { FeedbackItem } from '@/types/feedback';
+import { App } from 'antd';
 
 // Interface cho dữ liệu feedback
 interface PublicFeedbackData {
   key: string;
+  id: string;
   user: string;
   date: string;
   rating: number;
   content: string;
   actions: string;
 }
+
+const formatDate = (value?: string): string => {
+  if (!value) return '—';
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return parsed.toLocaleDateString('vi-VN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+};
+
+const mapApiItemToTableData = (item: FeedbackItem, index: number): PublicFeedbackData => {
+  const name =
+    item.userName ??
+    (item as { userFullName?: string }).userFullName ??
+    (item as { userEmail?: string }).userEmail ??
+    'Người dùng ẩn danh';
+
+  const content =
+    (item.content as string) ??
+    (item as { feedback?: string }).feedback ??
+    'Không có nội dung.';
+
+  return {
+    key: item.id ?? `feedback-${index}`,
+    id: item.id ?? `feedback-${index}`,
+    user: name,
+    date: formatDate((item as { lastCreate?: string }).lastCreate ?? item.createdAt),
+    rating:
+      typeof item.rating === 'number' && !Number.isNaN(item.rating) ? item.rating : 0,
+    content,
+    actions: '',
+  };
+};
 
 // Props cho component
 interface PublicFeedbackTableProps {
@@ -22,107 +61,6 @@ interface PublicFeedbackTableProps {
   onDelete?: (record: PublicFeedbackData) => void;
 }
 
-// Mock data - sẽ được thay thế bằng API calls
-const mockData: PublicFeedbackData[] = [
-  {
-    key: '1',
-    user: 'Kathryn Murphy',
-    date: 'February 29, 2012',
-    rating: 5.0,
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
-    actions: ''
-  },
-  {
-    key: '2',
-    user: 'Cody Fisher',
-    date: 'July 14, 2015',
-    rating: 4.5,
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
-    actions: ''
-  },
-  {
-    key: '3',
-    user: 'Floyd Miles',
-    date: 'May 12, 2019',
-    rating: 4.5,
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
-    actions: ''
-  },
-  {
-    key: '4',
-    user: 'Ronald Richards',
-    date: 'April 28, 2016',
-    rating: 4.5,
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
-    actions: ''
-  },
-  {
-    key: '5',
-    user: 'Ronald Richards',
-    date: 'May 9, 2014',
-    rating: 5.0,
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
-    actions: ''
-  },
-  {
-    key: '6',
-    user: 'Albert Flores',
-    date: 'February 29, 2012',
-    rating: 5.0,
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
-    actions: ''
-  },
-  {
-    key: '7',
-    user: 'Cameron Williamson',
-    date: 'November 28, 2015',
-    rating: 4.5,
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
-    actions: ''
-  },
-  {
-    key: '8',
-    user: 'Kristin Watson',
-    date: 'May 6, 2012',
-    rating: 3.5,
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
-    actions: ''
-  },
-  {
-    key: '9',
-    user: 'Jenny Wilson',
-    date: 'December 19, 2013',
-    rating: 3.0,
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
-    actions: ''
-  },
-  {
-    key: '10',
-    user: 'Robert Fox',
-    date: 'March 6, 2018',
-    rating: 4.0,
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
-    actions: ''
-  },
-  // Thêm dữ liệu để test pagination
-  {
-    key: '11',
-    user: 'Alice Johnson',
-    date: 'January 15, 2020',
-    rating: 4.8,
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
-    actions: ''
-  },
-  {
-    key: '12',
-    user: 'Bob Smith',
-    date: 'June 22, 2021',
-    rating: 3.2,
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
-    actions: ''
-  },
-];
-
 const PublicFeedbackTable: React.FC<PublicFeedbackTableProps> = ({
   className = '',
   onDelete,
@@ -130,26 +68,59 @@ const PublicFeedbackTable: React.FC<PublicFeedbackTableProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
 
-  // Calculate pagination data
-  const totalItems = mockData.length;
-  const totalPages = Math.ceil(totalItems / pageSize);
+  // Fetch feedback với state = 4 (published/public)
+  const { data, isLoading, isError } = useFeedbackList({
+    pageNumber: currentPage,
+    pageSize,
+    state: 3, // Chỉ lấy feedback có state = 4 (published)
+  });
 
-  // Get current page data
-  const currentData = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    return mockData.slice(startIndex, endIndex);
-  }, [currentPage, pageSize]);
+  // Map API data sang table data format
+  const tableData = useMemo(() => {
+    if (!data?.data?.items) return [];
+    return data.data.items.map(mapApiItemToTableData);
+  }, [data?.data?.items]);
+
+  // Get pagination info from API
+  const totalPages = data?.data?.totalPages ?? 0;
+  const totalItems = data?.data?.totalItems ?? 0;
 
   // Handle page change
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
+  const { modal } = App.useApp();
+  const togglePublicFeedback = useTogglePublicFeedback();
+
   // Handle actions
   const handleHide = (record: PublicFeedbackData) => {
-    console.log('Hide feedback:', record);
-    // Implement hide logic
+    modal.confirm({
+      title: 'Xác nhận ẩn',
+      content: `Bạn có chắc chắn muốn ẩn feedback từ "${record.user}"?`,
+      okText: 'Ẩn',
+      cancelText: 'Hủy',
+      okButtonProps: {
+        style: {
+          backgroundColor: 'var(--primary)',
+          borderColor: 'var(--primary)',
+          color: 'white',
+        },
+      },
+      onOk: () => {
+        return new Promise<void>((resolve, reject) => {
+          togglePublicFeedback.mutate(record.id, {
+            onSuccess: () => {
+              resolve();
+            },
+            onError: () => {
+              reject();
+            },
+          });
+        });
+      },
+      centered: true,
+    });
   };
 
   const handleDeleteAction = (record: PublicFeedbackData) => {
@@ -205,6 +176,8 @@ const PublicFeedbackTable: React.FC<PublicFeedbackTableProps> = ({
             size="sm"
             className="action-button hide-btn"
             onClick={() => handleHide(record)}
+            disabled={togglePublicFeedback.isPending}
+            loading={togglePublicFeedback.isPending}
           >
             Ẩn
           </Button>
@@ -221,12 +194,46 @@ const PublicFeedbackTable: React.FC<PublicFeedbackTableProps> = ({
     },
   ];
 
+  // Handle loading state
+  if (isLoading) {
+    return (
+      <div className={className}>
+        <div className="py-12 text-center text-sm text-[var(--text-secondary)]">
+          Đang tải danh sách feedback công khai...
+        </div>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (isError) {
+    return (
+      <div className={className}>
+        <div className="py-12 text-center text-sm text-[var(--error)]">
+          Không thể tải danh sách feedback. Vui lòng thử lại sau.
+        </div>
+      </div>
+    );
+  }
+
+  // Handle empty state
+  if (tableData.length === 0) {
+    return (
+      <div className={className}>
+        <div className="py-12 text-center text-sm text-[var(--text-secondary)]">
+          Không có feedback công khai nào.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={className}>
       <div className="public-feedback-table">
         <Table2<PublicFeedbackData>
           columns={columns}
-          dataSource={currentData}
+          dataSource={tableData}
+          loading={isLoading}
           pagination={false}
           bordered={false}
           size="middle"
@@ -234,16 +241,18 @@ const PublicFeedbackTable: React.FC<PublicFeedbackTableProps> = ({
           rowKey="key"
         />
       </div>
-      <div className="mt-6 flex justify-center">
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-          showPageNumbers={true}
-          maxVisiblePages={5}
-          className="custom-pagination"
-        />
-      </div>
+      {totalPages > 1 && (
+        <div className="mt-6 flex justify-center">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            showPageNumbers={true}
+            maxVisiblePages={5}
+            className="custom-pagination"
+          />
+        </div>
+      )}
     </div>
   );
 };

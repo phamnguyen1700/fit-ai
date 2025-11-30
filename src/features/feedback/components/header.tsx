@@ -37,15 +37,11 @@ const Header: React.FC<HeaderProps> = ({
     { label: "Năm", value: "year" },
   ];
 
-  // Category tabs (Danh sách phản hồi, Duyệt phản hồi, Phản hồi công khai)
+  // Category tabs (Danh sách phản hồi, Phản hồi công khai)
   const categoryTabItems: Tab4Item[] = [
     {
       key: "feedback-list",
       label: "Danh sách phản hồi",
-    },
-    {
-      key: "review-feedback",
-      label: "Duyệt phản hồi",
     },
     {
       key: "public-feedback",
@@ -144,7 +140,7 @@ const Header: React.FC<HeaderProps> = ({
 
         {/* Conditional Layout based on active tab */}
         {activeCategory === "feedback-list" ? (
-          /* Layout for "Duyệt phản hồi" - Simple search only */
+          /* Layout for "Danh sách phản hồi" - Simple search only */
           <div className="w-full">
             <SearchInput
               placeholder="Tìm kiếm người dùng, kế hoạch..."
@@ -153,7 +149,7 @@ const Header: React.FC<HeaderProps> = ({
             />
           </div>
         ) : (
-          /* Layout for other tabs - Search + Filter dropdowns */
+          /* Layout for "Phản hồi công khai" - Search + Filter dropdowns */
           <div className="flex items-center gap-4">
             <div className="flex-1">
               <SearchInput

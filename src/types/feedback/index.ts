@@ -31,3 +31,7 @@ export interface FeedbackListResponse extends Partial<FeedbackListMeta> {
   [key: string]: unknown;
 }
 
+export interface DenyFeedbackRequest {
+  reason: string;
+}
+

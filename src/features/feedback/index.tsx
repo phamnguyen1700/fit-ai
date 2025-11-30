@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import Header from "./components/header";
 import FeedbackList from "./components/tabs/FeedbackList";
-import ReviewFeedback from "./components/tabs/ReviewFeedback";
 import PublicFeedback from "./components/tabs/PublicFeedback";
 
 export default function FeedbackPage() {
@@ -16,8 +15,6 @@ export default function FeedbackPage() {
     switch (activeTab) {
       case "feedback-list":
         return <FeedbackList />;
-      case "review-feedback":
-        return <ReviewFeedback />;
       case "public-feedback":
         return <PublicFeedback />;
       default:
