@@ -8,8 +8,18 @@ import { CardTable } from '@/shared/ui/core/CardTable';
 import { FeedbackFilter } from './components/FeedbackFilter';
 import { FeedbackCard } from './components/FeedbackCard';
 import ReviewModal from './components/ReviewModal';
-import { usePendingWorkoutReviews, usePendingMealReviews } from '@/tanstack/hooks/advisorreview';
-import type { WorkoutReview, MealReview } from '@/types/advisorreview';
+import {
+	usePendingWorkoutReviews,
+	usePendingMealReviews,
+	useReviewedMeals,
+	useReviewedWorkouts,
+} from '@/tanstack/hooks/advisorreview';
+import type {
+	WorkoutReview,
+	MealReview,
+	MealReviewedItem,
+	WorkoutReviewedItem,
+} from '@/types/advisorreview';
 
 // UI-specific types
 type FeedbackCategory = 'training' | 'nutrition';
@@ -43,27 +53,41 @@ const CATEGORY_TABS: { value: CategoryFilter; label: string; icon: string }[] = 
 ];
 
 export const AdvisorFeedbackRequests: React.FC = () => {
+	// 1. Lấy danh sách submission chưa đánh giá (pending)
 	const { data: workoutApiData, isLoading: isLoadingWorkouts, error: workoutError } = usePendingWorkoutReviews();
 	const { data: mealApiData, isLoading: isLoadingMeals, error: mealError } = usePendingMealReviews();
+	// 2. Lấy danh sách đã đánh giá để hiển thị trong tab "Đã đánh giá/Đã duyệt"
+	const {
+		data: reviewedWorkoutData,
+		isLoading: isLoadingReviewedWorkouts,
+		error: reviewedWorkoutError,
+	} = useReviewedWorkouts();
+	const {
+		data: reviewedMealData,
+		isLoading: isLoadingReviewedMeals,
+		error: reviewedMealError,
+	} = useReviewedMeals();
 	const [selectedStatus, setSelectedStatus] = useState<string>('all');
 	const [selectedMedia, setSelectedMedia] = useState<string>('all');
 	const [activeCategory, setActiveCategory] = useState<CategoryFilter>('all');
 	const [selectedSubmission, setSelectedSubmission] = useState<WorkoutReview | MealReview | null>(null);
 	const [isReviewModalOpen, setReviewModalOpen] = useState(false);
 
-	const isLoading = isLoadingWorkouts || isLoadingMeals;
-	const error = workoutError || mealError;
+	// Trong giao diện, loading/error được gộp để tránh hiển thị từng block riêng
+	const isLoading =
+		isLoadingWorkouts || isLoadingMeals || isLoadingReviewedWorkouts || isLoadingReviewedMeals;
+	const error = workoutError || mealError || reviewedMealError || reviewedWorkoutError;
 
 	// Get workout reviews from API
 	const workoutReviews = useMemo(() => {
 		let reviews: WorkoutReview[] = [];
-		
+
 		if (Array.isArray(workoutApiData?.data)) {
 			reviews = workoutApiData.data;
 		} else if (Array.isArray(workoutApiData?.data?.data)) {
 			reviews = workoutApiData.data.data;
 		}
-		
+
 		console.log('✅ [Feedback] Workout reviews:', reviews);
 		return reviews;
 	}, [workoutApiData]);
@@ -71,76 +95,117 @@ export const AdvisorFeedbackRequests: React.FC = () => {
 	// Get meal reviews from API
 	const mealReviews = useMemo(() => {
 		let reviews: MealReview[] = [];
-		
+
 		if (Array.isArray(mealApiData?.data)) {
 			reviews = mealApiData.data;
 		} else if (Array.isArray(mealApiData?.data?.data)) {
 			reviews = mealApiData.data.data;
 		}
-		
+
 		console.log('✅ [Feedback] Meal reviews:', reviews);
 		return reviews;
 	}, [mealApiData]);
 
+	// Reviewed lists
+	const reviewedWorkouts = useMemo(() => {
+		let items: WorkoutReviewedItem[] = [];
+		if (Array.isArray(reviewedWorkoutData?.data)) {
+			items = reviewedWorkoutData.data;
+		}
+		return items;
+	}, [reviewedWorkoutData]);
+
+	const reviewedMeals = useMemo(() => {
+		let items: MealReviewedItem[] = [];
+		if (Array.isArray(reviewedMealData?.data)) {
+			items = reviewedMealData.data;
+		}
+		return items;
+	}, [reviewedMealData]);
+
 	// Compute summary from both workout and meal reviews
+	// Summary sử dụng cho các tile phía trên
 	const summary = useMemo(() => {
-		const total = workoutReviews.length + mealReviews.length;
-		const pending = 
+		const total =
+			workoutReviews.length + mealReviews.length + reviewedWorkouts.length + reviewedMeals.length;
+		const pending =
 			workoutReviews.filter((r) => !r.hasComments).length +
 			mealReviews.filter((r) => !r.hasComments).length;
-		const rework = 
-			workoutReviews.filter((r) => r.hasComments && (r.lastCommentFrom === 'customer' || r.lastCommentFrom === 'user')).length +
-			mealReviews.filter((r) => r.hasComments && (r.lastCommentFrom === 'user' || r.lastCommentFrom === 'customer')).length;
-		const reviewed = 
+		const reviewed =
 			workoutReviews.filter((r) => r.hasComments && r.lastCommentFrom === 'advisor').length +
-			mealReviews.filter((r) => r.hasComments && r.lastCommentFrom === 'advisor').length;
+			mealReviews.filter((r) => r.hasComments && r.lastCommentFrom === 'advisor').length +
+			reviewedWorkouts.length +
+			reviewedMeals.length;
 		const videos = workoutReviews.length; // Only workouts are videos
 		const images = mealReviews.length; // Meals are images
 
 		return {
 			total,
 			pending,
-			rework,
 			reviewed,
 			videos,
 			images,
 		};
-	}, [workoutReviews, mealReviews]);
+	}, [workoutReviews, mealReviews, reviewedWorkouts, reviewedMeals]);
 
 	// Filter and combine reviews
+	// Tạo danh sách hiển thị theo filter hiện tại (pending/reviewed, media, category)
 	const filteredItems = useMemo(() => {
-		const filteredWorkouts = workoutReviews.filter((review) => {
-			// Status filter
-			if (selectedStatus !== 'all') {
-				if (selectedStatus === 'pending' && review.hasComments) return false;
-				if (selectedStatus === 'reviewed' && !review.hasComments) return false; // Chỉ hiển thị nếu hasComments = true
-				if (selectedStatus === 'rework' && (!review.hasComments || (review.lastCommentFrom !== 'customer' && review.lastCommentFrom !== 'user'))) return false;
-			}
-			// Media filter - all are videos, so only show if 'all' or 'video'
-			if (selectedMedia !== 'all' && selectedMedia !== 'video') return false;
-			// Category filter - all are training
-			if (activeCategory !== 'all' && activeCategory !== 'training') return false;
-			return true;
-		});
+		const showPending = ['all', 'pending'].includes(selectedStatus);
+		const showReviewed = ['all', 'reviewed'].includes(selectedStatus);
 
-		const filteredMeals = mealReviews.filter((review) => {
-			// Status filter
-			if (selectedStatus !== 'all') {
-				if (selectedStatus === 'pending' && review.hasComments) return false;
-				if (selectedStatus === 'reviewed' && !review.hasComments) return false; // Chỉ hiển thị nếu hasComments = true
-				if (selectedStatus === 'rework' && (!review.hasComments || (review.lastCommentFrom !== 'user' && review.lastCommentFrom !== 'customer'))) return false;
-			}
-			// Media filter - all are images, so only show if 'all' or 'image'
-			if (selectedMedia !== 'all' && selectedMedia !== 'image') return false;
-			// Category filter - all are nutrition
-			if (activeCategory !== 'all' && activeCategory !== 'nutrition') return false;
-			return true;
-		});
+		const filteredWorkouts = showPending
+			? workoutReviews.filter((review) => {
+				// Status filter
+				if (selectedStatus !== 'all') {
+					if (selectedStatus === 'pending' && review.hasComments) return false;
+					if (selectedStatus === 'reviewed' && !review.hasComments) return false;
+				}
+				// Media filter - all are videos, so only show if 'all' or 'video'
+				if (selectedMedia !== 'all' && selectedMedia !== 'video') return false;
+				// Category filter - all are training
+				if (activeCategory !== 'all' && activeCategory !== 'training') return false;
+				return true;
+			})
+			: [];
+
+		const filteredReviewedWorkouts = showReviewed
+			? reviewedWorkouts.filter(() => {
+				if (selectedMedia !== 'all' && selectedMedia !== 'video') return false;
+				if (activeCategory !== 'all' && activeCategory !== 'training') return false;
+				return true;
+			})
+			: [];
+
+		const filteredMeals = showPending
+			? mealReviews.filter((review) => {
+				// Status filter
+				if (selectedStatus !== 'all') {
+					if (selectedStatus === 'pending' && review.hasComments) return false;
+					if (selectedStatus === 'reviewed' && !review.hasComments) return false;
+				}
+				// Media filter - all are images, so only show if 'all' or 'image'
+				if (selectedMedia !== 'all' && selectedMedia !== 'image') return false;
+				// Category filter - all are nutrition
+				if (activeCategory !== 'all' && activeCategory !== 'nutrition') return false;
+				return true;
+			})
+			: [];
+
+		const filteredReviewedMeals = showReviewed
+			? reviewedMeals.filter(() => {
+				if (selectedMedia !== 'all' && selectedMedia !== 'image') return false;
+				if (activeCategory !== 'all' && activeCategory !== 'nutrition') return false;
+				return true;
+			})
+			: [];
 
 		// Combine and sort by createdAt (newest first)
 		const combined = [
 			...filteredWorkouts.map(w => ({ type: 'workout' as const, review: w })),
 			...filteredMeals.map(m => ({ type: 'meal' as const, review: m })),
+			...filteredReviewedWorkouts.map(w => ({ type: 'workout-reviewed' as const, review: w })),
+			...filteredReviewedMeals.map(m => ({ type: 'meal-reviewed' as const, review: m })),
 		].sort((a, b) => {
 			const dateA = new Date(a.review.createdAt).getTime();
 			const dateB = new Date(b.review.createdAt).getTime();
@@ -148,16 +213,22 @@ export const AdvisorFeedbackRequests: React.FC = () => {
 		});
 
 		return combined;
-	}, [workoutReviews, mealReviews, selectedStatus, selectedMedia, activeCategory]);
+	}, [workoutReviews, mealReviews, reviewedWorkouts, reviewedMeals, selectedStatus, selectedMedia, activeCategory]);
 
-		const handleAction = (action: string, submission: WorkoutReview | MealReview) => {
-			if (action === 'review') {
-				setSelectedSubmission(submission);
-				setReviewModalOpen(true);
-				return;
-			}
-			const id = 'workoutLogId' in submission ? submission.workoutLogId : submission.mealLogId;
-			console.log('Advisor feedback action', action, id);
+	// Khi người dùng bấm action trên thẻ
+	const handleAction = (action: string, submission: WorkoutReview | MealReview) => {
+		if (action === 'review') {
+			setSelectedSubmission(submission);
+			setReviewModalOpen(true);
+			return;
+		}
+		if (action === 'view-feedback') {
+			setSelectedSubmission(submission);
+			setReviewModalOpen(true);
+			return;
+		}
+		const id = 'workoutLogId' in submission ? submission.workoutLogId : submission.mealLogId;
+		console.log('Advisor feedback action', action, id);
 	};
 
 	const handleBulkAction = (action: string) => {
@@ -168,10 +239,33 @@ export const AdvisorFeedbackRequests: React.FC = () => {
 		<div className="flex flex-col gap-4">
 			<Card>
 				<Flex wrap="wrap" gap={16} className="md:flex-nowrap">
-					<SummaryTile icon="mdi:inbox-arrow-down" label="Tổng cần đánh giá" value={summary.total} helper={`${summary.pending} đang chờ`} />
-					<SummaryTile icon="mdi:clock-outline" label="Chờ đánh giá" value={summary.pending} accent="rgba(250,140,22,0.12)" iconColor="#fa8c16" />
-					<SummaryTile icon="mdi:alert-circle-outline" label="Cần làm lại" value={summary.rework} accent="rgba(255,77,79,0.12)" iconColor="var(--error)" />
-					<SummaryTile icon="mdi:video-outline" label="Video" value={summary.videos} helper={`${summary.images} hình ảnh`} accent="rgba(56,189,248,0.12)" />
+					<SummaryTile
+						icon="mdi:inbox-arrow-down"
+						label="Tổng cần đánh giá"
+						value={summary.total}
+						helper={`${summary.pending} đang chờ`}
+					/>
+					<SummaryTile
+						icon="mdi:clock-outline"
+						label="Chờ đánh giá"
+						value={summary.pending}
+						accent="rgba(250,140,22,0.12)"
+						iconColor="#fa8c16"
+					/>
+					<SummaryTile
+						icon="mdi:check-circle-outline"
+						label="Đã đánh giá"
+						value={summary.reviewed}
+						accent="rgba(34,197,94,0.12)"
+						iconColor="#22c55e"
+					/>
+					<SummaryTile
+						icon="mdi:video-outline"
+						label="Video"
+						value={summary.videos}
+						helper={`${summary.images} hình ảnh`}
+						accent="rgba(56,189,248,0.12)"
+					/>
 				</Flex>
 			</Card>
 
@@ -185,11 +279,10 @@ export const AdvisorFeedbackRequests: React.FC = () => {
 									key={tab.value}
 									type="button"
 									onClick={() => setActiveCategory(tab.value)}
-									className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-										isActive
+									className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${isActive
 											? 'bg-[var(--primary)] text-white border-[var(--primary)]'
 											: 'bg-[var(--bg)] text-[var(--text-secondary)] border-[var(--border)] hover:text-[var(--text)] hover:border-[var(--primary)]/40'
-									}`}
+										}`}
 								>
 									<Icon name={tab.icon} size={16} className={isActive ? 'text-white' : 'text-[var(--primary)]'} />
 									<span>{tab.label}</span>
@@ -233,16 +326,46 @@ export const AdvisorFeedbackRequests: React.FC = () => {
 							pageSize={4}
 							renderItem={(item) => (
 								item.type === 'workout' ? (
-									<FeedbackCard 
-										key={item.review.workoutLogId} 
-										workoutReview={item.review} 
-										onAction={(action) => handleAction(action, item.review)} 
+									<FeedbackCard
+										key={item.review.workoutLogId}
+										workoutReview={item.review}
+										onAction={(action) => handleAction(action, item.review)}
+									/>
+								) : item.type === 'meal' ? (
+									<FeedbackCard
+										key={item.review.mealLogId}
+										mealReview={item.review}
+										onAction={(action) => handleAction(action, item.review)}
+									/>
+								) : item.type === 'workout-reviewed' ? (
+									<FeedbackCard
+										key={item.review.workoutLogId}
+										reviewedWorkout={item.review}
+										onAction={(action) =>
+											handleAction(
+												action,
+												{
+													...item.review,
+													hasComments: true,
+													lastCommentFrom: 'advisor',
+												} as WorkoutReview
+											)
+										}
 									/>
 								) : (
-									<FeedbackCard 
-										key={item.review.mealLogId} 
-										mealReview={item.review} 
-										onAction={(action) => handleAction(action, item.review)} 
+									<FeedbackCard
+										key={item.review.mealLogId}
+										reviewedMeal={item.review}
+										onAction={(action) =>
+											handleAction(
+												action,
+												{
+													...item.review,
+													hasComments: true,
+													lastCommentFrom: 'advisor',
+												} as MealReview
+											)
+										}
 									/>
 								)
 							)}
@@ -251,18 +374,18 @@ export const AdvisorFeedbackRequests: React.FC = () => {
 				</div>
 			</Card>
 
-						<ReviewModal
-							submission={selectedSubmission}
-							isOpen={isReviewModalOpen}
-							onClose={() => setReviewModalOpen(false)}
-									onSubmit={(payload: FeedbackReviewPayload) => {
-								const id = selectedSubmission 
-									? ('workoutLogId' in selectedSubmission ? selectedSubmission.workoutLogId : selectedSubmission.mealLogId)
-									: null;
-								console.log('Submit review', id, payload);
-								setReviewModalOpen(false);
-							}}
-						/>
+			<ReviewModal
+				submission={selectedSubmission}
+				isOpen={isReviewModalOpen}
+				onClose={() => setReviewModalOpen(false)}
+				onSubmit={(payload: FeedbackReviewPayload) => {
+					const id = selectedSubmission
+						? ('workoutLogId' in selectedSubmission ? selectedSubmission.workoutLogId : selectedSubmission.mealLogId)
+						: null;
+					console.log('Submit review', id, payload);
+					setReviewModalOpen(false);
+				}}
+			/>
 		</div>
 	);
 };

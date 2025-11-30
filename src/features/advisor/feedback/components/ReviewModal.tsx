@@ -7,7 +7,9 @@ import { Flex } from '@/shared/ui/core/Flex';
 import { Avatar } from '@/shared/ui/core/Avatar';
 import { TextArea, Input } from '@/shared/ui';
 import { Icon } from '@/shared/ui/icon';
-import { useSubmitWorkoutReview } from '@/tanstack/hooks/advisorreview';
+import { useSubmitMealReview, useSubmitWorkoutReview } from '@/tanstack/hooks/advisorreview';
+import { useAddMealPlanComment, useMealPlanComments } from '@/tanstack/hooks/mealplan';
+import { useAddWorkoutPlanComment, useWorkoutPlanComments } from '@/tanstack/hooks/workoutplan';
 import type { WorkoutReview, MealReview } from '@/types/advisorreview';
 
 interface Comment {
@@ -57,17 +59,93 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
   const [notes, setNotes] = useState('');
   const [score, setScore] = useState<number>(0);
   const [selectedRemarks, setSelectedRemarks] = useState<string[]>([]);
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [localComments, setLocalComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const submitWorkoutReviewMutation = useSubmitWorkoutReview();
+  const submitMealReviewMutation = useSubmitMealReview();
+
+  const mealLogId = submission && 'mealLogId' in submission ? submission.mealLogId : undefined;
+  const workoutLogId = submission && 'workoutLogId' in submission ? submission.workoutLogId : undefined;
+
+  const mealCommentsQuery = useMealPlanComments(mealLogId, Boolean(mealLogId));
+  const workoutCommentsQuery = useWorkoutPlanComments(workoutLogId, Boolean(workoutLogId));
+  const addMealCommentMutation = useAddMealPlanComment(mealLogId);
+  const addWorkoutCommentMutation = useAddWorkoutPlanComment(workoutLogId);
+
+  const remoteComments = React.useMemo<Comment[]>(() => {
+    if (mealLogId) {
+      const response = mealCommentsQuery.data?.data;
+      return (
+        response?.comments.map((comment) => ({
+          id: comment.id ?? `meal-comment-${comment.createdAt ?? comment.content}`,
+          author: comment.senderType === 'advisor' ? 'advisor' : 'customer',
+          authorName: comment.senderName ?? (comment.senderType === 'advisor' ? 'Coach' : submission?.userName ?? 'User'),
+          authorAvatar: comment.senderAvatarUrl,
+          content: comment.content ?? '',
+          timestamp: comment.createdAt ?? comment.updatedAt ?? new Date().toISOString(),
+        })) ?? []
+      );
+    }
+
+    if (workoutLogId) {
+      const response = workoutCommentsQuery.data?.data;
+      return (
+        response?.comments.map((comment) => ({
+          id: comment.id ?? `workout-comment-${comment.createdAt ?? comment.content}`,
+          author: comment.senderType === 'advisor' ? 'advisor' : 'customer',
+          authorName: comment.senderName ?? (comment.senderType === 'advisor' ? 'Coach' : submission?.userName ?? 'User'),
+          authorAvatar: comment.senderAvatarUrl,
+          content: comment.content ?? '',
+          timestamp: comment.createdAt ?? comment.updatedAt ?? new Date().toISOString(),
+        })) ?? []
+      );
+    }
+
+    return [];
+  }, [mealLogId, mealCommentsQuery.data, submission?.userName, workoutCommentsQuery.data, workoutLogId]);
+
+  const combinedComments = React.useMemo(
+    () => [...remoteComments, ...localComments],
+    [localComments, remoteComments]
+  );
+
+  const isLoadingComments = mealLogId
+    ? mealCommentsQuery.isLoading
+    : workoutLogId
+    ? workoutCommentsQuery.isLoading
+    : false;
+
+  const isErrorComments = mealLogId
+    ? mealCommentsQuery.isError
+    : workoutLogId
+    ? workoutCommentsQuery.isError
+    : false;
+
+  const buildMealCommentsPayload = React.useCallback(() => {
+    const noteLines = notes
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    const remarkLines = selectedRemarks.filter(Boolean);
+
+    const advisorCommentLines = localComments
+      .filter((comment) => comment.author === 'advisor')
+      .map((comment) => comment.content.trim())
+      .filter(Boolean);
+
+    return [...noteLines, ...remarkLines, ...advisorCommentLines];
+  }, [localComments, notes, selectedRemarks]);
+
+  const isSubmitting =
+    submitWorkoutReviewMutation.isPending || submitMealReviewMutation.isPending;
 
   React.useEffect(() => {
     if (submission) {
       setNotes('');
       setScore(0);
       setSelectedRemarks([]);
-      // Initialize comments - API doesn't provide customer notes in current structure
-      setComments([]);
+      setLocalComments([]);
       setNewComment('');
     }
   }, [submission]);
@@ -104,8 +182,14 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
       timestamp: new Date().toISOString(),
     };
     
-    setComments((prev) => [...prev, comment]);
+    setLocalComments((prev) => [...prev, comment]);
     setNewComment('');
+
+    if (mealLogId) {
+      addMealCommentMutation.mutate({ content: comment.content });
+    } else if (workoutLogId) {
+      addWorkoutCommentMutation.mutate({ content: comment.content });
+    }
   };
 
   const preview = useMemo(() => {
@@ -188,12 +272,20 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
 
                 {/* Comments List */}
                 <div className="max-h-96 overflow-y-auto p-4 space-y-4">
-                  {comments.length === 0 ? (
-                    <div className="text-center py-8 text-sm text-[var(--text-secondary)]">
+                  {isErrorComments ? (
+                    <div className="py-8 text-center text-sm text-red-500">
+                      Không thể tải bình luận. Vui lòng thử lại sau.
+                    </div>
+                  ) : isLoadingComments ? (
+                    <div className="py-8 text-center text-sm text-[var(--text-secondary)]">
+                      Đang tải bình luận...
+                    </div>
+                  ) : combinedComments.length === 0 ? (
+                    <div className="py-8 text-center text-sm text-[var(--text-secondary)]">
                       Chưa có bình luận nào
                     </div>
                   ) : (
-                    comments.map((comment) => (
+                    combinedComments.map((comment) => (
                       <div
                         key={comment.id}
                         className={`flex gap-3 ${comment.author === 'advisor' ? 'flex-row-reverse' : ''}`}
@@ -349,16 +441,37 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
                         // Error đã được xử lý trong hook
                         console.error('Submit workout review error:', error);
                       }
-                    } else {
-                      // Meal review - gọi callback như cũ (TODO: implement meal review API)
-                      onSubmit({ advisorNotes: notes, status: 'reviewed', rating: score, quickRemarks: selectedRemarks });
+                    } else if ('mealLogId' in submission) {
+                      const completionPercent = score || 0;
+                      let commentsPayload = buildMealCommentsPayload();
+                      if (commentsPayload.length === 0) {
+                        commentsPayload = [`Hoàn thành ${completionPercent}%`];
+                      }
+                      try {
+                        await submitMealReviewMutation.mutateAsync({
+                          mealLogId: submission.mealLogId,
+                          data: {
+                            completionPercent,
+                            comments: commentsPayload,
+                          },
+                        });
+                        onSubmit({
+                          advisorNotes: notes,
+                          status: 'reviewed',
+                          rating: score,
+                          quickRemarks: selectedRemarks,
+                        });
+                        onClose();
+                      } catch (error) {
+                        console.error('Submit meal review error:', error);
+                      }
                     }
                   }}
-                  disabled={submitWorkoutReviewMutation.isPending}
+                  disabled={isSubmitting}
                   className="h-10 rounded-lg bg-[var(--primary)] px-4 font-semibold text-white hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Icon name="mdi:check-circle-outline" size={18} />
-                  <span>{submitWorkoutReviewMutation.isPending ? 'Đang gửi...' : 'Gửi đánh giá'}</span>
+                  <span>{isSubmitting ? 'Đang gửi...' : 'Gửi đánh giá'}</span>
                 </button>
               </div>
             </div>

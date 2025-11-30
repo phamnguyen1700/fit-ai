@@ -1,8 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { IApiResponse } from '@/shared/api/http';
-import { WorkoutReviewResponse, MealReviewResponse, WorkoutReviewRequest } from '@/types/advisorreview';
-import { getPendingWorkoutReviewsService, getPendingMealReviewsService, submitWorkoutReviewService } from '@/tanstack/services/advisorreview';
+import {
+  WorkoutReviewResponse,
+  MealReviewResponse,
+  WorkoutReviewRequest,
+  WorkoutReviewedResponse,
+  MealReviewedResponse,
+  MealReviewRequest,
+} from '@/types/advisorreview';
+import {
+  getPendingWorkoutReviewsService,
+  getPendingMealReviewsService,
+  submitWorkoutReviewService,
+  getReviewedWorkoutsService,
+  getReviewedMealsService,
+  submitMealReviewService,
+} from '@/tanstack/services/advisorreview';
 import toast from 'react-hot-toast';
 import { APIError } from '@/types/utils/APIError';
 
@@ -75,4 +89,43 @@ export const useSubmitWorkoutReview = () => {
     },
   });
 };
+
+export const useSubmitMealReview = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ mealLogId, data }: { mealLogId: string; data: MealReviewRequest }) =>
+      submitMealReviewService(mealLogId, data),
+    onSuccess: (response) => {
+      if (response.success) {
+        toast.success(response.message || 'Đánh giá meal thành công!');
+        queryClient.invalidateQueries({ queryKey: ['pending-meal-reviews'] });
+      } else {
+        toast.error(response.message || 'Đánh giá meal thất bại');
+      }
+    },
+    onError: (error: unknown) => {
+      console.error('❌ [Hook] Submit meal review error:', error);
+      const errorMessage =
+        (error as APIError)?.response?.data?.message ||
+        (error as Error)?.message ||
+        'Đánh giá meal thất bại. Vui lòng thử lại.';
+      toast.error(errorMessage);
+    },
+  });
+};
+
+export const useReviewedWorkouts = () =>
+  useQuery<IApiResponse<WorkoutReviewedResponse>>({
+    queryKey: ['reviewed-workout-list'],
+    queryFn: getReviewedWorkoutsService,
+    staleTime: 2 * 60 * 1000,
+  });
+
+export const useReviewedMeals = () =>
+  useQuery<IApiResponse<MealReviewedResponse>>({
+    queryKey: ['reviewed-meal-list'],
+    queryFn: getReviewedMealsService,
+    staleTime: 2 * 60 * 1000,
+  });
 

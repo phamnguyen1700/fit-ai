@@ -1,5 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createMealDemoService, getMealDemoListService, updateMealDemoAllService, getMealDemoDetailService, updateMealDemoDetailService, deleteMealDemoService, hardDeleteMealDemoService, updateMealDemoService } from '@/tanstack/services/mealdemo';
+import {
+  createMealDemoService,
+  getMealDemoListService,
+  updateMealDemoAllService,
+  getMealDemoDetailService,
+  updateMealDemoDetailService,
+  deleteMealDemoService,
+  hardDeleteMealDemoService,
+  updateMealDemoService,
+} from '@/tanstack/services/mealdemo';
 import type {
   CreateMealDemoPayload,
   CreateMealDemoResponse,

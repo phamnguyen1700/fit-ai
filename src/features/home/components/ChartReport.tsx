@@ -60,7 +60,9 @@ export const ChartReport: React.FC = () => {
   const totalUsers = stats?.total ?? tiers.reduce((acc, curr) => acc + curr.value, 0);
   const breakdown = isSubscriptionLoading || !stats ? loadingPieData : tiers;
 
-  const growthData = growthResponse?.data ?? [];
+  const growthRaw = growthResponse?.data;
+  const growthData = React.useMemo(() => growthRaw ?? [], [growthRaw]);
+
   const hasGrowthSeries = React.useMemo(
     () => growthData.some((group) => (group.dataPoints?.length ?? 0) > 0),
     [growthData]
@@ -82,15 +84,6 @@ export const ChartReport: React.FC = () => {
       return ['1', '2', '3'];
     }
     return growthData[0]?.dataPoints.map((point) => point.label) ?? ['1', '2', '3'];
-  }, [growthData, hasGrowthSeries]);
-
-  const totalLatestGrowth = React.useMemo(() => {
-    if (!hasGrowthSeries) return null;
-    return growthData.reduce((sum, group) => {
-      const dataPoints = group.dataPoints ?? [];
-      const last = dataPoints[dataPoints.length - 1]?.count ?? 0;
-      return sum + last;
-    }, 0);
   }, [growthData, hasGrowthSeries]);
 
   return (

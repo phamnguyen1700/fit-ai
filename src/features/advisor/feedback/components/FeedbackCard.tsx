@@ -7,11 +7,18 @@ import { Flex } from '@/shared/ui/core/Flex';
 import { Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { Icon } from '@/shared/ui/icon';
-import type { WorkoutReview, MealReview } from '@/types/advisorreview';
+import type {
+  WorkoutReview,
+  MealReview,
+  WorkoutReviewedItem,
+  MealReviewedItem,
+} from '@/types/advisorreview';
 
 export interface FeedbackCardProps {
   workoutReview?: WorkoutReview;
   mealReview?: MealReview;
+  reviewedWorkout?: WorkoutReviewedItem;
+  reviewedMeal?: MealReviewedItem;
   onAction?: (action: string) => void;
 }
 
@@ -26,8 +33,14 @@ const formatDateTime = (iso: string) => {
   });
 };
 
-export const FeedbackCard: React.FC<FeedbackCardProps> = ({ workoutReview, mealReview, onAction }) => {
-  const review = workoutReview || mealReview;
+export const FeedbackCard: React.FC<FeedbackCardProps> = ({
+  workoutReview,
+  mealReview,
+  reviewedWorkout,
+  reviewedMeal,
+  onAction,
+}) => {
+  const review = workoutReview || mealReview || reviewedWorkout || reviewedMeal;
 
   if (!review) {
     return (
@@ -39,11 +52,13 @@ export const FeedbackCard: React.FC<FeedbackCardProps> = ({ workoutReview, mealR
     );
   }
 
-  const isWorkout = !!workoutReview;
-  const displayName = isWorkout 
-    ? `${workoutReview.exerciseName} - Ngày ${workoutReview.dayNumber}`
-    : `${mealReview!.mealType} - Ngày ${mealReview!.dayNumber}`;
-  const mediaUrl = isWorkout ? workoutReview.videoUrl : mealReview!.photoUrl;
+  const isWorkout = !!(workoutReview || reviewedWorkout);
+  const displayName = isWorkout
+    ? `${(workoutReview ?? reviewedWorkout)!.exerciseName} - Ngày ${(workoutReview ?? reviewedWorkout)!.dayNumber}`
+    : `${(mealReview ?? reviewedMeal)!.mealType} - Ngày ${(mealReview ?? reviewedMeal)!.dayNumber}`;
+  const mediaUrl = isWorkout
+    ? (workoutReview ?? reviewedWorkout)!.videoUrl
+    : (mealReview ?? reviewedMeal)!.photoUrl;
 
   const handleMenuClick = (action: string) => {
     onAction?.(action);
@@ -131,14 +146,25 @@ export const FeedbackCard: React.FC<FeedbackCardProps> = ({ workoutReview, mealR
 
         {/* Action Button */}
         <div className="flex-shrink-0 pt-2.5 border-t border-[var(--border)]">
-          <button
-            type="button"
-            onClick={() => handleMenuClick('review')}
-            className="w-full h-10 rounded-lg bg-[var(--primary)] text-white font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-          >
-            <Icon name="mdi:star-outline" size={18} />
-            <span>Đánh giá ngay</span>
-          </button>
+          {reviewedMeal || reviewedWorkout ? (
+            <button
+              type="button"
+              onClick={() => handleMenuClick('view-feedback')}
+              className="w-full h-10 rounded-lg border border-[var(--primary)] text-[var(--primary)] font-medium hover:bg-[var(--primary)] hover:text-white transition-colors flex items-center justify-center gap-2"
+            >
+              <Icon name="mdi:eye-outline" size={18} />
+              <span>Xem chi tiết</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => handleMenuClick('review')}
+              className="w-full h-10 rounded-lg bg-[var(--primary)] text-white font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+            >
+              <Icon name="mdi:star-outline" size={18} />
+              <span>Đánh giá ngay</span>
+            </button>
+          )}
         </div>
       </div>
     </Card>
