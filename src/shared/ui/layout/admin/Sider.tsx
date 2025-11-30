@@ -26,6 +26,7 @@ const menuItems: { key: string; label: React.ReactNode; icon?: React.ReactNode }
   { label: 'Quản lý gói', key: '/admin/plans', icon: <Icon name={icons.plans} /> },
   { label: 'Quản lý Plan Demo', key: '/admin/plan-demo', icon: <Icon name={icons.plans} /> },
   { label: 'Quản lý Advisor', key: '/admin/advisors', icon: <Icon name={icons.advisors} /> },
+  { label: 'Quản lý Policy', key: '/admin/policies', icon: <Icon name={icons.policies} /> },
   { label: 'Cài đặt', key: '/admin/settings', icon: <Icon name={icons.settings} /> },
 ];
 

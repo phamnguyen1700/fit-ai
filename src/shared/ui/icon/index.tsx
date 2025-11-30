@@ -42,6 +42,7 @@ export const icons = {
   phone: 'mdi:phone-outline',
   file : 'mdi:file-outline',
   workoutPlans: 'mdi:dumbbell',
+  policies: 'mdi:file-document-edit-outline',
 };
 
 // Usage: <Icon name={icons.dashboard} />
