@@ -3,7 +3,6 @@
 import React, { useState, useMemo } from 'react';
 import { Table2, type TableColumn } from '@/shared/ui/core/Table2';
 import { Button } from '@/shared/ui/core/Button';
-import { Badge } from '@/shared/ui/core/Badge';
 import { Pagination } from '@/shared/ui/core/Pagination';
 import { Icon } from '@/shared/ui/icon';
 import { useGetPolicies } from '@/tanstack/hooks/policy';
@@ -171,17 +170,13 @@ export const PolicyTable: React.FC<PolicyTableProps> = ({
       width: 120,
       align: 'center',
       render: (isActive: boolean) => (
-        <Badge
-          count={isActive ? 'Hoạt động' : 'Không hoạt động'}
-          style={{
-            backgroundColor: isActive ? '#52c41a' : '#d9d9d9',
-            color: 'white',
-            fontSize: '12px',
-            fontWeight: '500',
-            borderRadius: '12px',
-            padding: '2px 8px',
-          }}
-        />
+        <span
+          className={`inline-flex min-w-[96px] items-center justify-center rounded-full px-3 py-1 text-xs font-medium ${
+            isActive ? 'bg-[#52c41a] text-white' : 'bg-gray-200 text-gray-700'
+          }`}
+        >
+          {isActive ? 'Hoạt động' : 'Không hoạt động'}
+        </span>
       ),
     },
     {
