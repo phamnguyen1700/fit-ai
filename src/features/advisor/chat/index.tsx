@@ -1,15 +1,15 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card } from '@/shared/ui/core/Card';
 import { Flex } from '@/shared/ui/core/Flex';
 import { Icon } from '@/shared/ui/icon';
-import { mockConversations, mockMessages } from './data';
-import type { ChatMessage, Conversation } from './types';
+import type { Conversation } from './types';
 import ConversationList from './components/ConversationList';
 import ChatHeader from './components/ChatHeader';
 import MessageList from './components/MessageList';
 import ChatComposer from './components/ChatComposer';
+import { useAdvisorChat } from './useAdvisorChat';
 
 const computeSummary = (conversations: Conversation[]) => {
   const total = conversations.length;
@@ -38,10 +38,17 @@ const SummaryTile: React.FC<{ icon: string; label: string; value: React.ReactNod
 );
 
 export const AdvisorChat: React.FC = () => {
-  const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
-  const [messages, setMessages] = useState<ChatMessage[]>(mockMessages);
+  const {
+    conversations,
+    messages,
+    selectedConversation,
+    loadingMessages,
+    sending,
+    selectConversation,
+    sendMessage,
+  } = useAdvisorChat();
+
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(mockConversations[0]?.id ?? null);
 
   const summary = useMemo(() => computeSummary(conversations), [conversations]);
 
@@ -55,58 +62,17 @@ export const AdvisorChat: React.FC = () => {
     });
   }, [conversations, searchTerm]);
 
-  const selectedConversation = useMemo(() => {
-    if (!selectedConversationId) return null;
-    return conversations.find((conversation) => conversation.id === selectedConversationId) ?? null;
-  }, [conversations, selectedConversationId]);
-
-  useEffect(() => {
-    if (!selectedConversationId && conversations.length > 0) {
-      setSelectedConversationId(conversations[0].id);
-      return;
-    }
-
-    if (selectedConversation && selectedConversation.unreadCount > 0) {
-      setConversations((prev) =>
-        prev.map((conversation) =>
-          conversation.id === selectedConversation.id ? { ...conversation, unreadCount: 0 } : conversation,
-        ),
-      );
-    }
-  }, [conversations, selectedConversation, selectedConversationId]);
-
   const conversationMessages = useMemo(() => {
     if (!selectedConversation) return [];
     return messages.filter((message) => message.conversationId === selectedConversation.id);
   }, [messages, selectedConversation]);
 
   const handleSelectConversation = (conversation: Conversation) => {
-    setSelectedConversationId(conversation.id);
-    setConversations((prev) =>
-      prev.map((item) => (item.id === conversation.id ? { ...item, unreadCount: 0 } : item)),
-    );
+    void selectConversation(conversation);
   };
 
   const handleSendMessage = (content: string) => {
-    if (!selectedConversation) return;
-
-    const timestamp = new Date().toISOString();
-    const newMessage: ChatMessage = {
-      id: `msg-${Date.now()}`,
-      conversationId: selectedConversation.id,
-      sender: 'advisor',
-      content,
-      timestamp,
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
-    setConversations((prev) =>
-      prev.map((item) =>
-        item.id === selectedConversation.id
-          ? { ...item, lastMessage: content, lastTimestamp: timestamp }
-          : item,
-      ),
-    );
+    void sendMessage(content);
   };
 
   return (
@@ -140,7 +106,7 @@ export const AdvisorChat: React.FC = () => {
                   advisorLabel="Bạn"
                   customerLabel={selectedConversation.customerName}
                 />
-                <ChatComposer onSend={handleSendMessage} />
+                <ChatComposer onSend={handleSendMessage} disabled={sending || loadingMessages} />
               </>
             ) : (
               <div className="flex h-full flex-1 flex-col items-center justify-center gap-3 text-center text-sm text-[var(--text-secondary)]">
