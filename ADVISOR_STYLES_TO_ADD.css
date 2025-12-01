@@ -1,0 +1,188 @@
+/* ===== ADVISOR PORTAL STYLES ===== */
+/* To be added to globals.css */
+
+/* AI Plans Category Filter Buttons */
+.advisor-category-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.advisor-category-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text);
+}
+
+.advisor-category-btn.active {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: var(--text-inverse);
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+  border-color: transparent;
+}
+
+/* AI Plans Status Badge */
+.advisor-status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-width: 1px;
+}
+
+.advisor-status-pending {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.advisor-status-approved {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.advisor-status-needs_revision {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--info);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.advisor-status-rejected {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* AI Plans Card */
+.advisor-plan-card {
+  background: linear-gradient(135deg, var(--bg) 0%, var(--bg-secondary) 100%);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.advisor-plan-card:hover {
+  box-shadow: 0 10px 25px var(--shadow-medium);
+  transform: translateY(-2px);
+}
+
+/* AI Confidence Progress Bar */
+.advisor-confidence-bar {
+  flex: 1;
+  background: var(--bg-tertiary);
+  border-radius: 9999px;
+  height: 0.5rem;
+  overflow: hidden;
+}
+
+.advisor-confidence-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.advisor-confidence-high {
+  background: var(--success);
+}
+
+.advisor-confidence-medium {
+  background: var(--warning);
+}
+
+.advisor-confidence-low {
+  background: var(--error);
+}
+
+/* Sample Items Badges */
+.advisor-sample-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+}
+
+.advisor-sample-meal {
+  background: linear-gradient(135deg, var(--success) 0%, #10b981 100%);
+}
+
+.advisor-sample-workout {
+  background: linear-gradient(135deg, var(--warning) 0%, var(--error) 100%);
+}
+
+.advisor-sample-more {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+/* Focus Areas Badges */
+.advisor-focus-badge {
+  padding: 0.25rem 0.5rem;
+  background: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 0.25rem;
+}
+
+/* Special Notes */
+.advisor-special-note {
+  background: rgba(139, 92, 246, 0.05);
+  border-left: 4px solid #8b5cf6;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+/* Avatar Circle */
+.advisor-avatar {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, var(--info) 0%, #8b5cf6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+/* Dark Mode Overrides for Advisor */
+[data-theme="dark"] .advisor-plan-card {
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .advisor-plan-card:hover {
+  box-shadow: 0 10px 25px var(--shadow-dark);
+}
+
+[data-theme="dark"] .advisor-special-note {
+  background: rgba(139, 92, 246, 0.1);
+}
+
+/* Responsive Adjustments for Advisor */
+@media (max-width: 768px) {
+  .advisor-category-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .advisor-plan-card {
+    padding: 1rem;
+  }
+
+  .advisor-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1rem;
+  }
+}
