@@ -307,7 +307,7 @@ const FeedbackCard: React.FC<FeedbackCardProps> = ({
       >
         <div className="space-y-4">
           <p className="text-sm text-[var(--text)]">
-            Bạn có chắc chắn muốn từ chối feedback từ <strong>"{userName}"</strong>?
+            Bạn có chắc chắn muốn từ chối feedback từ <strong>&quot;{userName}&quot;</strong>?
           </p>
           
           <div>
