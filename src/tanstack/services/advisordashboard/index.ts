@@ -6,7 +6,7 @@ import {
   CustomerProfileResponse,
 } from '@/types/advisordashboard';
 
-const BASE_PATH = 'fitness/api/advisordashboard';
+const BASE_PATH = 'api/advisordashboard';
 
 const mapParamsToApiPayload = (params: AdvisorDashboardCustomersParams) => ({
   Month: params.month,

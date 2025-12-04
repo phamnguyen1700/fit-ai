@@ -134,7 +134,7 @@ export const useUpdateMealDemoDetail = () => {
 
   return useMutation<IApiResponse<UpdateMealDemoDetailResponse>, unknown, { id: string; payload: UpdateMealDemoDetailPayload }>({
     mutationFn: ({ id, payload }) => {
-      console.log('Update meal demo detail - URL:', `fitness/api/mealdemodetail/${id}`);
+      console.log('Update meal demo detail - URL:', `api/mealdemodetail/${id}`);
       console.log('Update meal demo detail - Payload:', payload);
       return updateMealDemoDetailService(id, payload);
     },
@@ -161,7 +161,7 @@ export const useDeleteMealDemo = () => {
 
   return useMutation<IApiResponse<{ success: boolean; message: string }>, unknown, string>({
     mutationFn: (id) => {
-      console.log('Delete meal demo - URL:', `fitness/api/mealdemo/${id}`);
+      console.log('Delete meal demo - URL:', `api/mealdemo/${id}`);
       return deleteMealDemoService(id);
     },
     onSuccess: (response) => {
@@ -187,7 +187,7 @@ export const useHardDeleteMealDemo = () => {
 
   return useMutation<IApiResponse<{ success: boolean; message: string }>, unknown, string>({
     mutationFn: (id) => {
-      console.log('Hard delete meal demo - URL:', `fitness/api/mealdemo/${id}/hard`);
+      console.log('Hard delete meal demo - URL:', `api/mealdemo/${id}/hard`);
       return hardDeleteMealDemoService(id);
     },
     onSuccess: (response) => {

@@ -7,7 +7,7 @@ import type {
   UnreadCountResponse,
 } from '@/types/advisorchat';
 
-const BASE_PATH = 'fitness/api/AdvisorChat';
+const BASE_PATH = 'api/AdvisorChat';
 
 /**
  * Get all conversations for the current advisor

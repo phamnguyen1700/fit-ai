@@ -58,19 +58,19 @@ const transformMealDemoListResponse = (payload: unknown): { data: MealDemoListRe
 };
 
 export const getMealDemoListService = (params?: MealDemoListParams) =>
-  get<MealDemoListResponse>('fitness/api/mealdemo', {
+  get<MealDemoListResponse>('api/mealdemo', {
     params,
     transformResponse: [transformMealDemoListResponse],
   });
 
 export const createMealDemoService = (payload: CreateMealDemoPayload) =>
-  post<CreateMealDemoResponse>('fitness/api/mealdemo', payload);
+  post<CreateMealDemoResponse>('api/mealdemo', payload);
 
 export const updateMealDemoService = (id: string, payload: UpdateMealDemoPayload) =>
-  put<UpdateMealDemoResponse>(`fitness/api/mealdemo/${id}`, payload);
+  put<UpdateMealDemoResponse>(`api/mealdemo/${id}`, payload);
 
 export const updateMealDemoAllService = (mealDemoId: string, payload: UpdateMealDemoAllPayload) =>
-  put<UpdateMealDemoAllResponse>(`fitness/api/mealdemodetail/meal-demo/${mealDemoId}/update-all`, payload);
+  put<UpdateMealDemoAllResponse>(`api/mealdemodetail/meal-demo/${mealDemoId}/update-all`, payload);
 
 type RawMealDemoDetailResponse = {
   success?: boolean;
@@ -104,15 +104,15 @@ const transformMealDemoDetailResponse = (payload: unknown): { data: MealDemoDeta
 };
 
 export const getMealDemoDetailService = (mealDemoId: string) =>
-  get<MealDemoDetailResponse>(`fitness/api/mealdemodetail/meal-demo/${mealDemoId}`, {
+  get<MealDemoDetailResponse>(`api/mealdemodetail/meal-demo/${mealDemoId}`, {
     transformResponse: [transformMealDemoDetailResponse],
   });
 
 export const updateMealDemoDetailService = (id: string, payload: UpdateMealDemoDetailPayload) =>
-  put<UpdateMealDemoDetailResponse>(`fitness/api/mealdemodetail/${id}`, payload);
+  put<UpdateMealDemoDetailResponse>(`api/mealdemodetail/${id}`, payload);
 
 export const deleteMealDemoService = (id: string) =>
-  del<{ success: boolean; message: string }>(`fitness/api/mealdemo/${id}`);
+  del<{ success: boolean; message: string }>(`api/mealdemo/${id}`);
 
 export const hardDeleteMealDemoService = (id: string) =>
-  del<{ success: boolean; message: string }>(`fitness/api/mealdemo/${id}/hard`);
+  del<{ success: boolean; message: string }>(`api/mealdemo/${id}/hard`);

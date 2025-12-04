@@ -14,7 +14,7 @@ export const searchMealIngredientsService = (
   );
 
   return get<MealIngredientSearchResponse>(
-    "fitness/api/mealdemodetail/ingredients/search",
+    "api/mealdemodetail/ingredients/search",
     {
       params: cleanedParams,
     }

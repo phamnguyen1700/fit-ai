@@ -6,7 +6,7 @@ import {
   MealPlanDetail,
 } from '@/types/planreview';
 
-const BASE_PATH = 'fitness/api/planreview';
+const BASE_PATH = 'api/planreview';
 
 export const getPendingPlansService = async () => {
   const url = `${BASE_PATH}/pending`;

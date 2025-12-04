@@ -2,7 +2,7 @@ import { get, post, put, del } from "@/shared/api/http";
 import { Exercise, ExerciseParams, UpdateExerciseData, CreateExerciseData } from "@/types/exercise";
 
 export const getExercisesService = (params: ExerciseParams) => 
-  get<Exercise[]>(`fitness/api/exercise`, { params });
+  get<Exercise[]>(`api/exercise`, { params });
 
 export const createExerciseService = (data: CreateExerciseData) => {
   const formData = new FormData();
@@ -14,7 +14,7 @@ export const createExerciseService = (data: CreateExerciseData) => {
   formData.append('Level', data.level);
   formData.append('Video', data.video);
   
-  return post(`fitness/api/exercise`, formData, {
+  return post(`api/exercise`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -39,7 +39,7 @@ export const updateExerciseService = (id: string, data: UpdateExerciseData) => {
     formData.append('VideoUrl', data.videoUrl);
   }
   
-  return put(`fitness/api/exercise/${id}`, formData, {
+  return put(`api/exercise/${id}`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -47,4 +47,4 @@ export const updateExerciseService = (id: string, data: UpdateExerciseData) => {
 };
 
 export const deleteExerciseService = (id: string) => 
-  del(`fitness/api/exercise/${id}`);
+  del(`api/exercise/${id}`);

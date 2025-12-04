@@ -37,22 +37,22 @@ const transformWorkoutDemoListResponse = (payload: unknown) => {
 }
 
 export const getWorkoutDemoListService = (params?: WorkoutDemoListParams) =>
-  get<WorkoutDemoListResponse>('fitness/api/workoutdemo', {
+  get<WorkoutDemoListResponse>('api/workoutdemo', {
     params,
     transformResponse: [transformWorkoutDemoListResponse],
   })
 
 export const getWorkoutDemoDetailService = (id: string) =>
-  get<WorkoutDemoDetailResponse>(`fitness/api/workoutdemo/${id}`)
+  get<WorkoutDemoDetailResponse>(`api/workoutdemo/${id}`)
 
 export const createWorkoutDemoService = (payload: CreateWorkoutDemoPayload) =>
-  post<CreateWorkoutDemoResponse>('fitness/api/workoutdemo', payload)
+  post<CreateWorkoutDemoResponse>('api/workoutdemo', payload)
 
 export const updateWorkoutDemoDetailService = (workoutDemoId: string, payload: UpdateWorkoutDemoDetailPayload) =>
-  put<UpdateWorkoutDemoDetailResponse>(`fitness/api/workoutdemodetail/${workoutDemoId}`, payload)
+  put<UpdateWorkoutDemoDetailResponse>(`api/workoutdemodetail/${workoutDemoId}`, payload)
 
 export const updateWorkoutDemoService = (workoutDemoId: string, payload: UpdateWorkoutDemoPayload) =>
-  put<UpdateWorkoutDemoResponse>(`fitness/api/workoutdemo/${workoutDemoId}`, payload)
+  put<UpdateWorkoutDemoResponse>(`api/workoutdemo/${workoutDemoId}`, payload)
 
 export const updateWorkoutDemoDayService = (
   workoutDemoId: string,
@@ -60,7 +60,7 @@ export const updateWorkoutDemoDayService = (
 ) => {
   // API chỉ cần exercises array trong body, day đã ở trong URL path
   const { exercises, day } = payload;
-  const url = `fitness/api/workoutdemodetail/${workoutDemoId}/${day}`;
+  const url = `api/workoutdemodetail/${workoutDemoId}/${day}`;
   
   // eslint-disable-next-line no-console
   console.log('updateWorkoutDemoDayService - Sending:', {
@@ -74,7 +74,7 @@ export const updateWorkoutDemoDayService = (
 }
 
 export const deleteWorkoutDemoService = (id: string) =>
-  del<null>(`fitness/api/workoutdemo/${id}`)
+  del<null>(`api/workoutdemo/${id}`)
 
 export const hardDeleteWorkoutDemoService = (id: string) =>
-  del<null>(`fitness/api/workoutdemo/${id}/harddelete`)
+  del<null>(`api/workoutdemo/${id}/harddelete`)

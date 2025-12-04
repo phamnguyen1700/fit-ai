@@ -10,7 +10,7 @@ import {
   MealReviewSubmitResponse,
 } from '@/types/advisorreview';
 
-const BASE_PATH = 'fitness/api/advisorreview';
+const BASE_PATH = 'api/advisorreview';
 
 export const getPendingWorkoutReviewsService = async () => {
   const url = `${BASE_PATH}/workout/pending`;
