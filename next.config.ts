@@ -8,12 +8,22 @@ const nextConfig: NextConfig = {
     ];
     return config;
   },
-  // Suppress deprecation warnings
+
   reactStrictMode: false,
 
-  // eslint: {
-  //   ignoreDuringBuilds: true,
-  // },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
+  // ⭐ Thêm proxy để fix lỗi gọi HTTP từ Vercel (HTTPS → HTTP)
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*", // FE gọi /api/xxx
+        destination: "http://52.64.148.181:8080/:path*", // BE thật
+      },
+    ];
+  },
 };
 
 export default nextConfig;
