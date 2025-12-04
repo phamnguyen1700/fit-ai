@@ -13,11 +13,19 @@ interface MessageListProps {
 export const MessageList: React.FC<MessageListProps> = ({ messages, advisorLabel, customerLabel, loading = false }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
+  // Đảm bảo tin nhắn được hiển thị theo thứ tự thời gian tăng dần (cũ -> mới),
+  // để tin nhắn mới nhất luôn nằm ở phía dưới.
+  const sortedMessages = [...messages].sort((a, b) => {
+    const aTime = new Date(a.timestamp).getTime();
+    const bTime = new Date(b.timestamp).getTime();
+    return aTime - bTime;
+  });
+
   useEffect(() => {
     const node = containerRef.current;
     if (!node) return;
     node.scrollTop = node.scrollHeight;
-  }, [messages]);
+  }, [sortedMessages]);
 
   return (
     <div 
@@ -38,7 +46,7 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, advisorLabel
             <span className="text-xs text-[var(--text-secondary)]">Vui lòng đợi trong giây lát</span>
           </div>
         </div>
-      ) : messages.length === 0 ? (
+      ) : sortedMessages.length === 0 ? (
         <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-slate-100 to-slate-200">
             <Icon name="mdi:message-outline" size={32} className="text-slate-400" />
@@ -50,7 +58,7 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, advisorLabel
         </div>
       ) : (
         <div className="flex flex-col gap-1">
-          {messages.map((message) => (
+          {sortedMessages.map((message) => (
             <MessageBubble
               key={message.id}
               message={message}

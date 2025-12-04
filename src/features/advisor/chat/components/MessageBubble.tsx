@@ -13,7 +13,13 @@ const formatMessageTimestamp = (isoString: string) => {
   if (Number.isNaN(date.getTime())) {
     return '';
   }
-  return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+  return date.toLocaleString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 };
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isAdvisor, senderLabel }) => {
