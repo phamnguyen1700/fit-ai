@@ -5,7 +5,7 @@ import { Card2 } from '../../../shared/ui/core/Card2';
 import { Button } from '../../../shared/ui/core/Button';
 import { Icon } from '../../../shared/ui/icon';
 import { Modal } from '../../../shared/ui/core/Modal';
-import { Input, TextArea } from '@/shared/ui/core/Input';
+import { TextArea } from '@/shared/ui/core/Input';
 import { useApproveFeedback, useTogglePublicFeedback, useDenyFeedback } from '@/tanstack/hooks/feedback';
 
 interface FeedbackCardProps {
@@ -42,7 +42,6 @@ const FeedbackCard: React.FC<FeedbackCardProps> = ({
   status,
   onApprove,
   onReject,
-  onDelete,
   onPublish,
   onHide,
   onRestore,
@@ -107,37 +106,6 @@ const FeedbackCard: React.FC<FeedbackCardProps> = ({
             onSuccess: () => {
               // Call optional callback if provided
               onPublish?.(id);
-              resolve();
-            },
-            onError: () => {
-              reject();
-            },
-          });
-        });
-      },
-      centered: true,
-    });
-  };
-
-  const handleHide = () => {
-    modal.confirm({
-      title: 'Xác nhận ẩn',
-      content: `Bạn có chắc chắn muốn ẩn feedback từ "${userName}"?`,
-      okText: 'Ẩn',
-      cancelText: 'Hủy',
-      okButtonProps: {
-        style: {
-          backgroundColor: 'var(--primary)',
-          borderColor: 'var(--primary)',
-          color: 'white',
-        },
-      },
-      onOk: () => {
-        return new Promise<void>((resolve, reject) => {
-          togglePublicFeedback.mutate(id, {
-            onSuccess: () => {
-              // Call optional callback if provided
-              onHide?.(id);
               resolve();
             },
             onError: () => {
