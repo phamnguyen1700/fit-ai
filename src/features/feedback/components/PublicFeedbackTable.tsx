@@ -83,7 +83,6 @@ const PublicFeedbackTable: React.FC<PublicFeedbackTableProps> = ({
 
   // Get pagination info from API
   const totalPages = data?.data?.totalPages ?? 0;
-  const totalItems = data?.data?.totalItems ?? 0;
 
   // Handle page change
   const handlePageChange = (page: number) => {

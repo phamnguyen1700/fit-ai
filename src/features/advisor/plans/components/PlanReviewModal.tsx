@@ -47,9 +47,7 @@ export const PlanReviewModal: React.FC<PlanReviewModalProps> = ({
   const [activeTab, setActiveTab] = useState<'meal' | 'workout'>('meal');
   const [selectedDay, setSelectedDay] = useState<number>(1);
   const [workoutGoal, setWorkoutGoal] = useState('');
-  const [workoutNotes, setWorkoutNotes] = useState('');
   const [mealDietType, setMealDietType] = useState('');
-  const [mealTotalCalories, setMealTotalCalories] = useState('');
   const [workoutDaysState, setWorkoutDaysState] = useState<WorkoutPlanDayDetail[]>([]);
   const [mealDaysState, setMealDaysState] = useState<MealPlanDayDetail[]>([]);
   const [isSavingWorkout, setIsSavingWorkout] = useState(false);
@@ -80,9 +78,7 @@ export const PlanReviewModal: React.FC<PlanReviewModalProps> = ({
   React.useEffect(() => {
   if (!detail) {
     setWorkoutGoal(plan?.goal || '');
-    setWorkoutNotes('');
     setMealDietType('');
-    setMealTotalCalories('');
     setWorkoutDaysState([]);
     setMealDaysState([]);
     return;
@@ -110,11 +106,7 @@ export const PlanReviewModal: React.FC<PlanReviewModalProps> = ({
   setWorkoutDaysState(cloneWorkout);
   setMealDaysState(cloneMeal);
   setWorkoutGoal(detail?.workoutPlan?.goal || plan?.goal || '');
-  setWorkoutNotes(detail?.workoutPlan?.notes || '');
   setMealDietType(detail?.mealPlan?.dietType || '');
-  setMealTotalCalories(
-    detail?.mealPlan?.totalCalories ? String(detail?.mealPlan?.totalCalories) : ''
-  );
   setIsEditingWorkout(false);
   setIsEditingMeal(false);
 }, [detail?.planId, plan?.goal, plan?.id]);

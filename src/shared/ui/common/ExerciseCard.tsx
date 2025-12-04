@@ -25,7 +25,7 @@ const getYouTubeThumbnail = (url: string): string | null => {
     if (videoIdMatch && videoIdMatch[1]) {
       return `https://img.youtube.com/vi/${videoIdMatch[1]}/maxresdefault.jpg`;
     }
-  } catch (e) {
+  } catch {
     return null;
   }
   return null;
