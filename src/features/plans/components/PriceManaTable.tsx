@@ -3,23 +3,16 @@ import React, { useState } from "react";
 import { Table2, type TableColumn } from "@/shared/ui/core/Table2";
 import { Button } from "@/shared/ui/core/Button";
 import { Pagination } from "@/shared/ui/core/Pagination";
+import { DiscountTemplate } from "@/types/discount";
 
-// Types
-export interface PriceData {
-  id: string;
-  name: string;
-  originalPrice: number;
-  discountPercent: number;
-  finalPrice: number;
-  applyDate: string;
-  key: string;
-}
+// Types - keeping for backward compatibility but using DiscountTemplate
+export type PriceData = DiscountTemplate;
 
 interface PriceManaTableProps {
-  priceData?: PriceData[];
+  priceData?: DiscountTemplate[];
   loading?: boolean;
-  onEdit?: (priceData: PriceData) => void;
-  onDelete?: (priceData: PriceData) => void;
+  onEdit?: (discount: DiscountTemplate) => void;
+  onDelete?: (discount: DiscountTemplate) => void;
   className?: string;
 }
 
@@ -33,110 +26,7 @@ const PriceManaTable: React.FC<PriceManaTableProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
 
-  // Default sample data for demonstration
-  const defaultPriceData: PriceData[] = [
-    {
-      id: "1",
-      key: "1",
-      name: "Basic",
-      originalPrice: 99000,
-      discountPercent: 0,
-      finalPrice: 99000,
-      applyDate: "01/09/2025",
-    },
-    {
-      id: "2",
-      key: "2",
-      name: "Pro",
-      originalPrice: 499000,
-      discountPercent: 10,
-      finalPrice: 449100,
-      applyDate: "01/09/2025",
-    },
-    {
-      id: "3",
-      key: "3",
-      name: "Premium",
-      originalPrice: 899000,
-      discountPercent: 20,
-      finalPrice: 719200,
-      applyDate: "15/09/2025",
-    },
-    {
-      id: "4",
-      key: "4",
-      name: "Starter",
-      originalPrice: 49000,
-      discountPercent: 0,
-      finalPrice: 49000,
-      applyDate: "01/10/2025",
-    },
-    {
-      id: "5",
-      key: "5",
-      name: "Advanced",
-      originalPrice: 299000,
-      discountPercent: 15,
-      finalPrice: 254150,
-      applyDate: "05/10/2025",
-    },
-    {
-      id: "6",
-      key: "6",
-      name: "Enterprise",
-      originalPrice: 1599000,
-      discountPercent: 25,
-      finalPrice: 1199250,
-      applyDate: "10/10/2025",
-    },
-    {
-      id: "7",
-      key: "7",
-      name: "Trial",
-      originalPrice: 0,
-      discountPercent: 0,
-      finalPrice: 0,
-      applyDate: "01/11/2025",
-    },
-    {
-      id: "8",
-      key: "8",
-      name: "Professional",
-      originalPrice: 1199000,
-      discountPercent: 30,
-      finalPrice: 839300,
-      applyDate: "15/11/2025",
-    },
-    {
-      id: "9",
-      key: "9",
-      name: "Enterprise",
-      originalPrice: 1599000,
-      discountPercent: 25,
-      finalPrice: 1199250,
-      applyDate: "10/10/2025",
-    },
-    {
-      id: "10",
-      key: "10",
-      name: "Trial",
-      originalPrice: 0,
-      discountPercent: 0,
-      finalPrice: 0,
-      applyDate: "01/11/2025",
-    },
-    {
-      id: "11",
-      key: "11",
-      name: "Professional",
-      originalPrice: 1199000,
-      discountPercent: 30,
-      finalPrice: 839300,
-      applyDate: "15/11/2025",
-    },
-  ];
-
-  const dataSource = priceData.length > 0 ? priceData : defaultPriceData;
+  const dataSource = priceData;
 
   // Pagination logic
   const totalPages = Math.ceil(dataSource.length / pageSize);
@@ -160,74 +50,115 @@ const PriceManaTable: React.FC<PriceManaTableProps> = ({
     }
   };
 
-  // Format price with VND currency
-  const formatPrice = (price: number): string => {
-    return new Intl.NumberFormat('vi-VN').format(price);
+  // Format discount value
+  const formatDiscountValue = (type: string, value: number): string => {
+    if (type === "Percentage") {
+      return `${value}%`;
+    }
+    return new Intl.NumberFormat('vi-VN').format(value) + " VND";
   };
 
-  // Format discount percentage
-  const formatDiscountPercent = (percent: number): string => {
-    return `${percent}%`;
+  // Format trigger name
+  const formatTrigger = (trigger: string): string => {
+    const triggerMap: Record<string, string> = {
+      "Birthday": "Sinh nhật",
+      "CompletionPercent": "Hoàn thành %",
+      "FirstPurchase": "Mua lần đầu",
+      "StreakCheckpoint": "Chuỗi checkpoint"
+    };
+    return triggerMap[trigger] || trigger;
   };
 
   // Table columns configuration
-  const columns: TableColumn<PriceData>[] = [
+  const columns: TableColumn<DiscountTemplate>[] = [
     {
-      title: 'Tên gói',
+      title: 'Tên khuyến mãi',
       dataIndex: 'name',
       key: 'name',
       align: 'left',
-      render: (text: string, record: PriceData) => (
-        <div className="font-medium text-left">{record.name}</div>
-      ),
-    },
-    {
-      title: 'Giá gốc (VND)',
-      dataIndex: 'originalPrice',
-      key: 'originalPrice',
-      align: 'center',
-      render: (price: number) => (
-        <div className="text-center font-medium">
-          {formatPrice(price)}
+      render: (text: string, record: DiscountTemplate) => (
+        <div className="font-medium text-left">
+          <div>{record.name}</div>
+          {record.description && (
+            <div className="text-sm text-gray-500 mt-1">{record.description}</div>
+          )}
         </div>
       ),
-      sorter: (a: PriceData, b: PriceData) => a.originalPrice - b.originalPrice,
     },
     {
-      title: 'Khuyến mãi (%)',
-      dataIndex: 'discountPercent',
-      key: 'discountPercent',
+      title: 'Kích hoạt',
+      dataIndex: 'trigger',
+      key: 'trigger',
       align: 'center',
-      render: (percent: number) => (
+      render: (trigger: string) => (
         <div className="text-center">
-          {formatDiscountPercent(percent)}
+          <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-sm">
+            {formatTrigger(trigger)}
+          </span>
         </div>
       ),
-      sorter: (a: PriceData, b: PriceData) => a.discountPercent - b.discountPercent,
     },
     {
-      title: 'Giá áp dụng',
-      dataIndex: 'finalPrice',
-      key: 'finalPrice',
+      title: 'Loại',
+      dataIndex: 'type',
+      key: 'type',
       align: 'center',
-      render: (price: number) => (
+      render: (type: string) => (
+        <div className="text-center">
+          {type === "Percentage" ? "Phần trăm" : "Số tiền cố định"}
+        </div>
+      ),
+    },
+    {
+      title: 'Giá trị',
+      dataIndex: 'value',
+      key: 'value',
+      align: 'center',
+      render: (value: number, record: DiscountTemplate) => (
         <div className="text-center font-medium text-green-600">
-          {formatPrice(price)}
+          {formatDiscountValue(record.type, value)}
         </div>
       ),
-      sorter: (a: PriceData, b: PriceData) => a.finalPrice - b.finalPrice,
+      sorter: (a: DiscountTemplate, b: DiscountTemplate) => a.value - b.value,
     },
     {
-      title: 'Ngày áp dụng',
-      dataIndex: 'applyDate',
-      key: 'applyDate',
+      title: 'Số lần sử dụng',
+      dataIndex: 'timesTriggered',
+      key: 'timesTriggered',
       align: 'center',
-      render: (date: string) => (
-        <div className="text-center flex items-center justify-center gap-2">
-          <span>{date}</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
-            <polyline points="6,9 12,15 18,9"></polyline>
-          </svg>
+      render: (times: number) => (
+        <div className="text-center">
+          {times}
+        </div>
+      ),
+      sorter: (a: DiscountTemplate, b: DiscountTemplate) => a.timesTriggered - b.timesTriggered,
+    },
+    {
+      title: 'Tổng giảm giá',
+      dataIndex: 'totalDiscountGiven',
+      key: 'totalDiscountGiven',
+      align: 'center',
+      render: (total: number) => (
+        <div className="text-center font-medium">
+          {new Intl.NumberFormat('vi-VN').format(total)} VND
+        </div>
+      ),
+      sorter: (a: DiscountTemplate, b: DiscountTemplate) => a.totalDiscountGiven - b.totalDiscountGiven,
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'isActive',
+      key: 'isActive',
+      align: 'center',
+      render: (isActive: boolean) => (
+        <div className="text-center">
+          <span className={`px-2 py-1 rounded text-sm ${
+            isActive 
+              ? 'bg-green-100 text-green-700' 
+              : 'bg-gray-100 text-gray-700'
+          }`}>
+            {isActive ? 'Hoạt động' : 'Tắt'}
+          </span>
         </div>
       ),
     },
@@ -235,7 +166,7 @@ const PriceManaTable: React.FC<PriceManaTableProps> = ({
       title: 'Hành động',
       key: 'actions',
       align: 'center',
-      render: (_, record: PriceData) => (
+      render: (_, record: DiscountTemplate) => (
         <div className="flex justify-center gap-2">
           <Button
             variant="ghost"
@@ -260,13 +191,13 @@ const PriceManaTable: React.FC<PriceManaTableProps> = ({
 
   return (
     <div className={`price-mana-table-container ${className}`}>
-      <Table2<PriceData>
+      <Table2<DiscountTemplate>
         columns={columns}
         dataSource={currentData}
         loading={loading}
         rowKey="id"
         pagination={false}
-        scroll={{ x: 800 }}
+        scroll={{ x: 1200 }}
         className="price-mana-table"
       />
       

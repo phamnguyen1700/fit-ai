@@ -48,10 +48,6 @@ const Header: React.FC<HeaderProps> = ({
       key: "price-management", 
       label: "Quản lý Giá",
     },
-    {
-      key: "payment-history",
-      label: "Lịch sử Thanh toán",
-    },
   ];
 
   // Filter configuration for plans page

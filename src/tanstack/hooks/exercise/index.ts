@@ -5,11 +5,19 @@ import { IApiResponse } from '@/shared/api/http'
 import toast from 'react-hot-toast'
 import { APIError } from '@/types/utils/APIError'
 
-export const useGetExercises = (params?: ExerciseParams) => {
+interface UseGetExercisesOptions {
+  enabled?: boolean;
+  staleTime?: number;
+}
+
+export const useGetExercises = (params?: ExerciseParams, options?: UseGetExercisesOptions) => {
+  const { enabled = true, staleTime = 5 * 60 * 1000 } = options || {};
+  
   return useQuery<IApiResponse<Exercise[]>>({
     queryKey: ['exercises', params],
     queryFn: () => getExercisesService(params || {}),
-    staleTime: 5 * 60 * 1000, 
+    enabled,
+    staleTime,
   })
 }
 

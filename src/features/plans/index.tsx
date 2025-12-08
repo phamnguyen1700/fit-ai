@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import Header from './components/header';
 import PackageList from './components/tabs/PackageList';
 import PriceMana from './components/tabs/PriceMana';
-import Transaction from './components/tabs/Transaction';
 import AddPackageModal from './components/AddPackageModal';
 import { CreateSubscriptionRequest } from '@/types/subscription';
 import { useCreateSubscriptionProduct } from '@/tanstack/hooks/subscription';
@@ -40,8 +39,6 @@ export const PlanPage: React.FC = () => {
         return <PackageList />;
       case "price-management":
         return <PriceMana />;
-      case "payment-history":
-        return <Transaction />;
       default:
         return <PackageList />;
     }
