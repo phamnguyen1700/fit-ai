@@ -46,7 +46,7 @@ const Header: React.FC<HeaderProps> = ({
     },
     {
       key: "price-management", 
-      label: "Quản lý Giá",
+      label: "Quản lý voucher",
     },
   ];
 

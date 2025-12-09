@@ -30,3 +30,9 @@ export interface DiscountTemplateParams {
   trigger?: DiscountTrigger; // Filter by trigger type (optional)
 }
 
+// Update discount template request
+export interface UpdateDiscountTemplateRequest {
+  value: number;
+  isActive: boolean;
+}
+

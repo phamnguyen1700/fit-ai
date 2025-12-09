@@ -19,3 +19,16 @@ export interface GetExerciseCategoriesParams {
   page?: number;
   pageSize?: number;
 }
+
+// Create Exercise Category Request
+export interface CreateExerciseCategoryRequest {
+  name: string;
+  description: string;
+}
+
+// Update Exercise Category Request
+export interface UpdateExerciseCategoryRequest {
+  id: string;
+  name: string;
+  description: string;
+}

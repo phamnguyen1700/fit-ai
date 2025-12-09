@@ -2,19 +2,22 @@
 import React, { useState } from "react";
 import PriceManaTable from "../PriceManaTable";
 import { DiscountTemplate } from "@/types/discount";
-import { useGetDiscountTemplates } from "@/tanstack/hooks/discount";
+import { useGetDiscountTemplates, useUpdateDiscountTemplate } from "@/tanstack/hooks/discount";
 
-interface PriceManaProps {
+interface VoucherManagementProps {
   className?: string;
 }
 
-const PriceMana: React.FC<PriceManaProps> = ({ className = "" }) => {
+const VoucherManagement: React.FC<VoucherManagementProps> = ({ className = "" }) => {
   const [isActiveFilter, setIsActiveFilter] = useState<boolean | null>(null);
   
   // Fetch discount templates
   const { data, isLoading, error } = useGetDiscountTemplates({
     isActive: isActiveFilter,
   });
+
+  // Update discount template mutation
+  const updateMutation = useUpdateDiscountTemplate();
 
   // Handle discount management actions
   const handleEdit = (discount: DiscountTemplate) => {
@@ -27,19 +30,31 @@ const PriceMana: React.FC<PriceManaProps> = ({ className = "" }) => {
     // TODO: Implement delete functionality
   };
 
+  // Handle toggle status
+  const handleToggleStatus = (discount: DiscountTemplate) => {
+    updateMutation.mutate({
+      discountId: discount.id,
+      data: {
+        value: discount.value,
+        isActive: !discount.isActive,
+      },
+    });
+  };
+
   const discountTemplates = data?.data || [];
 
   return (
-    <div className={`price-mana-container ${className}`}>
+    <div className={`voucher-management-container ${className}`}>
       <PriceManaTable
         priceData={discountTemplates}
         loading={isLoading}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onToggleStatus={handleToggleStatus}
         className="w-full"
       />
     </div>
   );
 };
 
-export default PriceMana;
+export default VoucherManagement;

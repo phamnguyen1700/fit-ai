@@ -4,6 +4,7 @@ import { Modal } from "@/shared/ui/core/Modal";
 import { Icon } from "@/shared/ui/icon";
 import { CreateExerciseData } from "@/types/exercise";
 import { useGetExerciseCategories } from "@/tanstack/hooks/exercisecategory";
+import type { ExerciseCategory } from "@/types/exercisecategory";
 
 interface AddExerciseModalProps {
   isOpen: boolean;
@@ -25,8 +26,11 @@ export const AddExerciseModal: React.FC<AddExerciseModalProps> = ({
   const [errors, setErrors] = useState<Partial<Record<keyof CreateExerciseData, string>>>({});
   const [videoPreview, setVideoPreview] = useState<string>("");
 
-  // Fetch exercise categories
-  const { data: categoriesResponse, isLoading: isCategoriesLoading } = useGetExerciseCategories();
+  // Fetch exercise categories - get all categories for dropdown
+  const { data: categoriesResponse, isLoading: isCategoriesLoading } = useGetExerciseCategories({
+    page: 1,
+    pageSize: 1000, // Get all categories
+  });
 
   // Debug: Log the response
   React.useEffect(() => {
@@ -179,13 +183,24 @@ export const AddExerciseModal: React.FC<AddExerciseModalProps> = ({
               <option value="" className="text-[var(--text-secondary)]">
                 {isCategoriesLoading ? 'Đang tải danh mục...' : 'Chọn danh mục bài tập'}
               </option>
-              {categoriesResponse?.data && Array.isArray(categoriesResponse.data) && 
-                categoriesResponse.data.map((category) => (
+              {(() => {
+                // Extract categories from response
+                let categories: ExerciseCategory[] = [];
+                if (categoriesResponse?.data) {
+                  if (Array.isArray(categoriesResponse.data)) {
+                    // Response is array directly
+                    categories = categoriesResponse.data;
+                  } else if (categoriesResponse.data.data && Array.isArray(categoriesResponse.data.data)) {
+                    // Response is object with nested data array
+                    categories = categoriesResponse.data.data;
+                  }
+                }
+                return categories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
                   </option>
-                ))
-              }
+                ));
+              })()}
             </select>
             {errors.categoryId && (
               <p className="exercise-modal-form-error">

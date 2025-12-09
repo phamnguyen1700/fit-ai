@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import Header from './components/header'
 import ExerciseTab from './components/tabs/ExerciseTab'
-import ArchiveTab from './components/tabs/ArchiveTab'
+import CategoryTab from './components/tabs/CategoryTab'
 
 export default function Content() {
   const [activeTab, setActiveTab] = useState('exercise');
@@ -12,7 +12,7 @@ export default function Content() {
       case 'exercise':
         return <ExerciseTab />;
       case 'history':
-        return <ArchiveTab />;
+        return <CategoryTab />;
       default:
         return <ExerciseTab />;
     }

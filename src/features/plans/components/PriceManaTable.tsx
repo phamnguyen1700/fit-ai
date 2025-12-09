@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { Table2, type TableColumn } from "@/shared/ui/core/Table2";
-import { Button } from "@/shared/ui/core/Button";
 import { Pagination } from "@/shared/ui/core/Pagination";
+import { Toggle } from "@/shared/ui/core/Toggle";
 import { DiscountTemplate } from "@/types/discount";
 
 // Types - keeping for backward compatibility but using DiscountTemplate
@@ -13,6 +13,7 @@ interface PriceManaTableProps {
   loading?: boolean;
   onEdit?: (discount: DiscountTemplate) => void;
   onDelete?: (discount: DiscountTemplate) => void;
+  onToggleStatus?: (discount: DiscountTemplate) => void;
   className?: string;
 }
 
@@ -21,6 +22,7 @@ const PriceManaTable: React.FC<PriceManaTableProps> = ({
   loading = false,
   onEdit,
   onDelete,
+  onToggleStatus,
   className = "",
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -150,40 +152,16 @@ const PriceManaTable: React.FC<PriceManaTableProps> = ({
       dataIndex: 'isActive',
       key: 'isActive',
       align: 'center',
-      render: (isActive: boolean) => (
+      render: (isActive: boolean, record: DiscountTemplate) => (
         <div className="text-center">
-          <span className={`px-2 py-1 rounded text-sm ${
-            isActive 
-              ? 'bg-green-100 text-green-700' 
-              : 'bg-gray-100 text-gray-700'
-          }`}>
-            {isActive ? 'Hoạt động' : 'Tắt'}
-          </span>
-        </div>
-      ),
-    },
-    {
-      title: 'Hành động',
-      key: 'actions',
-      align: 'center',
-      render: (_, record: DiscountTemplate) => (
-        <div className="flex justify-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onEdit?.(record)}
-            className="text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
-          >
-            Sửa
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onDelete?.(record)}
-            className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
-          >
-            Xóa
-          </Button>
+          <Toggle
+            checked={isActive}
+            onChange={() => onToggleStatus?.(record)}
+            showLabel={true}
+            activeLabel="Hoạt động"
+            inactiveLabel="Tắt"
+            size="small"
+          />
         </div>
       ),
     },

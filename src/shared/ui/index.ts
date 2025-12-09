@@ -15,6 +15,7 @@ export { LineChart } from './core/LineChart';
 export { Rate } from './core/Rate';
 export { Avatar } from './core/Avatar';
 export { Table2 } from './core/Table2';
+export { Toggle } from './core/Toggle';
 // export { Navigation, BreadcrumbNavigation } from './core/Navigation';
 export { Pagination } from './core/Pagination';
 export { Badge } from './core/Badge';
@@ -29,7 +30,6 @@ export { UserCard } from './common/UserCard';
 export { AdvisorCard } from './common/AdvisorCard';
 export { Flex } from './core/Flex';
 export { TabsHeader } from '../../features/content/components/TabsHeader';
-export { PopupImport } from '../../features/content/components/PopupImport';
   
 // Layout Components
 export { Sider } from './layout/admin/Sider';

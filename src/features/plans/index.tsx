@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Header from './components/header';
 import PackageList from './components/tabs/PackageList';
-import PriceMana from './components/tabs/PriceMana';
+import VoucherManagement from './components/tabs/VoucherManagement';
 import AddPackageModal from './components/AddPackageModal';
 import { CreateSubscriptionRequest } from '@/types/subscription';
 import { useCreateSubscriptionProduct } from '@/tanstack/hooks/subscription';
@@ -38,7 +38,7 @@ export const PlanPage: React.FC = () => {
       case "subscription-list":
         return <PackageList />;
       case "price-management":
-        return <PriceMana />;
+        return <VoucherManagement />;
       default:
         return <PackageList />;
     }

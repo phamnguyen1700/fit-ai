@@ -26,6 +26,7 @@ interface TabsHeaderProps {
   className?: string;
   dropdownOptions?: DropdownOption[];
   defaultActiveOption?: string;
+  showLevelFilter?: boolean;
 }
 
 export const TabsHeader: React.FC<TabsHeaderProps> = ({
@@ -36,6 +37,7 @@ export const TabsHeader: React.FC<TabsHeaderProps> = ({
   addButtonText = "Thêm bài tập",
   addButtonIcon = "mdi:plus",
   className = "",
+  showLevelFilter = true,
 }) => {
 
   // Filter configuration for level - memoize to prevent recreation
@@ -80,28 +82,15 @@ export const TabsHeader: React.FC<TabsHeaderProps> = ({
         </div>
 
         {/* Level Filter */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <Filter
-            filters={levelFilters}
-            onFilterChange={handleFilterChange}
-            showResetButton={false}
-          />
-        </div>
-
-        {/* Edit Icon Button with Dropdown */}
-        {/* <Dropdown
-          trigger={
-            <Button
-              variant="ghost"
-              size="md"
-              className="tabs-header-icon-button rounded-lg"
-            >
-              <Icon name="mdi:pencil" size={18} color="currentColor" />
-            </Button>
-          }
-          options={dropdownOptions}
-          onSelect={handleDropdownSelect}
-        /> */}
+        {showLevelFilter && (
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Filter
+              filters={levelFilters}
+              onFilterChange={handleFilterChange}
+              showResetButton={false}
+            />
+          </div>
+        )}
       </div>
     </Card>
   );
