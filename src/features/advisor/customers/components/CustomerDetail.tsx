@@ -4,7 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { Breadcrumb } from '@/shared/ui/core/Breadcrumb';
 import { Tabs } from '@/shared/ui/core/Tabs';
 import { Icon } from '@/shared/ui/icon';
-import type { CustomerDetail as CustomerDetailModel, CustomerProfileResponse } from '@/types/advisordashboard';
+import type { CustomerDetail as CustomerDetailModel } from '@/types/advisordashboard';
 import { useParams } from 'next/navigation';
 import { useCustomerProfile } from '@/tanstack/hooks/advisordashboard';
 import { CustomerInfoTab } from './CustomerInfoTab';

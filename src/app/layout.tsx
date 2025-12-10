@@ -17,6 +17,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Fit AI - Your Personal Fitness Assistant",
   description: "AI-powered fitness application to help you achieve your health goals",
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({
