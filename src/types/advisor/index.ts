@@ -30,8 +30,9 @@ export type AdvisorListResponse = Advisor[];
 
 export interface AdvisorDetail extends Omit<Advisor, 'certifications' | 'specialties'> {
   certifications?: string[] | string;
-  specialties?: string[];
+  specialties?: string[] | string;
   workingHours?: string;
+  availability?: string; // API returns this field
   totalCustomers?: number;
   customers?: AdvisorCustomer[];
   completedPrograms?: number;

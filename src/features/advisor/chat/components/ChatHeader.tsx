@@ -5,6 +5,7 @@ import type { Conversation } from '../types';
 
 interface ChatHeaderProps {
   conversation: Conversation;
+  isTyping?: boolean;
 }
 
 const STATUS_LABELS: Record<Conversation['status'], string> = {
@@ -19,7 +20,7 @@ const STATUS_COLORS: Record<Conversation['status'], string> = {
   busy: '#f97316',
 };
 
-export const ChatHeader: React.FC<ChatHeaderProps> = ({ conversation }) => {
+export const ChatHeader: React.FC<ChatHeaderProps> = ({ conversation, isTyping = false }) => {
   const { customerName, customerEmail, avatarUrl, focusPlan, status } = conversation;
 
   return (
@@ -37,10 +38,21 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ conversation }) => {
         <div className="flex flex-col">
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-[var(--text)]">{customerName}</span>
-            <span className="flex items-center gap-1 rounded-full bg-[rgba(79,70,229,0.08)] px-2 py-0.5 text-xs text-[var(--primary)]">
-              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: STATUS_COLORS[status] }} />
-              {STATUS_LABELS[status]}
-            </span>
+            {isTyping ? (
+              <span className="flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs text-blue-600">
+                <span className="flex gap-0.5">
+                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-600" style={{ animationDelay: '0ms' }} />
+                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-600" style={{ animationDelay: '150ms' }} />
+                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-600" style={{ animationDelay: '300ms' }} />
+                </span>
+                <span className="font-medium">Đang nhập...</span>
+              </span>
+            ) : (
+              <span className="flex items-center gap-1 rounded-full bg-[rgba(79,70,229,0.08)] px-2 py-0.5 text-xs text-[var(--primary)]">
+                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: STATUS_COLORS[status] }} />
+                {STATUS_LABELS[status]}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-3 text-xs text-[var(--text-secondary)]">
             <span className="flex items-center gap-1">
@@ -55,22 +67,6 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ conversation }) => {
             ) : null}
           </div>
         </div>
-      </div>
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          className="flex items-center gap-2 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs text-[var(--text-secondary)] transition-colors hover:border-[var(--primary)] hover:text-[var(--primary)]"
-        >
-          <Icon name="mdi:note-outline" size={16} />
-          Ghi chú nhanh
-        </button>
-        <button
-          type="button"
-          className="flex items-center gap-2 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs text-[var(--text-secondary)] transition-colors hover:border-[var(--primary)] hover:text-[var(--primary)]"
-        >
-          <Icon name="mdi:food-apple-outline" size={16} />
-          Gợi ý thực đơn
-        </button>
       </div>
     </div>
   );

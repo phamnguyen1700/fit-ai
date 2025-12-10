@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
-import { Grid, Layout } from 'antd';
+import React, { useMemo } from 'react';
+import { Grid, Layout, Badge } from 'antd';
 import { Menu } from '@/shared/ui/core/Menu';
 import { Icon, icons } from '@/shared/ui/icon';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/stores';
+import { useGetUnreadCount } from '@/tanstack/hooks/advisorchat';
 
 const { Sider: AntSider } = Layout;
 
@@ -16,13 +17,6 @@ interface AdvisorSiderProps {
   collapsedWidth?: number;
 }
 
-const menuItems: { key: string; label: React.ReactNode; icon?: React.ReactNode }[] = [
-  { key: '/advisor/customers', label: 'Khách hàng trong tháng', icon: <Icon name={icons.clients} /> },
-  { key: '/advisor/feedback', label: 'Cần đánh giá', icon: <Icon name={icons.feedback} /> },
-  { key: '/advisor/plans', label: 'Duyệt plan', icon: <Icon name={icons.plans} /> },
-  { key: '/advisor/chat', label: 'Chat với khách hàng', icon: <Icon name={icons.message} /> },
-];
-
 export const AdvisorSider: React.FC<AdvisorSiderProps> = ({
   collapsed = false,
   width = 230,
@@ -31,6 +25,7 @@ export const AdvisorSider: React.FC<AdvisorSiderProps> = ({
   const router = useRouter();
   const pathname = usePathname();
   const screens = Grid.useBreakpoint();
+  const { data: unreadCount = 0 } = useGetUnreadCount();
 
   const isMobile = !screens.md;
   const computedWidth = screens.lg ? 240 : screens.md ? 220 : 0;
@@ -48,6 +43,28 @@ export const AdvisorSider: React.FC<AdvisorSiderProps> = ({
     }
     router.push(key);
   };
+
+  // Create menu items with badge for unread messages
+  const menuItems = useMemo(() => {
+    const items: { key: string; label: React.ReactNode; icon?: React.ReactNode }[] = [
+      { key: '/advisor/profile', label: 'Hồ sơ', icon: <Icon name={icons.advisors} /> },
+      { key: '/advisor/customers', label: 'Khách hàng trong tháng', icon: <Icon name={icons.clients} /> },
+      { key: '/advisor/feedback', label: 'Cần đánh giá', icon: <Icon name={icons.feedback} /> },
+      { key: '/advisor/plans', label: 'Duyệt plan', icon: <Icon name={icons.plans} /> },
+      { 
+        key: '/advisor/chat', 
+        label: 'Chat với khách hàng',
+        icon: unreadCount > 0 ? (
+          <Badge count={unreadCount} size="small" offset={[-2, 2]}>
+            <Icon name={icons.message} />
+          </Badge>
+        ) : (
+          <Icon name={icons.message} />
+        )
+      },
+    ];
+    return items;
+  }, [unreadCount]);
 
   return (
     <AntSider

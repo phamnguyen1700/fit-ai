@@ -46,6 +46,7 @@ export const AdvisorChat: React.FC = () => {
     loadingConversations,
     sending,
     connectionState,
+    typingUsers,
     selectConversation,
     sendMessage,
     sendTyping,
@@ -66,8 +67,13 @@ export const AdvisorChat: React.FC = () => {
   }, [conversations, searchTerm]);
 
   const conversationMessages = useMemo(() => {
-    if (!selectedConversation) return [];
-    return messages.filter((message) => message.conversationId === selectedConversation.id);
+    if (!selectedConversation) {
+      console.log('[AdvisorChat] No selected conversation');
+      return [];
+    }
+    const filtered = messages.filter((message) => message.conversationId === selectedConversation.id);
+    console.log(`[AdvisorChat] Filtered ${filtered.length} messages for conversation ${selectedConversation.id} (total messages: ${messages.length})`);
+    return filtered;
   }, [messages, selectedConversation]);
 
   // Track if we're loading messages for the current conversation
@@ -87,11 +93,10 @@ export const AdvisorChat: React.FC = () => {
         <Flex wrap="wrap" gap={16} className="md:flex-nowrap">
           <SummaryTile icon="mdi:message-processing-outline" label="Cuộc trò chuyện" value={summary.total} helper={`${summary.online} khách đang online`} />
           <SummaryTile icon="mdi:email-open-outline" label="Tin nhắn chưa đọc" value={summary.unread} helper={`${summary.busy} khách bận hoặc offline`} />
-          <SummaryTile icon="mdi:account-heart-outline" label="Khách hàng ưu tiên" value={summary.online + summary.busy > 0 ? summary.online + summary.busy : '0'} helper="Trạng thái online/bận" />
         </Flex>
       </Card>
 
-      <div className="flex h-[calc(100vh-280px)] min-h-[540px] flex-col overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
+      <div className="flex h-[calc(100vh-200px)] min-h-[700px] flex-col overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
         <div className="flex h-full flex-1 overflow-hidden">
           <div className="w-full max-w-[320px] flex-shrink-0 border-r border-[var(--border)]">
             <ConversationList
@@ -114,7 +119,12 @@ export const AdvisorChat: React.FC = () => {
               </div>
             ) : selectedConversation ? (
               <>
-                <ChatHeader conversation={selectedConversation} />
+                <ChatHeader 
+                  conversation={selectedConversation} 
+                  isTyping={typingUsers.some(
+                    (typing) => typing.conversationId === selectedConversation.id
+                  )}
+                />
                 <MessageList
                   messages={conversationMessages}
                   advisorLabel="Bạn"

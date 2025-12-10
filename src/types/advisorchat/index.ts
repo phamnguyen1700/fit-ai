@@ -26,6 +26,9 @@ export interface CreateConversationDto {
     senderName: string;
     content: string;
     messageType: string;
+    planData?: string | null; // Stringified JSON from API
+    planType?: number | null;
+    checkpointNumber?: number | null;
     attachmentUrl?: string;
     attachmentName?: string;
     attachmentSize?: number;

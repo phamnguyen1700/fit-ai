@@ -8,6 +8,35 @@ export interface ChatAttachment {
   thumbnailUrl?: string;
 }
 
+export interface ExercisePlanData {
+  ExerciseId: string;
+  Name: string;
+  Sets: number;
+  Reps: number;
+  Category: string;
+  VideoUrl?: string;
+  Note?: string;
+  DurationMinutes?: number | null;
+}
+
+export interface MealPlanData {
+  DayNumber: number;
+  MealType: string;
+  Calories: number;
+  Nutrition: {
+    Carbs: number;
+    Protein: number;
+    Fat: number;
+    Fiber: number;
+    Sugar: number;
+  };
+  Foods: Array<{
+    Name: string;
+    Quantity: string;
+    Note?: string | null;
+  }>;
+}
+
 export interface ChatMessage {
   id: string;
   conversationId: string;
@@ -17,6 +46,9 @@ export interface ChatMessage {
   content: string;
   messageType: string;
   timestamp: string;
+  planData?: string | ExercisePlanData | MealPlanData; // String from API, parsed object in UI
+  planType?: number | null;
+  checkpointNumber?: number | null;
   attachmentUrl?: string;
   attachmentName?: string;
   attachmentSize?: number;

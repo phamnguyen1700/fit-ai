@@ -36,22 +36,6 @@ export const ChatComposer: React.FC<ChatComposerProps> = ({ onSend, onTyping, di
   return (
     <div className="border-t border-[var(--border)] bg-gradient-to-t from-white via-white to-slate-50/50 px-6 py-4 shadow-lg">
       <div className="flex flex-col gap-3">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="flex items-center gap-1.5 rounded-lg border border-dashed border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition-all hover:border-[var(--primary)] hover:bg-[rgba(79,70,229,0.05)] hover:text-[var(--primary)] active:scale-95"
-          >
-            <Icon name="mdi:paperclip" size={16} />
-            <span>Đính kèm</span>
-          </button>
-          <button
-            type="button"
-            className="flex items-center gap-1.5 rounded-lg border border-dashed border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition-all hover:border-[var(--primary)] hover:bg-[rgba(79,70,229,0.05)] hover:text-[var(--primary)] active:scale-95"
-          >
-            <Icon name="mdi:calendar-account" size={16} />
-            <span>Đặt lịch hẹn</span>
-          </button>
-        </div>
         <TextArea
           value={value}
           onChange={handleChange}

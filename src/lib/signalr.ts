@@ -10,6 +10,9 @@ export interface ReceivedMessage {
   senderRole: string;
   content: string;
   messageType: string;
+  planData?: string | null;
+  planType?: number | null;
+  checkpointNumber?: number | null;
   attachmentUrl?: string;
   createdAt: string;
   isRead: boolean;

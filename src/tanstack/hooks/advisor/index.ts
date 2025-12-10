@@ -16,14 +16,16 @@ export const useGetAdvisors = (params?: AdvisorParams) => {
 export const useAdvisorDetail = (advisorId?: string) => {
   return useQuery<IApiResponse<AdvisorDetail>>({
     queryKey: ['advisor-detail', advisorId],
-    queryFn: () => {
+    queryFn: async () => {
       if (!advisorId) {
         return Promise.reject(new Error('Advisor ID is required'))
       }
-      return getAdvisorDetailService(advisorId)
+      const response = await getAdvisorDetailService(advisorId)
+      return response
     },
     enabled: !!advisorId,
     staleTime: 5 * 60 * 1000,
+    retry: 1,
   })
 }
 
