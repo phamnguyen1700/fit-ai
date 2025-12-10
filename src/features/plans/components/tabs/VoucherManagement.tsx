@@ -9,10 +9,10 @@ interface VoucherManagementProps {
 }
 
 const VoucherManagement: React.FC<VoucherManagementProps> = ({ className = "" }) => {
-  const [isActiveFilter, setIsActiveFilter] = useState<boolean | null>(null);
+  const [isActiveFilter] = useState<boolean | null>(null);
   
   // Fetch discount templates
-  const { data, isLoading, error } = useGetDiscountTemplates({
+  const { data, isLoading } = useGetDiscountTemplates({
     isActive: isActiveFilter,
   });
 

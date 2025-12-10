@@ -20,8 +20,6 @@ interface PriceManaTableProps {
 const PriceManaTable: React.FC<PriceManaTableProps> = ({
   priceData = [],
   loading = false,
-  onEdit,
-  onDelete,
   onToggleStatus,
   className = "",
 }) => {

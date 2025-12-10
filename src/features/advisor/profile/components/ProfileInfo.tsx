@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Card, Input, Row, Col } from '@/shared/ui';
+import { Card, Input } from '@/shared/ui';
 import { Icon } from '@/shared/ui/icon';
 interface ProfileFormData {
     firstName: string;

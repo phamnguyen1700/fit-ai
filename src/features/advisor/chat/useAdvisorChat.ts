@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState, useRef } from 'react';
-import type { ChatMessage, Conversation, TypingUser } from './types';
+import type { ChatMessage, Conversation, TypingUser, ExercisePlanData, MealPlanData } from './types';
 import type { ChatMessageDto, ConversationDto } from '@/types/advisorchat';
 import { getChatSignalRService, type SignalRConnectionState, type ReceivedMessage } from '@/lib/signalr';
 import { useGetConversations, useGetConversationMessages, useMarkMessagesAsRead } from '@/tanstack/hooks/advisorchat';
@@ -302,7 +302,21 @@ export const useAdvisorChat = (): UseAdvisorChatReturn => {
         
         sortedMessages.forEach((msg, index) => {
           const time = new Date(msg.timestamp).toLocaleString('vi-VN');
-          const logData: any = {
+          interface LogData {
+            id: string;
+            content: string;
+            timestamp: string;
+            messageType: string;
+            isRead: boolean;
+            attachmentUrl?: string;
+            hasPlanData?: boolean;
+            planType?: number | null;
+            exerciseName?: string;
+            mealType?: string;
+            dayNumber?: number;
+          }
+          
+          const logData: LogData = {
             id: msg.id,
             content: msg.content,
             timestamp: time,
@@ -317,10 +331,11 @@ export const useAdvisorChat = (): UseAdvisorChatReturn => {
             logData.planType = msg.planType;
             if (typeof msg.planData === 'object') {
               if ('Name' in msg.planData) {
-                logData.exerciseName = (msg.planData as any).Name;
+                logData.exerciseName = (msg.planData as ExercisePlanData).Name;
               } else if ('MealType' in msg.planData) {
-                logData.mealType = (msg.planData as any).MealType;
-                logData.dayNumber = (msg.planData as any).DayNumber;
+                const mealData = msg.planData as MealPlanData;
+                logData.mealType = mealData.MealType;
+                logData.dayNumber = mealData.DayNumber;
               }
             }
           }
