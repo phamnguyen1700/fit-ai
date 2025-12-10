@@ -58,14 +58,14 @@ export const FeedbackFilter: React.FC<FeedbackFilterProps> = ({
           options={statusOptions}
           onChange={onStatusChange}
           className="min-w-[180px]"
-          popupClassName="themed-select-dropdown"
+          classNames={{ popup: { root: "themed-select-dropdown" } }}
         />
         <Select
           value={selectedMedia}
           options={mediaOptions}
           onChange={onMediaChange}
           className="min-w-[180px]"
-          popupClassName="themed-select-dropdown"
+          classNames={{ popup: { root: "themed-select-dropdown" } }}
         />
       </div>
 

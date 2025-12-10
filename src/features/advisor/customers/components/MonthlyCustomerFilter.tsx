@@ -45,14 +45,14 @@ export const MonthlyCustomerFilter: React.FC<MonthlyCustomerFilterProps> = ({
           options={months}
           onChange={onMonthChange}
           className="min-w-[180px]"
-          popupClassName="themed-select-dropdown"
+          classNames={{ popup: { root: "themed-select-dropdown" } }}
         />
         <Select
           value={selectedStatus}
           options={statusOptions}
           onChange={onStatusChange}
           className="min-w-[180px]"
-          popupClassName="themed-select-dropdown"
+          classNames={{ popup: { root: "themed-select-dropdown" } }}
         />
       </div>
       <div className="flex items-center gap-2">
