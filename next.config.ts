@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
 
-  // ⭐ Thêm proxy để fix lỗi gọi HTTP từ Vercel (HTTPS → HTTP)
+  // Thêm proxy để fix lỗi gọi HTTP từ Vercel (HTTPS → HTTP)
   async rewrites() {
     return [
       {
