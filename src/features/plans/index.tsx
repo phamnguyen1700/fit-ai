@@ -49,7 +49,7 @@ export const PlanPage: React.FC = () => {
       case "subscription-list":
         return <PackageList searchQuery={debouncedSearch} />;
       case "price-management":
-        return <VoucherManagement />;
+        return <VoucherManagement searchQuery={debouncedSearch} />;
       default:
         return <PackageList searchQuery={debouncedSearch} />;
     }

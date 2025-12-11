@@ -6,9 +6,10 @@ import { useGetDiscountTemplates, useUpdateDiscountTemplate } from "@/tanstack/h
 
 interface VoucherManagementProps {
   className?: string;
+  searchQuery?: string;
 }
 
-const VoucherManagement: React.FC<VoucherManagementProps> = ({ className = "" }) => {
+const VoucherManagement: React.FC<VoucherManagementProps> = ({ className = "", searchQuery = "" }) => {
   const [isActiveFilter] = useState<boolean | null>(null);
   
   // Fetch discount templates
@@ -41,7 +42,23 @@ const VoucherManagement: React.FC<VoucherManagementProps> = ({ className = "" })
     });
   };
 
-  const discountTemplates = data?.data || [];
+  // Filter discount templates by search query
+  const discountTemplates = React.useMemo(() => {
+    const allTemplates = data?.data || [];
+    
+    if (!searchQuery.trim()) {
+      return allTemplates;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    return allTemplates.filter((discount) => {
+      // Search by name or description
+      const name = discount.name?.toLowerCase() || '';
+      const description = discount.description?.toLowerCase() || '';
+      
+      return name.includes(query) || description.includes(query);
+    });
+  }, [data?.data, searchQuery]);
 
   return (
     <div className={`voucher-management-container ${className}`}>

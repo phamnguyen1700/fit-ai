@@ -1,12 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { IApiResponse } from '@/shared/api/http';
-import { getFeedbackListService, approveFeedbackService, denyFeedbackService, togglePublicFeedbackService } from '@/tanstack/services/feedback';
+import { getFeedbackListService, approveFeedbackService, denyFeedbackService, togglePublicFeedbackService, getPublicFeedbackService } from '@/tanstack/services/feedback';
 import {
   FeedbackItem,
   FeedbackListParams,
   FeedbackListResponse,
   DenyFeedbackRequest,
+  PublicFeedbackParams,
+  PublicFeedbackResponse,
 } from '@/types/feedback';
 import toast from 'react-hot-toast';
 import { APIError } from '@/types/utils/APIError';
@@ -180,6 +182,14 @@ export const useTogglePublicFeedback = () => {
         'Chuyển đổi trạng thái công khai thất bại. Vui lòng thử lại.';
       toast.error(errorMessage);
     },
+  });
+};
+
+// Hook to get public feedback
+export const usePublicFeedback = (params?: PublicFeedbackParams) => {
+  return useQuery<IApiResponse<PublicFeedbackResponse>>({
+    queryKey: ['publicFeedback', params],
+    queryFn: () => getPublicFeedbackService(params),
   });
 };
 

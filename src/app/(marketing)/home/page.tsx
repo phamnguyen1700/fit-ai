@@ -10,6 +10,7 @@ import Footer from "@/shared/ui/layout/marketing/components/Footer";
 import { useGetActiveProducts } from "@/tanstack/hooks/subscription";
 import { SubscriptionProduct } from "@/types/subscription";
 import { Skeleton } from "antd";
+import { usePublicFeedback } from "@/tanstack/hooks/feedback";
 
 // TypeScript interfaces
 interface StatItemProps {
@@ -260,38 +261,55 @@ export default function MarketingHomePage() {
     },
   ];
 
-  const feedbacks = [
-    {
-      name: "Annette Black",
-      rating: 4,
-      content: "App rất dễ dùng, nhắc lịch siêu tiện lợi",
-    },
-    {
-      name: "Annette Black",
-      rating: 5,
-      content: "Fit AI giúp tôi giảm 5kg trong 2 tháng",
-    },
-    {
-      name: "Annette Black",
-      rating: 5,
-      content: "Trainer AI phân tích chuẩn, tôi tập hiệu quả",
-    },
-    {
-      name: "Annette Black",
-      rating: 5,
-      content: "Fit AI giúp tôi giảm 5kg trong 2 tháng",
-    },
-    {
-      name: "Annette Black",
-      rating: 5,
-      content: "Trainer AI phân tích chuẩn, tôi tập hiệu quả",
-    },
-    {
-      name: "Annette Black",
-      rating: 5,
-      content: "Fit AI giúp tôi giảm 5kg trong 2 tháng",
-    },
-  ];
+  // Fetch public feedback from API
+  const { data: publicFeedbackResponse, isLoading: isLoadingFeedback } = usePublicFeedback({
+    pageNumber: 1,
+    pageSize: 6, // Get 6 feedbacks for display
+  });
+
+  // Transform API feedback data to FeedbackCard format
+  const feedbacks = useMemo(() => {
+    // Debug logging
+    console.log('Public Feedback Response:', publicFeedbackResponse);
+    
+    if (!publicFeedbackResponse?.data) {
+      console.log('No feedback data in response');
+      return [];
+    }
+
+    // Handle different response structures
+    let feedbackData: any[] = [];
+    
+    // API response structure: { success, message, data: PublicFeedbackItem[] }
+    // After http client: publicFeedbackResponse.data = PublicFeedbackItem[] (array directly)
+    if (Array.isArray(publicFeedbackResponse.data)) {
+      feedbackData = publicFeedbackResponse.data;
+      console.log('Feedback data is array directly, length:', feedbackData.length);
+    } else if (publicFeedbackResponse.data && typeof publicFeedbackResponse.data === 'object') {
+      // Fallback: if data is object with nested data array
+      const dataObj = publicFeedbackResponse.data as any;
+      if (Array.isArray(dataObj.data)) {
+        feedbackData = dataObj.data;
+        console.log('Feedback data from nested data property, length:', feedbackData.length);
+      } else {
+        console.log('Feedback data structure:', dataObj);
+      }
+    }
+
+    if (feedbackData.length === 0) {
+      console.log('No feedback items found');
+      return [];
+    }
+
+    console.log('Transformed feedbacks:', feedbackData.length);
+    return feedbackData.map((feedback) => ({
+      name: "Người dùng", // Placeholder name since API doesn't return user name
+      role: "",
+      avatarUrl: "/img/avatar1.jpg", // Default avatar
+      rating: feedback.rating || 5,
+      content: feedback.content || "",
+    }));
+  }, [publicFeedbackResponse]);
 
   const faqItems = [
     {
@@ -452,18 +470,30 @@ export default function MarketingHomePage() {
       {/* User Feedback Section */}
       <Section bgClass="bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30">
         <SectionTitle title="PHẢN HỒI CỦA NGƯỜI DÙNG" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {feedbacks.map((feedback, idx) => (
-            <FeedbackCard
-              key={idx}
-              name={feedback.name}
-              role=""
-              avatarUrl="/img/avatar1.jpg"
-              rating={feedback.rating}
-              content={feedback.content}
-            />
-          ))}
-        </div>
+        {isLoadingFeedback ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Skeleton key={i} active paragraph={{ rows: 3 }} className="min-h-[150px]" />
+            ))}
+          </div>
+        ) : feedbacks.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {feedbacks.map((feedback, idx) => (
+              <FeedbackCard
+                key={idx}
+                name={feedback.name}
+                role={feedback.role}
+                avatarUrl={feedback.avatarUrl}
+                rating={feedback.rating}
+                content={feedback.content}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">Chưa có phản hồi nào</p>
+          </div>
+        )}
       </Section>
 
       {/* Package Section */}
@@ -481,7 +511,7 @@ export default function MarketingHomePage() {
               CHỌN GÓI TẬP LUYỆN & DINH DƯỠNG PHÙ HỢP NHẤT CHO BẠN. TẬP TRUNG
               VÀO KẾT QUẢ VÀ SỰ TIẾN BỘ CỦA BẠN.
             </p>
-            <Tabs3
+            {/* <Tabs3
               items={[
                 { key: "monthly", label: "Hàng tháng" },
                 { key: "yearly", label: "Hàng năm", discount: "-20%" },
@@ -489,7 +519,7 @@ export default function MarketingHomePage() {
               defaultActiveKey="yearly"
               className="mb-8"
               onChange={(key) => setSelectedInterval(key as 'monthly' | 'yearly')}
-            />
+            /> */}
           </div>
           {isLoadingProducts ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">

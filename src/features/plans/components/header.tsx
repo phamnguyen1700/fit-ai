@@ -126,24 +126,12 @@ const Header: React.FC<HeaderProps> = ({
           {/* Search Input */}
           <div className="search-container flex-1">
             <SearchInput
-              placeholder="Tìm kiếm gói đăng ký..."
+              placeholder={activeTab === "price-management" ? "Tìm kiếm voucher..." : "Tìm kiếm gói đăng ký..."}
               onChange={(e) => {
                 const value = typeof e === 'string' ? e : e.target.value;
                 onSearch?.(value);
               }}
               className="w-full"
-            />
-          </div>
-
-          {/* Filter Dropdowns */}
-          <div className="filter-wrapper">
-            <Filter
-              filters={plansFilters}
-              onFilterChange={handleFilterChange}
-              initialValues={filterValues}
-              showResetButton={true}
-              resetButtonTitle="Xóa bộ lọc"
-              className="flex-shrink-0"
             />
           </div>
         </div>

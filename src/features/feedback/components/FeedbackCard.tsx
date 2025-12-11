@@ -211,9 +211,8 @@ const FeedbackCard: React.FC<FeedbackCardProps> = ({
           </>
         );
       case 'rejected':
-        return <Button variant="solid" size="lg" onClick={() => onRestore?.(id)}>Khôi phục</Button>;
+        return null;
       case 'published':
-        // Không hiển thị button nào cho feedback đã published (state = 4)
         return null;
       default:
         return null;
@@ -287,13 +286,6 @@ const FeedbackCard: React.FC<FeedbackCardProps> = ({
       {status !== 'published' && (
         <div className="feedback-card-actions flex items-center gap-3 pt-4">
           {renderActions()}
-          <Button
-            variant="solid"
-            size="lg"
-            style={{ width: '28px', minWidth: '28px', padding: '0' }}
-          >
-            <Icon name="mdi:dots-vertical" size={20} color="currentColor" />
-          </Button>
         </div>
       )}
 
