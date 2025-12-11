@@ -4,9 +4,10 @@ import PackageListTable, { PackageData } from "../PackageListTable";
 
 interface PackageListProps {
   className?: string;
+  searchQuery?: string;
 }
 
-const PackageList: React.FC<PackageListProps> = ({ className = "" }) => {
+const PackageList: React.FC<PackageListProps> = ({ className = "", searchQuery = "" }) => {
   // Handle package actions
   const handleEdit = (packageData: PackageData) => {
     console.log("Edit package:", packageData);
@@ -30,6 +31,7 @@ const PackageList: React.FC<PackageListProps> = ({ className = "" }) => {
         onDelete={handleDelete}
         onStatusChange={handleStatusChange}
         className="w-full"
+        searchQuery={searchQuery}
       />
     </div>
   );

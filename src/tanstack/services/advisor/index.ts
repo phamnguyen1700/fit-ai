@@ -4,6 +4,7 @@ import {
   AdvisorParams,
   AdvisorDetail,
   UpdateAdvisorProfileRequest,
+  CreateAdvisorRequest,
 } from '@/types/advisor'
 
 const ACCOUNT_BASE_URL = process.env.NEXT_PUBLIC_ACCOUNT_API_URL || ''
@@ -59,4 +60,9 @@ export const changeAdvisorPasswordService = (
 ) => {
   console.log('Calling change advisor password endpoint for advisor:', advisorId)
   return put<string>(`${ACCOUNT_BASE_URL}/api/advisor/${advisorId}/password`, data)
+}
+
+export const createAdvisorService = (data: CreateAdvisorRequest) => {
+  console.log('Calling create advisor endpoint:', data)
+  return post<AdvisorDetail>(`${ACCOUNT_BASE_URL}/api/admin/advisor`, data)
 }

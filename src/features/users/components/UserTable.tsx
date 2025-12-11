@@ -5,10 +5,12 @@ import UserFilter from './UserFilter';
 
 export interface UserTableProps {
   users?: UserCardProps[];
+  onSearchChange?: (value: string) => void;
 }
 
 export const UserTable: React.FC<UserTableProps> = ({ 
-  users = []
+  users = [],
+  onSearchChange
 }) => {
   const [selectedPlan, setSelectedPlan] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
@@ -39,6 +41,7 @@ export const UserTable: React.FC<UserTableProps> = ({
     <UserFilter 
         onPlanChange={handlePlanChange}
         onStatusChange={handleStatusChange}
+        onSearchChange={onSearchChange}
       />
     <CardTable
       items={filteredUsers}

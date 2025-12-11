@@ -4,6 +4,9 @@ import React, { useState } from 'react';
 import { AdvisorTable } from './components/AdvisorTable';
 import { Card } from '@/shared/ui/core/Card';
 import type { AdvisorCardProps } from '@/shared/ui/common/AdvisorCard';
+import AddAdvisorModal from './components/AddAdvisorModal';
+import { useCreateAdvisor } from '@/tanstack/hooks/advisor';
+import { CreateAdvisorRequest } from '@/types/advisor';
 
 // Fake data for 12 advisors
 const createFakeAdvisors = (): AdvisorCardProps[] => [
@@ -143,12 +146,40 @@ const createFakeAdvisors = (): AdvisorCardProps[] => [
 
 export const AdvisorPage: React.FC = () => {
   const [advisors] = useState<AdvisorCardProps[]>(createFakeAdvisors());
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const createAdvisor = useCreateAdvisor();
+
+  const handleAddAdvisor = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSubmitAdvisor = (data: CreateAdvisorRequest) => {
+    createAdvisor.mutate(data, {
+      onSuccess: () => {
+        setIsModalOpen(false);
+      },
+    });
+  };
 
   return (
-    <Card 
-      title={<span className="text text-base sm:text-lg font-semibold">Danh sách Advisor</span>}
-    >
-      <AdvisorTable advisors={advisors} />
-    </Card>
+    <>
+      <Card 
+        title={<span className="text text-base sm:text-lg font-semibold">Danh sách Advisor</span>}
+      >
+        <AdvisorTable advisors={advisors} onAdd={handleAddAdvisor} />
+      </Card>
+
+      {/* Add Advisor Modal */}
+      <AddAdvisorModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmitAdvisor}
+        isLoading={createAdvisor.isPending}
+      />
+    </>
   );
 };

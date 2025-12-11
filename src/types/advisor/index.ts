@@ -67,3 +67,10 @@ export interface UpdateAdvisorProfileRequest {
   profilePicture: string;
   availability: string;
 }
+
+export interface CreateAdvisorRequest {
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+}

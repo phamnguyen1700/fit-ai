@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getAdvisorsService, getAdvisorDetailService, softDeleteAdvisorService, reactivateAdvisorService, updateAdvisorProfileService, uploadAdvisorProfilePictureService, changeAdvisorPasswordService, ChangeAdvisorPasswordRequest } from '@/tanstack/services/advisor'
-import { AdvisorListResponse, AdvisorParams, AdvisorDetail, UpdateAdvisorProfileRequest } from '@/types/advisor'
+import { getAdvisorsService, getAdvisorDetailService, softDeleteAdvisorService, reactivateAdvisorService, updateAdvisorProfileService, uploadAdvisorProfilePictureService, changeAdvisorPasswordService, createAdvisorService, ChangeAdvisorPasswordRequest } from '@/tanstack/services/advisor'
+import { AdvisorListResponse, AdvisorParams, AdvisorDetail, UpdateAdvisorProfileRequest, CreateAdvisorRequest } from '@/types/advisor'
 import { IApiResponse } from '@/shared/api/http'
 import toast from 'react-hot-toast'
 import { APIError } from '@/types/utils/APIError'
@@ -209,6 +209,34 @@ export const useChangeAdvisorPassword = () => {
     onError: (error: unknown) => {
       console.error('Change advisor password error:', error)
       const errorMessage = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Đổi mật khẩu thất bại. Vui lòng thử lại.'
+      toast.error(errorMessage)
+    },
+  })
+}
+
+export const useCreateAdvisor = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: (data: CreateAdvisorRequest) => {
+      console.log('Creating advisor:', data)
+      return createAdvisorService(data)
+    },
+    onSuccess: (response) => {
+      console.log('Create advisor success - full response:', response)
+      
+      if (response.success === true) {
+        toast.success('Tạo advisor thành công!')
+        // Invalidate và refetch advisors list
+        queryClient.invalidateQueries({ queryKey: ['advisors'] })
+      } else {
+        console.warn('API returned success: false', response)
+        throw new Error(response.message || 'Tạo advisor thất bại')
+      }
+    },
+    onError: (error: unknown) => {
+      console.error('Create advisor error:', error)
+      const errorMessage = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Tạo advisor thất bại. Vui lòng thử lại.'
       toast.error(errorMessage)
     },
   })

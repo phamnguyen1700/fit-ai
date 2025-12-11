@@ -18,7 +18,6 @@ interface SiderProps {
 }
 
 const menuItems: { key: string; label: React.ReactNode; icon?: React.ReactNode }[] = [
-  { label: 'Trang chủ', key: '/admin/home', icon: <Icon name={icons.home} /> },
   { label: 'Bảng điều khiển', key: '/admin/dashboard', icon: <Icon name={icons.dashboard} /> },
   { label: 'Quản lý người dùng', key: '/admin/users', icon: <Icon name={icons.users} /> },
   { label: 'Quản lý nội dung', key: '/admin/content', icon: <Icon name={icons.content} /> },

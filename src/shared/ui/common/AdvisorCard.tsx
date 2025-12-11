@@ -36,6 +36,12 @@ export const AdvisorCard: React.FC<AdvisorCardProps> = ({
     onMenuClick,
 }) => {
     const router = useRouter();
+    const [imageError, setImageError] = React.useState(false);
+
+    // Reset imageError when avatarUrl changes
+    React.useEffect(() => {
+        setImageError(false);
+    }, [avatarUrl]);
     
     const handleMenuClick = (key: string) => {
         const advisorId = id || '1';
@@ -93,8 +99,16 @@ export const AdvisorCard: React.FC<AdvisorCardProps> = ({
             <div className="flex flex-col gap-4">
                 <Flex align="center" justify="space-between">
                     <Flex align="center" gap={12}>
-                        <Avatar size={48} src={avatarUrl}>
-                            {name?.[0]}
+                        <Avatar 
+                            size={48} 
+                            src={!imageError && avatarUrl ? avatarUrl : undefined}
+                            onError={() => {
+                                console.error(`Failed to load avatar for advisor ${id}:`, avatarUrl);
+                                setImageError(true);
+                                return false; // Allow default fallback behavior
+                            }}
+                        >
+                            {name?.[0]?.toUpperCase()}
                         </Avatar>
                         <div>
                             <div style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>{name}</div>

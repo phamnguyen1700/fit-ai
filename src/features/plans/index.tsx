@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './components/header';
 import PackageList from './components/tabs/PackageList';
 import VoucherManagement from './components/tabs/VoucherManagement';
@@ -11,7 +11,18 @@ import { useCreateSubscriptionProduct } from '@/tanstack/hooks/subscription';
 export const PlanPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("subscription-list");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [debouncedSearch, setDebouncedSearch] = useState<string>('');
   const createMutation = useCreateSubscriptionProduct();
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const handleTabChange = (tabKey: string) => {
     setActiveTab(tabKey);
@@ -36,12 +47,16 @@ export const PlanPage: React.FC = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case "subscription-list":
-        return <PackageList />;
+        return <PackageList searchQuery={debouncedSearch} />;
       case "price-management":
         return <VoucherManagement />;
       default:
-        return <PackageList />;
+        return <PackageList searchQuery={debouncedSearch} />;
     }
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
   };
 
   return (
@@ -50,6 +65,7 @@ export const PlanPage: React.FC = () => {
         activeTab={activeTab} 
         onCategoryChange={handleTabChange}
         onAddPackage={handleAddPackage}
+        onSearch={handleSearch}
       />
       <div className="plan-page-content p-6">
         {renderTabContent()}

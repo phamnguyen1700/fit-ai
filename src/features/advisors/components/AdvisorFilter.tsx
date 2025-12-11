@@ -50,20 +50,14 @@ export const AdvisorFilter: React.FC<AdvisorFilterProps> = ({
       </button>
 
       <Dropdown trigger={['click']} menu={{ items: specialtyItems, onClick: (i) => onSpecialtyChange?.(i.key) }}>
-        <button className="advisor-filter-dropdown flex-1 h-9 rounded-md border border-[var(--border)] px-3 text-left hover:bg-[var(--bg-secondary)]">
+        <button className="advisor-filter-dropdown flex-1 h-[45px] rounded-md border border-[var(--border)] px-3 text-left hover:bg-[var(--bg-secondary)]">
           Chuyên môn <Icon name="mdi:chevron-down" className="inline ml-1" />
         </button>
       </Dropdown>
 
       <Dropdown trigger={['click']} menu={{ items: statusItems, onClick: (i) => onStatusChange?.(i.key) }}>
-        <button className="advisor-filter-dropdown flex-1 h-9 rounded-md border border-[var(--border)] px-3 text-left hover:bg-[var(--bg-secondary)]">
+        <button className="advisor-filter-dropdown flex-1 h-[45px] rounded-md border border-[var(--border)] px-3 text-left hover:bg-[var(--bg-secondary)]">
           Trạng thái <Icon name="mdi:chevron-down" className="inline ml-1" />
-        </button>
-      </Dropdown>
-
-      <Dropdown trigger={['click']} menu={{ items: moreItems, onClick: (i) => onMoreClick?.(i.key) }}>
-        <button className="advisor-filter-more h-9 w-9 grid place-items-center rounded-md border border-[var(--border)] hover:bg-[var(--bg-secondary)]">
-          <Icon name="mdi:dots-vertical" />
         </button>
       </Dropdown>
     </div>

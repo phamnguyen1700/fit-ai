@@ -70,7 +70,7 @@ export default function AdminLayout({
             onEditClick={() => {/* ... */ }}
             imageUrl="https://images.unsplash.com/photo-1502904550040-7534597429ae"
           />
-          <SearchInput />
+          {/* <SearchInput /> */}
           {/* Main Content */}
           <main
             className="flex-1"

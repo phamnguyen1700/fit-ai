@@ -15,13 +15,31 @@ import toast from 'react-hot-toast';
 
 const resolveAvatarUrl = (avatar?: string) => {
     if (!avatar) return undefined;
-    if (avatar.startsWith('http')) {
-        return encodeURI(avatar);
+    
+    // Nếu đã là full URL (http/https), xử lý và trả về
+    if (avatar.startsWith('http://') || avatar.startsWith('https://')) {
+        // Kiểm tra và sửa lỗi duplicate filename trong path bằng regex
+        // Pattern: .../filename.ext/filename.ext?query -> .../filename.ext?query
+        // Sử dụng regex để tránh làm hỏng query parameters khi parse URL
+        const duplicatePattern = /(\/[^\/]+\.(jpg|jpeg|png|gif|webp))\/\1(\?|$)/i;
+        
+        if (duplicatePattern.test(avatar)) {
+            // Loại bỏ duplicate filename trong path
+            const fixedPath = avatar.replace(duplicatePattern, '$1$3');
+            console.log('Fixed duplicate filename in avatar URL:', { original: avatar, fixed: fixedPath });
+            return fixedPath;
+        }
+        
+        // Log để debug
+        console.log('Avatar URL:', avatar);
+        return avatar;
     }
+    
+    // Nếu là relative path, resolve với base URL
     const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || '';
     const normalized = avatar.replace(/^\/+/, '');
     const resolved = base ? `${base}/${normalized}` : avatar;
-    return encodeURI(resolved);
+    return resolved;
 };
 
 type AdvisorDetailView = {

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { UserTable } from './components/UserTable';
 import { Card } from '@/shared/ui/core/Card';
 import type { UserCardProps } from '@/shared/ui/common/UserCard';
@@ -26,16 +26,43 @@ const convertApiUserToUserCard = (user: User, index: number): UserCardProps => {
 };
 
 export const UserPage: React.FC = () => {
-  // Gọi useQuery để fetch real data
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [debouncedSearch, setDebouncedSearch] = useState<string>('');
+
+  // Debounce search query để tránh gọi API quá nhiều
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Gọi useQuery để fetch real data với search
   const { data: usersResponse } = useGetUsers({ 
     page: 1, 
-    pageSize: 20 
+    pageSize: 20,
+    search: debouncedSearch || undefined
   });
 
   // Map API data hoặc fallback sang fake data
-  const users = usersResponse?.data?.items 
-    ? usersResponse.data.items.map(convertApiUserToUserCard)
-    : [];
+  const users = useMemo(() => {
+    const mappedUsers = usersResponse?.data?.items 
+      ? usersResponse.data.items.map(convertApiUserToUserCard)
+      : [];
+    
+    // Client-side filtering để đảm bảo chỉ hiển thị users phù hợp với search query
+    if (debouncedSearch && debouncedSearch.trim()) {
+      const searchLower = debouncedSearch.toLowerCase().trim();
+      return mappedUsers.filter(user => {
+        const nameMatch = user.name?.toLowerCase().includes(searchLower);
+        const emailMatch = user.email?.toLowerCase().includes(searchLower);
+        return nameMatch || emailMatch;
+      });
+    }
+    
+    return mappedUsers;
+  }, [usersResponse, debouncedSearch]);
 
   // Console log dữ liệu từ API
   // useEffect(() => {
@@ -43,10 +70,14 @@ export const UserPage: React.FC = () => {
   //   console.log('Converted Users:', users);
   // }, [usersResponse, users]);
 
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+  };
+
   return (
     <Card title={<span className="text text-base sm:text-lg font-semibold">Thống kê nhanh</span>}
     >
-      <UserTable users={users} />
+      <UserTable users={users} onSearchChange={handleSearchChange} />
     </Card>
   );
 };

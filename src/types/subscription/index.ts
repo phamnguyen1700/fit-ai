@@ -16,6 +16,7 @@ export type SubscriptionProductsResponse = SubscriptionProduct[];
 
 export interface SubscriptionParams {
   isActive?: boolean;
+  search?: string;
 }
 
 export interface CreateSubscriptionRequest {

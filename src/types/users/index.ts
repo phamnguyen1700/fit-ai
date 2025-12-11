@@ -17,6 +17,7 @@ export interface UserState {
 export interface Params {
   page?: number;
   pageSize?: number;
+  search?: string;
 }
 
 export interface UpdateUserStatusRequest {

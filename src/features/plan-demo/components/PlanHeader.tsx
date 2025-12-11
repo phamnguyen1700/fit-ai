@@ -13,7 +13,6 @@ interface PlanHeaderProps {
 export const PlanHeader: React.FC<PlanHeaderProps> = ({
   activeTab,
   onTabChange,
-  onExport,
   onCreatePlan,
 }) => {
   const tabs: TabsProps['items'] = [
@@ -35,15 +34,15 @@ export const PlanHeader: React.FC<PlanHeaderProps> = ({
         </span>
       ),
     },
-    {
-      key: 'feedback',
-      label: (
-        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Icon name="mdi:star-outline" size={18} />
-          Các plan có feedback tốt
-        </span>
-      ),
-    },
+    // {
+    //   key: 'feedback',
+    //   label: (
+    //     <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    //       <Icon name="mdi:star-outline" size={18} />
+    //       Các plan có feedback tốt
+    //     </span>
+    //   ),
+    // },
   ];
 
   return (
@@ -61,16 +60,6 @@ export const PlanHeader: React.FC<PlanHeaderProps> = ({
               onClick={onCreatePlan}
             >
               Tạo kế hoạch mới
-            </Button>
-          )}
-          {onExport && (
-            <Button
-              variant="secondary"
-              size="md"
-              icon={<Icon name="mdi:download" size={18} />}
-              onClick={onExport}
-            >
-              Xuất dữ liệu
             </Button>
           )}
         </Flex>

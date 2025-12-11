@@ -8,13 +8,31 @@ import { App } from 'antd';
 
 const resolveAvatarUrl = (path?: string) => {
   if (!path) return undefined;
-  if (path.startsWith('http')) return encodeURI(path);
-
+  
+  // Nếu đã là full URL (http/https), xử lý và trả về
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    // Kiểm tra và sửa lỗi duplicate filename trong path bằng regex
+    // Pattern: .../filename.ext/filename.ext?query -> .../filename.ext?query
+    // Sử dụng regex để tránh làm hỏng query parameters khi parse URL
+    const duplicatePattern = /(\/[^\/]+\.(jpg|jpeg|png|gif|webp))\/\1(\?|$)/i;
+    
+    if (duplicatePattern.test(path)) {
+      // Loại bỏ duplicate filename trong path
+      const fixedPath = path.replace(duplicatePattern, '$1$3');
+      console.log('Fixed duplicate filename in avatar URL:', { original: path, fixed: fixedPath });
+      return fixedPath;
+    }
+    
+    // Log để debug
+    console.log('Avatar URL:', path);
+    return path;
+  }
+  
+  // Nếu là relative path, resolve với base URL
   const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || '';
   const normalizedPath = path.replace(/^\/+/, '');
-
   const resolved = baseUrl ? `${baseUrl}/${normalizedPath}` : path;
-  return encodeURI(resolved);
+  return resolved;
 };
 
 const normalizeSpecialties = (specialties?: string[] | string) => {
@@ -40,12 +58,22 @@ const mapAdvisorToCardProps = (advisor: Advisor): AdvisorCardProps => {
       ? advisor.totalCustomers
       : advisor.customers?.length ?? 0;
 
+  // Debug: log profilePicture từ API
+  if (advisor.profilePicture) {
+    console.log(`Advisor ${advisor.id} profilePicture:`, advisor.profilePicture);
+  }
+
+  const avatarUrl = resolveAvatarUrl(advisor.profilePicture);
+  if (avatarUrl) {
+    console.log(`Advisor ${advisor.id} resolved avatarUrl:`, avatarUrl);
+  }
+
   return {
     id: advisor.id,
     name: fullName || advisor.email,
     email: advisor.email,
     phone: advisor.phone || 'Chưa cập nhật',
-    avatarUrl: resolveAvatarUrl(advisor.profilePicture),
+    avatarUrl: avatarUrl,
     specialty: specialties.length ? specialties.join(', ') : 'Chưa cập nhật',
     experience:
       typeof advisor.yearsExperience === 'number'
@@ -60,10 +88,12 @@ const mapAdvisorToCardProps = (advisor: Advisor): AdvisorCardProps => {
 
 export interface AdvisorTableProps {
   advisors?: AdvisorCardProps[];
+  onAdd?: () => void;
 }
 
 export const AdvisorTable: React.FC<AdvisorTableProps> = ({ 
-  advisors: fallbackAdvisors = []
+  advisors: fallbackAdvisors = [],
+  onAdd
 }) => {
   const [selectedSpecialty, setSelectedSpecialty] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
@@ -92,8 +122,7 @@ export const AdvisorTable: React.FC<AdvisorTableProps> = ({
   };
 
   const handleAdd = () => {
-    console.log('Add new advisor');
-    // TODO: Implement add advisor functionality
+    onAdd?.();
   };
 
   const handleMoreClick = (key: string) => {

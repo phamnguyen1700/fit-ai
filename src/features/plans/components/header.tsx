@@ -1,14 +1,12 @@
 "use client";
 import React, { useState } from "react";
 import Tabs4, { Tab4Item } from "../../../shared/ui/core/Tabs4";
-import { Segmented } from "../../../shared/ui/core/Segmented";
 import { SearchInput } from "../../../shared/ui/layout/admin/components/SearchInput";
 import Filter from "@/shared/ui/core/Filter";
 import { FilterConfig } from "@/shared/ui/core/Filter";
 import { Button } from "@/shared/ui/core/Button";
 
 interface HeaderProps {
-  onDateRangeChange?: (activeKey: string) => void;
   onCategoryChange?: (activeKey: string) => void;
   onSearch?: (value: string) => void;
   onAddPackage?: () => void;
@@ -17,26 +15,17 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({
-  onDateRangeChange,
   onCategoryChange,
   onSearch,
   onAddPackage,
   activeTab = "subscription-list",
   className = "",
 }) => {
-  const [activeDateRange, setActiveDateRange] = useState<string>("day");
   const [filterValues, setFilterValues] = useState<Record<string, string>>({
     packageType: '',
     status: '',
     period: ''
   });
-
-  // Date range options for Segmented (Ngày, Tháng, Năm)
-  const dateRangeOptions = [
-    { label: "Ngày", value: "day" },
-    { label: "Tháng", value: "month" },
-    { label: "Năm", value: "year" },
-  ];
 
   // Category tabs (Danh sách gói đăng ký, Quản lý Giá, Lịch sử Thanh toán)
   const categoryTabItems: Tab4Item[] = [
@@ -91,12 +80,6 @@ const Header: React.FC<HeaderProps> = ({
     }
   ];
 
-  const handleDateRangeChange = (value: string | number) => {
-    const key = String(value);
-    setActiveDateRange(key);
-    onDateRangeChange?.(key);
-  };
-
   const handleCategoryChange = (key: string) => {
     onCategoryChange?.(key);
   };
@@ -113,18 +96,11 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <div className={`header-container w-full space-y-6 ${className}`}>
-      {/* Title and Date Range Tabs */}
+      {/* Title */}
       <div className="flex items-center justify-between">
         <h1 className="plans-page-title">
           Quản lý gói đăng ký
         </h1>
-        {/* Date Range Tabs */}
-        <Segmented
-          options={dateRangeOptions}
-          value={activeDateRange}
-          onChange={handleDateRangeChange}
-          className="ml-auto"
-        />
       </div>
 
       {/* Category Tabs */}
@@ -148,10 +124,13 @@ const Header: React.FC<HeaderProps> = ({
           </Button>
 
           {/* Search Input */}
-          <div className="search-container">
+          <div className="search-container flex-1">
             <SearchInput
-              placeholder="Tìm kiếm người dùng, kế hoạch..."
-              onChange={handleSearch}
+              placeholder="Tìm kiếm gói đăng ký..."
+              onChange={(e) => {
+                const value = typeof e === 'string' ? e : e.target.value;
+                onSearch?.(value);
+              }}
               className="w-full"
             />
           </div>

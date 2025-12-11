@@ -111,7 +111,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
               localStorage.setItem('authToken', response.data.token);
             }
             onClose()
-            router.push('/admin/home')
+            router.push('/admin/dashboard')
           } else if (response.success === false && response.data === undefined && response.message) {
             setLoginError(response.message);
           }

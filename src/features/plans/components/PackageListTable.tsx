@@ -25,12 +25,14 @@ interface PackageListTableProps {
   onDelete?: (packageData: PackageData) => void;
   onStatusChange?: (packageData: PackageData, newStatus: string) => void;
   className?: string;
+  searchQuery?: string;
 }
 
 const PackageListTable: React.FC<PackageListTableProps> = ({
   onEdit,
   onStatusChange,
   className = "",
+  searchQuery = "",
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
@@ -39,8 +41,10 @@ const PackageListTable: React.FC<PackageListTableProps> = ({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [packageToDelete, setPackageToDelete] = useState<PackageData | null>(null);
   
-  // Fetch subscription data from API
-  const { data: subscriptionData, isLoading } = useGetActiveProducts();
+  // Fetch subscription data from API with search
+  const { data: subscriptionData, isLoading } = useGetActiveProducts({
+    search: searchQuery || undefined
+  });
   
   // Update mutation
   const updateMutation = useUpdateSubscriptionProduct();
@@ -68,7 +72,7 @@ const PackageListTable: React.FC<PackageListTableProps> = ({
     console.log('Products array:', products);
     
     // Map array of products to PackageData format
-    const result = products.map((product) => ({
+    let result = products.map((product) => ({
       id: product.id || '',
       key: product.id || '',
       name: product.name || '',
@@ -77,9 +81,19 @@ const PackageListTable: React.FC<PackageListTableProps> = ({
       status: product.isActive ? 'active' : 'inactive' as 'active' | 'inactive' | 'suspended'
     }));
     
+    // Client-side filtering nếu API không filter đúng
+    if (searchQuery && searchQuery.trim()) {
+      const searchLower = searchQuery.toLowerCase().trim();
+      result = result.filter((item) => {
+        const nameMatch = item.name?.toLowerCase().includes(searchLower);
+        const descriptionMatch = products.find(p => p.id === item.id)?.description?.toLowerCase().includes(searchLower);
+        return nameMatch || descriptionMatch;
+      });
+    }
+    
     console.log('Transformed result:', result);
     return result;
-  }, [subscriptionData]);
+  }, [subscriptionData, searchQuery]);
 
   // Pagination logic
   const totalPages = Math.ceil(dataSource.length / pageSize);
