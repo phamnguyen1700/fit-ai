@@ -1,8 +1,9 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Icon } from "../icon";
 import { useUpdateExerciseMutation } from "@/tanstack/hooks/exercise";
 import { UpdateExerciseData } from "@/types/exercise";
+import { useGetExerciseCategories } from "@/tanstack/hooks/exercisecategory";
 export type ExerciseItem = {
   id: string;
   title: string;
@@ -35,6 +36,32 @@ export const EditExercisePopup: React.FC<EditExercisePopupProps> = ({
   onSave,
 }) => {
   const updateMutation = useUpdateExerciseMutation();
+  
+  // Fetch exercise categories
+  const { data: categoriesResponse, isLoading: isCategoriesLoading } = useGetExerciseCategories({
+    page: 1,
+    pageSize: 1000, // Get all categories
+  });
+
+  // Extract categories from response
+  const categories = useMemo(() => {
+    if (!categoriesResponse?.data) return [];
+    
+    // Check if data is array directly
+    if (Array.isArray(categoriesResponse.data)) {
+      return categoriesResponse.data;
+    }
+    
+    // Check if data is object with nested data array
+    if (categoriesResponse.data && typeof categoriesResponse.data === 'object') {
+      if (categoriesResponse.data.data && Array.isArray(categoriesResponse.data.data)) {
+        return categoriesResponse.data.data;
+      }
+    }
+    
+    return [];
+  }, [categoriesResponse]);
+
   const [videoFile, setVideoFile] = useState<File | undefined>(undefined);
   const [formData, setFormData] = useState({
     title: "",
@@ -166,7 +193,7 @@ export const EditExercisePopup: React.FC<EditExercisePopupProps> = ({
               </div>
             </div>
 
-            {/* Muscle Group */}
+            {/* Muscle Group / Category */}
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1.5">
                 Nhóm cơ <span className="text-red-500">*</span>
@@ -175,15 +202,34 @@ export const EditExercisePopup: React.FC<EditExercisePopupProps> = ({
                 <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
                   <Icon name="mdi:arm-flex" size={16} className="text-gray-400" />
                 </div>
-                <input
-                  type="text"
-                  name="muscleGroup"
-                  value={formData.muscleGroup}
-                  onChange={handleInputChange}
+                <select
+                  name="categoryId"
+                  value={formData.categoryId}
+                  onChange={(e) => {
+                    const selectedCategoryId = e.target.value;
+                    const selectedCategory = categories.find(cat => cat.id === selectedCategoryId);
+                    setFormData((prev) => ({
+                      ...prev,
+                      categoryId: selectedCategoryId,
+                      muscleGroup: selectedCategory?.name || "",
+                    }));
+                  }}
                   required
-                  className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                  placeholder="VD: Chest, Back, Legs..."
-                />
+                  disabled={isCategoriesLoading}
+                  className="w-full pl-9 pr-8 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all appearance-none bg-white cursor-pointer disabled:bg-gray-50 disabled:cursor-not-allowed"
+                >
+                  <option value="">
+                    {isCategoriesLoading ? "Đang tải..." : "Chọn nhóm cơ"}
+                  </option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none">
+                  <Icon name="mdi:chevron-down" size={16} className="text-gray-400" />
+                </div>
               </div>
             </div>
 
