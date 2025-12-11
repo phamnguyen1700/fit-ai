@@ -22,7 +22,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/policy"
                   className="text-gray-800 hover:text-orange-500 transition-colors duration-200"
                 >
                   Chính sách bảo mật
@@ -30,7 +30,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/policy"
                   className="text-gray-800 hover:text-orange-500 transition-colors duration-200"
                 >
                   Điều khoản sử dụng
