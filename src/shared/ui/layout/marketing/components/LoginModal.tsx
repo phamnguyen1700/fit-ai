@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from '@/shared/ui/core/Modal';
-import { Tabs } from '@/shared/ui/core/Tabs';
 import { Carousel } from 'antd';
 import { Form, Checkbox, Radio } from 'antd';
 import { Input } from '@/shared/ui/core/Input';
 import { Button } from '@/shared/ui/core/Button';
 import { useLoginMutation, useAdvisorLoginMutation } from '@/tanstack/hooks/auth';
-import { useRegisterMutation } from '@/tanstack/hooks/users';
 import { Icon } from '@/shared/ui/icon';
 import { Row, Col } from '@/shared/ui/core/Grid';
 import { useRouter } from 'next/navigation';
@@ -49,15 +47,11 @@ type LoginModalProps = {
 };
 
 export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
-  const [activeKey, setActiveKey] = useState<'login' | 'register'>('login');
   const [loginError, setLoginError] = useState<string>('');
-  const [registerError, setRegisterError] = useState<string>('');
   const { mutate: adminLoginMutate, isPending: isAdminLoginPending } = useLoginMutation();
   const { mutate: advisorLoginMutate, isPending: isAdvisorLoginPending } = useAdvisorLoginMutation();
-  const { mutate: registerMutate, isPending: isRegisterPending } = useRegisterMutation();
   const router = useRouter()
   const [loginForm] = Form.useForm();
-  const [registerForm] = Form.useForm();
 
   const isLoginPending = isAdminLoginPending || isAdvisorLoginPending;
 
@@ -135,33 +129,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
       setLoginError('');
     }
   }
-
-  const handleRegisterFormChange = () => {
-    if (registerError) {
-      setRegisterError('');
-    }
-  }
-
-  const handleRegisterFinish = (values: { email: string; password: string; confirmPassword: string }) => {
-    setRegisterError('');
-    
-    // Chỉ gửi email và password, không gửi confirmPassword
-    const registerData = {
-      email: values.email,
-      password: values.password
-    };
-    
-    registerMutate(registerData, {
-      onSuccess: (response) => {
-        if (response.success && response.data) {
-          registerForm.resetFields();
-          setActiveKey('login');
-        } else if (response.success === false && response.data === undefined && response.message) {
-          setRegisterError(response.message);
-        }
-      }
-    })
-  };
 
   const slideContentStyle: React.CSSProperties = {
     display: 'flex',
@@ -248,228 +215,122 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
               <div style={{ fontSize: 20, color: 'var(--primary)', fontWeight: 800, marginTop: 3 }}>FIT</div>
             </div>
 
-            <Tabs
-              className="themed-tabs"
-              activeKey={activeKey}
-              onChange={(k: string) => setActiveKey(k as 'login' | 'register')}
-              items={[
-                {
-                  key: 'login',
-                  label: 'Đăng nhập',
-                  children: (
-                    <div>
-                      <Form
-                        form={loginForm}
-                        layout="vertical"
-                        name="login"
-                        onFinish={handleLoginFinish}
-                        onValuesChange={handleLoginFormChange}
-                        initialValues={{ email: '', password: '', remember: false, userRole: undefined }}
-                      >
-                        <Form.Item
-                          name="email"
-                          label="Email"
-                          rules={[
-                            { required: true, message: 'Vui lòng nhập email' },
-                            {
-                              pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                              message: 'Email không hợp lệ',
-                            },
-                          ]}
-                        >
-                          <Input prefix={<Icon name="mdi:email" />} placeholder="Nhập email" />
-                        </Form.Item>
+            <Form
+              form={loginForm}
+              layout="vertical"
+              name="login"
+              onFinish={handleLoginFinish}
+              onValuesChange={handleLoginFormChange}
+              initialValues={{ email: '', password: '', remember: false, userRole: undefined }}
+            >
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[
+                  { required: true, message: 'Vui lòng nhập email' },
+                  {
+                    pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: 'Email không hợp lệ',
+                  },
+                ]}
+              >
+                <Input prefix={<Icon name="mdi:email" />} placeholder="Nhập email" />
+              </Form.Item>
 
-                        <Form.Item name="password" label="Mật khẩu" rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}>
-                          <Input.Password prefix={<Icon name="mdi:lock" />} placeholder="Nhập mật khẩu" visibilityToggle />
-                        </Form.Item>
+              <Form.Item name="password" label="Mật khẩu" rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}>
+                <Input.Password prefix={<Icon name="mdi:lock" />} placeholder="Nhập mật khẩu" visibilityToggle />
+              </Form.Item>
 
-                        <Form.Item
-                          name="userRole"
-                          label="Vai trò"
-                          rules={[{ required: true, message: 'Vui lòng chọn vai trò' }]}
-                          getValueFromEvent={(e) => {
-                            console.log('Radio onChange event:', e.target.value);
-                            return e.target.value;
-                          }}
-                        >
-                          <Radio.Group
-                            className="role-radio-group"
-                            style={{
-                              width: '100%',
-                            }}
-                            onChange={(e) => {
-                              console.log('Radio.Group onChange:', e.target.value);
-                              loginForm.setFieldsValue({ userRole: e.target.value });
-                            }}
-                          >
-                            <Radio 
-                              value="admin" 
-                              style={{ 
-                                color: 'var(--text)',
-                                fontWeight: 500
-                              }}
-                            >
-                              Admin
-                            </Radio>
-                            <Radio 
-                              value="advisor" 
-                              style={{ 
-                                color: 'var(--text)',
-                                fontWeight: 500
-                              }}
-                            >
-                              Advisor
-                            </Radio>
-                          </Radio.Group>
-                          <style dangerouslySetInnerHTML={{
-                            __html: `
-                              .role-radio-group .ant-radio-checked .ant-radio-inner {
-                                border-color: var(--primary) !important;
-                              }
-                              .role-radio-group .ant-radio-checked .ant-radio-inner::after {
-                                background-color: var(--primary) !important;
-                                transform: scale(0.875);
-                              }
-                              .role-radio-group .ant-radio:hover .ant-radio-inner {
-                                border-color: var(--primary) !important;
-                              }
-                              .role-radio-group .ant-radio-wrapper {
-                                color: var(--text) !important;
-                              }
-                            `
-                          }} />
-                        </Form.Item>
+              <Form.Item
+                name="userRole"
+                label="Vai trò"
+                rules={[{ required: true, message: 'Vui lòng chọn vai trò' }]}
+                getValueFromEvent={(e) => {
+                  console.log('Radio onChange event:', e.target.value);
+                  return e.target.value;
+                }}
+              >
+                <Radio.Group
+                  className="role-radio-group"
+                  style={{
+                    width: '100%',
+                  }}
+                  onChange={(e) => {
+                    console.log('Radio.Group onChange:', e.target.value);
+                    loginForm.setFieldsValue({ userRole: e.target.value });
+                  }}
+                >
+                  <Radio 
+                    value="admin" 
+                    style={{ 
+                      color: 'var(--text)',
+                      fontWeight: 500
+                    }}
+                  >
+                    Admin
+                  </Radio>
+                  <Radio 
+                    value="advisor" 
+                    style={{ 
+                      color: 'var(--text)',
+                      fontWeight: 500
+                    }}
+                  >
+                    Advisor
+                  </Radio>
+                </Radio.Group>
+                <style dangerouslySetInnerHTML={{
+                  __html: `
+                    .role-radio-group .ant-radio-checked .ant-radio-inner {
+                      border-color: var(--primary) !important;
+                    }
+                    .role-radio-group .ant-radio-checked .ant-radio-inner::after {
+                      background-color: var(--primary) !important;
+                      transform: scale(0.875);
+                    }
+                    .role-radio-group .ant-radio:hover .ant-radio-inner {
+                      border-color: var(--primary) !important;
+                    }
+                    .role-radio-group .ant-radio-wrapper {
+                      color: var(--text) !important;
+                    }
+                  `
+                }} />
+              </Form.Item>
 
-                        <Form.Item>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                            <Form.Item name="remember" valuePropName="checked" noStyle>
-                              <Checkbox>Ghi nhớ đăng nhập</Checkbox>
-                            </Form.Item>
-                            <a href="#" style={{ color: 'var(--primary)', textDecoration: 'none' }}>
-                              Quên mật khẩu?
-                            </a>
-                          </div>
-                        </Form.Item>
+              <Form.Item>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <Form.Item name="remember" valuePropName="checked" noStyle>
+                    <Checkbox>Ghi nhớ đăng nhập</Checkbox>
+                  </Form.Item>
+                  <a href="#" style={{ color: 'var(--primary)', textDecoration: 'none' }}>
+                    Quên mật khẩu?
+                  </a>
+                </div>
+              </Form.Item>
 
-                        <Form.Item>
-                          {loginError && (
-                            <div style={{ 
-                              color: 'var(--error)', 
-                              fontSize: '12px',
-                              textAlign: 'center'
-                            }}>
-                              {loginError}
-                            </div>
-                          )}
-                          
-                          <Button
-                            variant="primary"
-                            htmlType="submit"
-                            loading={isLoginPending}
-                            disabled={!!loginError} 
-                            style={{ width: '100%', height: '34px', fontSize: '14px', fontWeight: '600' }}
-                          >
-                            Đăng nhập
-                          </Button>
-                        </Form.Item>
-                      </Form>
-                    </div>
-                  ),
-                },
-                {
-                  key: 'register',
-                  label: 'Đăng ký',
-                  children: (
-                    <div>
-                      <Form
-                        form={registerForm}
-                        layout="vertical"
-                        name="register"
-                        onFinish={handleRegisterFinish}
-                        onValuesChange={handleRegisterFormChange}
-                        initialValues={{ email: '', password: '', confirmPassword: '' }}
-                      >
-                        <Form.Item
-                          name="email"
-                          label="Email"
-                          rules={[
-                            { required: true, message: 'Vui lòng nhập email' },
-                            {
-                              pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                              message: 'Email không hợp lệ',
-                            },
-                          ]}
-                        >
-                          <Input prefix={<Icon name="mdi:email" />} placeholder="Nhập email" />
-                        </Form.Item>
-
-                        <Form.Item
-                          name="password"
-                          label="Mật khẩu"
-                          rules={[
-                            { required: true, message: 'Vui lòng nhập mật khẩu' },
-                            { min: 6, message: 'Mật khẩu không hợp lệ' },
-                          ]}
-                          hasFeedback
-                        >
-                          <Input.Password prefix={<Icon name="mdi:lock" />} placeholder="Mật khẩu" />
-                        </Form.Item>
-
-                        <Form.Item
-                          name="confirmPassword"
-                          label="Nhập lại mật khẩu"
-                          dependencies={['password']}
-                          hasFeedback
-                          rules={[
-                            { required: true, message: 'Vui lòng xác nhận mật khẩu' },
-                            ({ getFieldValue }) => ({
-                              validator(_, value) {
-                                if (!value || getFieldValue('password') === value) {
-                                  return Promise.resolve();
-                                }
-                                return Promise.reject(new Error('Mật khẩu không khớp'));
-                              },
-                            }),
-                          ]}
-                        >
-                          <Input.Password prefix={<Icon name="mdi:lock" />} placeholder="Nhập lại mật khẩu" />
-                        </Form.Item>
-
-                        <Form.Item>
-                          {registerError && (
-                            <div style={{ 
-                              color: 'var(--error)', 
-                              fontSize: '12px',
-                              textAlign: 'center',
-                              marginBottom: '8px'
-                            }}>
-                              {registerError}
-                            </div>
-                          )}
-                          
-                          <Button
-                            variant="primary"
-                            htmlType="submit"
-                            loading={isRegisterPending}
-                            disabled={!!registerError}
-                            style={{
-                              width: '100%',
-                              height: '34px',
-                              fontSize: '14px',
-                              fontWeight: '600',
-                              marginTop: 6,
-                            }}
-                          >
-                            Đăng ký
-                          </Button>
-                        </Form.Item>
-                      </Form>
-                    </div>
-                  ),
-                },
-              ]}
-            />
+              <Form.Item>
+                {loginError && (
+                  <div style={{ 
+                    color: 'var(--error)', 
+                    fontSize: '12px',
+                    textAlign: 'center'
+                  }}>
+                    {loginError}
+                  </div>
+                )}
+                
+                <Button
+                  variant="primary"
+                  htmlType="submit"
+                  loading={isLoginPending}
+                  disabled={!!loginError} 
+                  style={{ width: '100%', height: '34px', fontSize: '14px', fontWeight: '600' }}
+                >
+                  Đăng nhập
+                </Button>
+              </Form.Item>
+            </Form>
           </div>
 
           <div style={{ textAlign: 'center', fontSize: 10, color: '#bfbfbf', marginTop: 10 }}>
