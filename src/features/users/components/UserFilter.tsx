@@ -26,12 +26,6 @@ export const UserFilter: React.FC<UserFilterProps> = ({
     setSearchValue(value);
     onSearchChange?.(value);
   };
-  const planItems: MenuProps['items'] = [
-    { key: 'all', label: 'Tất cả gói' },
-    { key: 'basic', label: 'Cơ bản' },
-    { key: 'premium', label: 'Premium' },
-    { key: 'vip', label: 'VIP' },
-  ];
 
   const statusItems: MenuProps['items'] = [
     { key: 'all', label: 'Tất cả trạng thái' },
@@ -60,12 +54,6 @@ export const UserFilter: React.FC<UserFilterProps> = ({
           allowClear
         />
       </div>
-
-      <Dropdown trigger={[ 'click' ]} menu={{ items: planItems, onClick: (i) => onPlanChange?.(i.key) }}>
-        <button className="user-filter-dropdown flex-1 h-[45px] rounded-md border border-[var(--border)] px-3 text-left hover:bg-[var(--bg-secondary)]">
-          Gói đăng ký <Icon name="mdi:chevron-down" className="inline ml-1" />
-        </button>
-      </Dropdown>
 
       <Dropdown trigger={[ 'click' ]} menu={{ items: statusItems, onClick: (i) => onStatusChange?.(i.key) }}>
         <button className="user-filter-dropdown flex-1 h-[45px] rounded-md border border-[var(--border)] px-3 text-left hover:bg-[var(--bg-secondary)]">
