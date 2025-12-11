@@ -47,7 +47,6 @@ export const AdvisorSider: React.FC<AdvisorSiderProps> = ({
   // Create menu items with badge for unread messages
   const menuItems = useMemo(() => {
     const items: { key: string; label: React.ReactNode; icon?: React.ReactNode }[] = [
-      { key: '/advisor/profile', label: 'Hồ sơ', icon: <Icon name={icons.advisors} /> },
       { key: '/advisor/customers', label: 'Khách hàng trong tháng', icon: <Icon name={icons.clients} /> },
       { key: '/advisor/feedback', label: 'Cần đánh giá', icon: <Icon name={icons.feedback} /> },
       { key: '/advisor/plans', label: 'Duyệt plan', icon: <Icon name={icons.plans} /> },
@@ -62,6 +61,7 @@ export const AdvisorSider: React.FC<AdvisorSiderProps> = ({
           <Icon name={icons.message} />
         )
       },
+      { key: '/advisor/settings', label: 'Cài đặt', icon: <Icon name={icons.settings} /> },
     ];
     return items;
   }, [unreadCount]);

@@ -1,4 +1,4 @@
-import { get, put } from '@/shared/api/http'
+import { get, put, post } from '@/shared/api/http'
 import {
   AdvisorListResponse,
   AdvisorParams,
@@ -31,4 +31,32 @@ export const updateAdvisorProfileService = (
   console.log('Calling update advisor profile endpoint for advisor:', advisorId, data)
   // Theo Swagger, endpoint là /api/advisor/{advisorId}/profile`
   return put<AdvisorDetail>(`${ACCOUNT_BASE_URL}/api/advisor/${advisorId}/profile`, data)
+}
+
+export const uploadAdvisorProfilePictureService = (advisorId: string, file: File) => {
+  const formData = new FormData()
+  formData.append('File', file)
+  
+  return post<AdvisorDetail>(
+    `${ACCOUNT_BASE_URL}/api/advisor/${advisorId}/profile-picture`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
+  )
+}
+
+export interface ChangeAdvisorPasswordRequest {
+  oldPassword: string
+  newPassword: string
+}
+
+export const changeAdvisorPasswordService = (
+  advisorId: string,
+  data: ChangeAdvisorPasswordRequest
+) => {
+  console.log('Calling change advisor password endpoint for advisor:', advisorId)
+  return put<string>(`${ACCOUNT_BASE_URL}/api/advisor/${advisorId}/password`, data)
 }

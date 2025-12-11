@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getAdvisorsService, getAdvisorDetailService, softDeleteAdvisorService, reactivateAdvisorService, updateAdvisorProfileService } from '@/tanstack/services/advisor'
+import { getAdvisorsService, getAdvisorDetailService, softDeleteAdvisorService, reactivateAdvisorService, updateAdvisorProfileService, uploadAdvisorProfilePictureService, changeAdvisorPasswordService, ChangeAdvisorPasswordRequest } from '@/tanstack/services/advisor'
 import { AdvisorListResponse, AdvisorParams, AdvisorDetail, UpdateAdvisorProfileRequest } from '@/types/advisor'
 import { IApiResponse } from '@/shared/api/http'
 import toast from 'react-hot-toast'
@@ -129,6 +129,86 @@ export const useUpdateAdvisorProfile = () => {
       console.error('Update advisor profile error:', error)
       console.error('Error response:', (error as APIError)?.response)
       const errorMessage = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Cập nhật thông tin advisor thất bại. Vui lòng thử lại.'
+      toast.error(errorMessage)
+    },
+  })
+}
+
+export const useUploadAdvisorProfilePicture = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: ({ advisorId, file }: { advisorId: string; file: File }) => {
+      console.log('Uploading advisor profile picture:', advisorId, file.name)
+      return uploadAdvisorProfilePictureService(advisorId, file)
+    },
+    onSuccess: async (response, variables) => {
+      console.log('Upload advisor profile picture success - full response:', response)
+      
+      if (response.success === true) {
+        toast.success('Cập nhật ảnh đại diện thành công!')
+        
+        // Update cache trực tiếp nếu có data từ response
+        if (response.data) {
+          const currentData = queryClient.getQueryData<IApiResponse<AdvisorDetail>>([
+            'advisor-detail',
+            variables.advisorId,
+          ])
+          
+          if (currentData) {
+            // Merge với data hiện tại, ưu tiên data mới từ response
+            queryClient.setQueryData<IApiResponse<AdvisorDetail>>(
+              ['advisor-detail', variables.advisorId],
+              {
+                ...currentData,
+                data: {
+                  ...currentData.data,
+                  ...response.data,
+                  profilePicture: response.data.profilePicture, // Đảm bảo profilePicture được update
+                },
+              }
+            )
+          } else {
+            // Nếu chưa có cache, set trực tiếp
+            queryClient.setQueryData(['advisor-detail', variables.advisorId], response)
+          }
+        }
+        
+        // Invalidate và refetch advisor detail để đảm bảo data được cập nhật từ server
+        await queryClient.invalidateQueries({ queryKey: ['advisor-detail', variables.advisorId] })
+        await queryClient.refetchQueries({ queryKey: ['advisor-detail', variables.advisorId] })
+      } else {
+        console.warn('API returned success: false', response)
+        throw new Error(response.message || 'Cập nhật ảnh đại diện thất bại')
+      }
+    },
+    onError: (error: unknown) => {
+      console.error('Upload advisor profile picture error:', error)
+      const errorMessage = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Cập nhật ảnh đại diện thất bại. Vui lòng thử lại.'
+      toast.error(errorMessage)
+    },
+  })
+}
+
+export const useChangeAdvisorPassword = () => {
+  return useMutation({
+    mutationFn: ({ advisorId, data }: { advisorId: string; data: ChangeAdvisorPasswordRequest }) => {
+      console.log('Changing advisor password:', advisorId)
+      return changeAdvisorPasswordService(advisorId, data)
+    },
+    onSuccess: (response) => {
+      console.log('Change advisor password success - full response:', response)
+      
+      if (response.success === true) {
+        toast.success('Đổi mật khẩu thành công!')
+      } else {
+        console.warn('API returned success: false', response)
+        throw new Error(response.message || 'Đổi mật khẩu thất bại')
+      }
+    },
+    onError: (error: unknown) => {
+      console.error('Change advisor password error:', error)
+      const errorMessage = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Đổi mật khẩu thất bại. Vui lòng thử lại.'
       toast.error(errorMessage)
     },
   })
