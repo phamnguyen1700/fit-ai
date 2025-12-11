@@ -25,6 +25,7 @@ export const AddAdvisorModal: React.FC<AddAdvisorModalProps> = ({
     lastName: "",
     phone: "",
   });
+  const [certificateFile, setCertificateFile] = useState<File | undefined>(undefined);
 
   const [errors, setErrors] = useState<Partial<Record<keyof CreateAdvisorRequest, string>>>({});
 
@@ -85,11 +86,28 @@ export const AddAdvisorModal: React.FC<AddAdvisorModalProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCertificateFile(file);
+      // Clear error if exists
+      if (errors.certificateFile) {
+        setErrors((prev) => ({
+          ...prev,
+          certificateFile: undefined,
+        }));
+      }
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (validateForm()) {
-      onSubmit(formData);
+      onSubmit({
+        ...formData,
+        certificateFile: certificateFile,
+      });
     }
   };
 
@@ -100,6 +118,7 @@ export const AddAdvisorModal: React.FC<AddAdvisorModalProps> = ({
       lastName: "",
       phone: "",
     });
+    setCertificateFile(undefined);
     setErrors({});
     onClose();
   };
@@ -114,27 +133,21 @@ export const AddAdvisorModal: React.FC<AddAdvisorModalProps> = ({
     >
       <div className="add-advisor-modal">
         {/* Header */}
-        <div className="modal-header bg-gradient-to-r from-orange-500 to-orange-600 -m-6 mb-6 px-6 py-4 flex items-center justify-between rounded-t-lg">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-              <Icon name="mdi:account-plus" size={22} color="white" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-white">Thêm advisor mới</h2>
-              <p className="text-sm text-white/80">Điền thông tin để tạo tài khoản advisor</p>
-            </div>
+        <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">Thêm advisor mới</h2>
           </div>
           <button
             onClick={handleClose}
             disabled={isLoading}
-            className="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Icon name="mdi:close" size={20} color="white" />
+            <Icon name="mdi:close" size={20} className="text-gray-500" />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -223,8 +236,65 @@ export const AddAdvisorModal: React.FC<AddAdvisorModalProps> = ({
             )}
           </div>
 
+          {/* Certificate File Upload */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Chứng chỉ (tùy chọn)
+            </label>
+            <div className="relative">
+              <input
+                type="file"
+                id="certificate-upload"
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                onChange={handleFileChange}
+                disabled={isLoading}
+                className="hidden"
+              />
+              <label
+                htmlFor="certificate-upload"
+                className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div className="flex items-center gap-3">
+                  <Icon name="mdi:file-document" size={20} className="text-gray-500" />
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-gray-700">
+                      {certificateFile ? certificateFile.name : "Chọn file chứng chỉ"}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      PDF, DOC, DOCX, JPG, PNG (tối đa 10MB)
+                    </p>
+                  </div>
+                </div>
+              </label>
+            </div>
+            {certificateFile && (
+              <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Icon name="mdi:check-circle" size={18} className="text-green-600" />
+                  <span className="text-sm text-green-800 font-medium">
+                    {certificateFile.name}
+                  </span>
+                  <span className="text-xs text-green-600">
+                    ({(certificateFile.size / (1024 * 1024)).toFixed(2)} MB)
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setCertificateFile(undefined)}
+                  disabled={isLoading}
+                  className="w-6 h-6 bg-green-100 hover:bg-green-200 rounded-full flex items-center justify-center transition-all disabled:opacity-50"
+                >
+                  <Icon name="mdi:close" size={14} className="text-green-700" />
+                </button>
+              </div>
+            )}
+            {errors.certificateFile && (
+              <p className="mt-1 text-sm text-red-500">{errors.certificateFile}</p>
+            )}
+          </div>
+
           {/* Action Buttons */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 mt-6">
             <Button
               variant="ghost"
               onClick={handleClose}
@@ -237,7 +307,6 @@ export const AddAdvisorModal: React.FC<AddAdvisorModalProps> = ({
               variant="primary"
               onClick={handleSubmit}
               disabled={isLoading}
-              className="bg-orange-500 hover:bg-orange-600 border-orange-500 hover:border-orange-600"
             >
               {isLoading ? (
                 <>
@@ -245,10 +314,7 @@ export const AddAdvisorModal: React.FC<AddAdvisorModalProps> = ({
                   Đang tạo...
                 </>
               ) : (
-                <>
-                  <Icon name="mdi:check" className="mr-2" />
-                  Tạo advisor
-                </>
+                "Tạo advisor"
               )}
             </Button>
           </div>

@@ -73,4 +73,5 @@ export interface CreateAdvisorRequest {
   firstName: string;
   lastName: string;
   phone: string;
+  certificateFile?: File;
 }

@@ -64,5 +64,27 @@ export const changeAdvisorPasswordService = (
 
 export const createAdvisorService = (data: CreateAdvisorRequest) => {
   console.log('Calling create advisor endpoint:', data)
+  
+  // If certificateFile exists, use FormData for multipart/form-data
+  if (data.certificateFile) {
+    const formData = new FormData()
+    formData.append('Email', data.email)
+    formData.append('FirstName', data.firstName)
+    formData.append('LastName', data.lastName)
+    formData.append('Phone', data.phone)
+    formData.append('CertificateFile', data.certificateFile)
+    
+    return post<AdvisorDetail>(
+      `${ACCOUNT_BASE_URL}/api/admin/advisor`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
+  }
+  
+  // Otherwise, send as JSON
   return post<AdvisorDetail>(`${ACCOUNT_BASE_URL}/api/admin/advisor`, data)
 }
