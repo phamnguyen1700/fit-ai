@@ -31,8 +31,6 @@ export const MonthlyCustomerCard: React.FC<MonthlyCustomerCardProps> = ({ custom
 
   const items: MenuProps['items'] = [
     { key: 'details', label: 'Xem chi tiết' },
-    { key: 'message', label: 'Gửi tin nhắn' },
-    { key: 'plan', label: 'Cập nhật kế hoạch' },
   ];
 
   return (
