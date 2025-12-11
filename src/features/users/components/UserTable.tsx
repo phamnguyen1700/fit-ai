@@ -26,43 +26,40 @@ export const UserTable: React.FC<UserTableProps> = ({
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
       const matchesPlan = selectedPlan === 'all' || 
-                         user.planLabel.toLowerCase().includes(selectedPlan.toLowerCase());
+                         (user.planLabel ? user.planLabel.toLowerCase().includes(selectedPlan.toLowerCase()) : false);
       
       const matchesStatus = selectedStatus === 'all' || 
-                           user.statusLabel.toLowerCase().includes(selectedStatus.toLowerCase());
+                           (user.statusLabel ? user.statusLabel.toLowerCase().includes(selectedStatus.toLowerCase()) : false);
       
       return matchesPlan && matchesStatus;
     });
   }, [users, selectedPlan, selectedStatus]);
 
   return (
-    <div className="flex flex-col gap-2">
-
-    <UserFilter 
+    <div className="flex flex-col gap-6">
+      <UserFilter 
         onPlanChange={handlePlanChange}
         onStatusChange={handleStatusChange}
         onSearchChange={onSearchChange}
       />
-    <CardTable
-      items={filteredUsers}
-      pageSize={6}
-      renderItem={(item, index) => (
-        <UserCard
-          id={item.id || (index + 1).toString()}
-          name={item.name}
-          email={item.email}
-          avatarUrl={item.avatarUrl}
-          datetime={item.datetime}
-          planLabel={item.planLabel}
-          amountLabel={item.amountLabel}
-          statusLabel={item.statusLabel}
-          isActive={item.isActive}
-        />
-        
-      )}
-    />
-        </div>
-
+      <CardTable
+        items={filteredUsers}
+        pageSize={6}
+        renderItem={(item, index) => (
+          <UserCard
+            id={item.id || (index + 1).toString()}
+            name={item.name}
+            email={item.email}
+            avatarUrl={item.avatarUrl}
+            datetime={item.datetime}
+            planLabel={item.planLabel}
+            amountLabel={item.amountLabel}
+            statusLabel={item.statusLabel}
+            isActive={item.isActive}
+          />
+        )}
+      />
+    </div>
   );
 };
 

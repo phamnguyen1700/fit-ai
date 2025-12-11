@@ -71,7 +71,6 @@ export const AdvisorCard: React.FC<AdvisorCardProps> = ({
 
     const items: MenuProps['items'] = [
         { key: 'detail', label: 'Xem chi tiết' },
-        { key: 'edit', label: 'Chỉnh sửa' },
         isActive 
             ? { key: 'deactivate', label: 'Tạm dừng hoạt động' }
             : { key: 'reactivate', label: 'Khởi động lại' },

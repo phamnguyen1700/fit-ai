@@ -9,19 +9,17 @@ import { User } from '@/types/users';
 
 // Helper function để convert API user data sang UserCardProps format
 const convertApiUserToUserCard = (user: User, index: number): UserCardProps => {
+  // Chỉ tạo name nếu có firstName/lastName hoặc username
   const displayName = user.firstName && user.lastName 
     ? `${user.firstName} ${user.lastName}`
-    : user.username || user.email.split('@')[0] || `User ${index + 1}`;
+    : user.username || undefined;
 
   return {
     id: user.id,
     name: displayName,
     email: user.email,
-    datetime: new Date().toLocaleDateString('vi-VN') + ' – ' + new Date().toLocaleTimeString('vi-VN'),
-    planLabel: '1 tháng Cơ bản', // Default plan - có thể customize sau
-    amountLabel: 'đ300.000', // Default amount - có thể customize sau
-    statusLabel: 'Thành công', // Default status - có thể customize sau
-    isActive: user.isActive, // Map isActive từ API response
+    // Không set datetime, planLabel, amountLabel, statusLabel vì không có trong API response
+    isActive: user.isActive,
   };
 };
 
@@ -75,9 +73,16 @@ export const UserPage: React.FC = () => {
   };
 
   return (
-    <Card title={<span className="text text-base sm:text-lg font-semibold">Thống kê nhanh</span>}
-    >
+    <div className="w-full space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold" style={{ color: 'var(--text)' }}>
+          Quản lý người dùng
+        </h1>
+        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+          Quản lý và theo dõi thông tin người dùng trong hệ thống
+        </p>
+      </div>
       <UserTable users={users} onSearchChange={handleSearchChange} />
-    </Card>
+    </div>
   );
 };

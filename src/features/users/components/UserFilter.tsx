@@ -39,11 +39,6 @@ export const UserFilter: React.FC<UserFilterProps> = ({
     { key: 'inactive', label: 'Ngưng' },
   ];
 
-  const moreItems: MenuProps['items'] = [
-    { key: 'import', label: 'Nhập danh sách' },
-    { key: 'export', label: 'Xuất danh sách' },
-  ];
-
   return (
     <div className="w-full flex items-center gap-3">
       <button

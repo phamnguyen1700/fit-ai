@@ -2,7 +2,8 @@
 
 import React, { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Breadcrumb, Avatar, Button, Progress, Tabs, Badge, Flex, Row, Col, Input } from '@/shared/ui';
+import { Card, Breadcrumb, Avatar, Button, Badge, Flex } from '@/shared/ui';
+import { Tag } from 'antd';
 import { Icon } from '@/shared/ui/icon';
 import { useUserDetail } from '@/tanstack/hooks/users';
 
@@ -23,16 +24,6 @@ export const UserDetailPage: React.FC<UserDetailPageProps> = ({ userId }) => {
         { title: 'Thông tin người dùng' }
     ], []);
 
-    const mealTabItems = useMemo(() => [
-        {
-            key: 'workout',
-            label: 'Workout',
-        },
-        {
-            key: 'meal',
-            label: 'Meal',
-        },
-    ], []);
 
     // Transform API data to display format - memoized to avoid recalculation
     const userData = useMemo(() => {
@@ -47,7 +38,7 @@ export const UserDetailPage: React.FC<UserDetailPageProps> = ({ userId }) => {
                 : apiUserData.username || 'N/A',
             email: apiUserData.email,
             avatar: 'https://images.unsplash.com/photo-1547425260-76bcadfb4f2c',
-            plan: 'Free Trial',
+            // plan: 'Free Trial',
             birthDate: apiUserData.dateOfBirth ? new Date(apiUserData.dateOfBirth).toLocaleDateString('vi-VN') : 'N/A',
             gender: apiUserData.gender === 'M' ? 'Nam' : apiUserData.gender === 'F' ? 'Nữ' : 'Khác',
             height: apiUserData.height ? `${apiUserData.height}cm` : 'N/A',
@@ -106,231 +97,185 @@ export const UserDetailPage: React.FC<UserDetailPageProps> = ({ userId }) => {
     }
 
     return (
-        <Card
-            title={<span className="text text-base sm:text-lg font-semibold">Chi tiết người dùng</span>}
-        >
-            {/* Header với Breadcrumb và Edit button */}
-            <div className="flex items-center justify-between mb-3">
-                <Breadcrumb items={breadcrumbItems} />
-                <Button variant="ghost" size="sm" onClick={handleEdit}>
+        <div className="w-full space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-semibold" style={{ color: 'var(--text)', marginBottom: '4px' }}>
+                        Chi tiết người dùng
+                    </h1>
+                    <Breadcrumb items={breadcrumbItems} />
+                </div>
+                <Button 
+                    variant="solid" 
+                    size="md" 
+                    onClick={handleEdit}
+                    style={{
+                        backgroundColor: 'var(--primary)',
+                        borderColor: 'var(--primary)',
+                        color: 'white',
+                    }}
+                >
                     <Icon name="mdi:pencil" />
                     Cập nhật thông tin
                 </Button>
             </div>
 
-            <Row gutter={[24, 24]}>
-                {/* Left Column - Hồ sơ người dùng */}
-                <Col xs={24} lg={12}>
-                    <Card title="Hồ sơ người dùng" className="h-fit">
-                        <Flex align="flex-start" gap={16}>
-                            <Avatar size={120} src={userData.avatar} />
-                            <Flex vertical flex={1} gap={8}>
-                                <Input
-                                    value={userData.name}
-                                    readOnly
-                                    style={{
-                                        fontSize: '18px',
-                                        fontWeight: '600',
-                                        border: 'none',
-                                        backgroundColor: 'transparent',
-                                        padding: '5px 0 5px 10px',
-                                        boxShadow: 'none'
-                                    }}
-                                />
-                                <Input
-                                    value={userData.email}
-                                    readOnly
-                                    style={{
-                                        fontSize: '14px',
-                                        border: 'none',
-                                        backgroundColor: 'transparent',
-                                        padding: '5px 0 5px 10px',
-                                        boxShadow: 'none'
-                                    }}
-                                />
-                                <Badge
-                                    count={userData.plan}
-                                    style={{
-                                        backgroundColor: '#3b82f6',
-                                        color: 'white',
-                                        fontSize: '12px',
-                                        fontWeight: '500',
-                                        borderRadius: '12px',
-                                        alignSelf: 'flex-start',
-                                    }}
-                                />
-                            </Flex>
+            {/* User Profile Card */}
+            <Card 
+                title="Hồ sơ người dùng"
+                style={{
+                    borderRadius: 12,
+                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06)',
+                    border: '1px solid var(--border)',
+                }}
+            >
+                <div className="space-y-6">
+                    {/* User Info Header */}
+                    <Flex align="flex-start" gap={20}>
+                        <Avatar 
+                            size={100} 
+                            src={userData.avatar}
+                            style={{
+                                border: '3px solid var(--border)',
+                                flexShrink: 0,
+                            }}
+                        />
+                        <Flex vertical flex={1} gap={12}>
+                            <div>
+                                <div style={{ 
+                                    fontSize: '20px', 
+                                    fontWeight: 600,
+                                    color: 'var(--text)',
+                                    marginBottom: '4px'
+                                }}>
+                                    {userData.name}
+                                </div>
+                                <div style={{ 
+                                    fontSize: '14px',
+                                    color: 'var(--text-secondary)',
+                                    marginBottom: '8px'
+                                }}>
+                                    {userData.email}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    
+                                    {userData.isActive !== undefined && (
+                                        <Tag
+                                            color={userData.isActive ? "success" : "default"}
+                                            style={{
+                                                fontSize: '12px',
+                                                padding: '4px 12px',
+                                                borderRadius: '6px',
+                                                margin: 0,
+                                            }}
+                                        >
+                                            {userData.isActive ? "Active" : "Inactive"}
+                                        </Tag>
+                                    )}
+                                </div>
+                            </div>
                         </Flex>
-
-                        <Row gutter={[16, 16]} className="mt-3">
-                            <Col span={8}>
-                                <span className="text-[var(--text-secondary)]">Ngày sinh:</span>
-                            </Col>
-                            <Col span={16}>
-                                <Input value={userData.birthDate} readOnly />
-                            </Col>
-
-                            <Col span={8}>
-                                <span className="text-[var(--text-secondary)]">Giới tính:</span>
-                            </Col>
-                            <Col span={16}>
-                                <Input value={userData.gender} readOnly />
-                            </Col>
-
-                            <Col span={8}>
-                                <span className="text-[var(--text-secondary)]">Chiều cao:</span>
-                            </Col>
-                            <Col span={16}>
-                                <Input value={userData.height} readOnly />
-                            </Col>
-
-                            <Col span={8}>
-                                <span className="text-[var(--text-secondary)]">Cân nặng:</span>
-                            </Col>
-                            <Col span={16}>
-                                <Input value={userData.weight} readOnly />
-                            </Col>
-
-                            <Col span={8}>
-                                <span className="text-[var(--text-secondary)]">Mục tiêu:</span>
-                            </Col>
-                            <Col span={16}>
-                                <Input.TextArea value={userData.goal} readOnly rows={3} />
-                            </Col>
-                        </Row>
-                    </Card>
-                </Col>
-
-                {/* Right Column - AI Setup & Kế hoạch */}
-                <Col xs={24} lg={12}>
-                    <Flex vertical gap={24}>
-                        {/* AI Setup */}
-                        <Card title="AI Setup" className="h-fit">
-                            <Row gutter={[16, 16]}>
-                                {/* Left Column - Diet Info */}
-                                <Col xs={24} sm={16}>
-                                    <div className="space-y-2">
-                                        <div>
-                                            <h4 className="text-[var(--text-secondary)] mb-2 pl-2">Ăn uống</h4>
-                                            <Row gutter={[16, 8]}>
-                                                <Col span={8}>
-                                                    <span className="text-[var(--text-secondary)] pl-4">● Thích:</span>
-                                                </Col>
-                                                <Col span={16}>
-                                                    <Input value={userData.diet.likes} readOnly />
-                                                </Col>
-
-                                                <Col span={8}>
-                                                    <span className="text-[var(--text-secondary)] pl-4">● Tránh:</span>
-                                                </Col>
-                                                <Col span={16}>
-                                                    <Input value={userData.diet.avoids} readOnly />
-                                                </Col>
-                                            </Row>
-                                        </div>
-
-                                        <Row gutter={[16, 16]}>
-                                            <Col span={8}>
-                                                <span className="text-[var(--text-secondary)] pl-2">Số bữa/ngày:</span>
-                                            </Col>
-                                            <Col span={16}>
-                                                <Input value={userData.diet.mealsPerDay.toString()} readOnly />
-                                            </Col>
-                                        </Row>
-                                    </div>
-                                </Col>
-
-                                {/* Right Column - Avatar & Body Fat */}
-                                <Col style={{ borderLeft: '2px solid var(--primary)', padding: '24px 16px 0 16px' }} xs={24} sm={8}>
-                                    <Avatar shape='square' size={100} src="https://images.unsplash.com/photo-1547425260-76bcadfb4f2c" />
-                                    <div>
-                                        <span className="text-[var(--text-secondary)]">Body Fat:</span>
-                                        <span className="text-[var(--text)] ml-2 font-semibold text-orange-500">
-                                            {userData.bodyFat}%
-                                        </span>
-                                    </div>
-                                </Col>
-                            </Row>
-                        </Card>
-
-                        {/* Kế hoạch đang dùng */}
-                        <Card title="Kế hoạch đang dùng" className="flex-1">
-                            <Tabs items={mealTabItems} defaultActiveKey="workout" />
-                            <Row gutter={[16, 16]}>
-                                {/* Sáng */}
-                                <Col xs={24} sm={8}>
-                                    <h4 className="font-medium text-[var(--text-secondary)] mb-2">Sáng</h4>
-                                    <div className="space-y-2">
-                                        <div className="bg-white border border-[var(--border)] rounded px-2 py-1 text-[var(--text)]">
-                                            Cá hồi
-                                        </div>
-                                        <div className="bg-white border border-[var(--border)] rounded px-2 py-1 text-[var(--text)]">
-                                            Salad
-                                        </div>
-                                    </div>
-                                    <Progress
-                                        showInfo={false}
-                                        percent={64}
-                                        size="small"
-                                        style={{ flex: 1 }}
-                                        strokeColor="var(--primary)"
-                                    />
-                                    <span className="text-[10px] text-[var(--text-secondary)]">
-                                        {userData.mealPlan.morning.calories}
-                                    </span>
-                                </Col>
-
-                                {/* Trưa */}
-                                <Col xs={24} sm={8}>
-                                    <h4 className="font-medium text-[var(--text-secondary)] mb-2">Trưa</h4>
-                                    <div className="space-y-2">
-                                        <div className="bg-white border border-[var(--border)] rounded px-2 py-1 text-[var(--text)]">
-                                            Cá hồi
-                                        </div>
-                                        <div className="bg-white border border-[var(--border)] rounded px-2 py-1 text-[var(--text)]">
-                                            Salad
-                                        </div>
-                                    </div>
-                                    <Progress
-                                        showInfo={false}
-                                        percent={64}
-                                        size="small"
-                                        style={{ flex: 1 }}
-                                        strokeColor="var(--primary)"
-                                    />
-                                    <span className="text-[10px] text-[var(--text-secondary)]">
-                                        {userData.mealPlan.noon.calories}
-                                    </span>
-                                </Col>
-
-                                {/* Bữa phụ */}
-                                <Col xs={24} sm={8}>
-                                    <h4 className="font-medium text-[var(--text-secondary)] mb-2">Bữa phụ</h4>
-                                    <div className="space-y-2">
-                                        <div className="bg-white border border-[var(--border)] rounded px-2 py-1 text-[var(--text)]">
-                                            Cá hồi
-                                        </div>
-                                        <div className="bg-white border border-[var(--border)] rounded px-2 py-1 text-[var(--text)]">
-                                            Salad
-                                        </div>
-                                    </div>
-                                    <Progress
-                                        showInfo={false}
-                                        percent={64}
-                                        size="small"
-                                        style={{ flex: 1 }}
-                                        strokeColor="var(--primary)"
-                                    />
-                                    <span className="text-[10px] text-[var(--text-secondary)]">
-                                        {userData.mealPlan.snack.calories}
-                                    </span>
-                                </Col>
-                            </Row>
-                        </Card>
                     </Flex>
-                </Col>
-            </Row>
-        </Card>
+
+                    {/* Divider */}
+                    <div style={{ 
+                        height: '1px', 
+                        backgroundColor: 'var(--border)',
+                        margin: '24px 0'
+                    }} />
+
+                    {/* User Details Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-1">
+                            <div style={{ 
+                                fontSize: '13px',
+                                color: 'var(--text-tertiary)',
+                                marginBottom: '4px'
+                            }}>
+                                Ngày sinh
+                            </div>
+                            <div style={{ 
+                                fontSize: '15px',
+                                color: 'var(--text)',
+                                fontWeight: 500
+                            }}>
+                                {userData.birthDate}
+                            </div>
+                        </div>
+
+                        <div className="space-y-1">
+                            <div style={{ 
+                                fontSize: '13px',
+                                color: 'var(--text-tertiary)',
+                                marginBottom: '4px'
+                            }}>
+                                Giới tính
+                            </div>
+                            <div style={{ 
+                                fontSize: '15px',
+                                color: 'var(--text)',
+                                fontWeight: 500
+                            }}>
+                                {userData.gender}
+                            </div>
+                        </div>
+
+                        <div className="space-y-1">
+                            <div style={{ 
+                                fontSize: '13px',
+                                color: 'var(--text-tertiary)',
+                                marginBottom: '4px'
+                            }}>
+                                Chiều cao
+                            </div>
+                            <div style={{ 
+                                fontSize: '15px',
+                                color: 'var(--text)',
+                                fontWeight: 500
+                            }}>
+                                {userData.height}
+                            </div>
+                        </div>
+
+                        <div className="space-y-1">
+                            <div style={{ 
+                                fontSize: '13px',
+                                color: 'var(--text-tertiary)',
+                                marginBottom: '4px'
+                            }}>
+                                Cân nặng
+                            </div>
+                            <div style={{ 
+                                fontSize: '15px',
+                                color: 'var(--text)',
+                                fontWeight: 500
+                            }}>
+                                {userData.weight}
+                            </div>
+                        </div>
+
+                        <div className="space-y-1 md:col-span-2">
+                            <div style={{ 
+                                fontSize: '13px',
+                                color: 'var(--text-tertiary)',
+                                marginBottom: '4px'
+                            }}>
+                                Mục tiêu
+                            </div>
+                            <div style={{ 
+                                fontSize: '15px',
+                                color: 'var(--text)',
+                                fontWeight: 500,
+                                lineHeight: '1.6'
+                            }}>
+                                {userData.goal}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Card>
+        </div>
     );
 };
 

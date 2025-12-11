@@ -10,13 +10,13 @@ import { useUpdateUserStatusMutation } from "@/tanstack/hooks/users";
 
 export interface UserCardProps {
   id?: string;
-  name: string;
+  name?: string;
   email: string;
   avatarUrl?: string;
-  datetime: string;
-  planLabel: string;
-  amountLabel: string;
-  statusLabel: string;
+  datetime?: string;
+  planLabel?: string;
+  amountLabel?: string;
+  statusLabel?: string;
   isActive?: boolean;
   onMenuClick?: (key: string, userId: string) => void;
 }
@@ -110,76 +110,204 @@ export const UserCard: React.FC<UserCardProps> = ({
   ];
 
   return (
-    <Card className="user-card" style={{ borderRadius: 12 }}>
-      <div className="flex flex-col gap-4">
+    <Card 
+      className="user-card" 
+      style={{ 
+        borderRadius: 12,
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06)',
+        border: '1px solid var(--border)',
+        transition: 'all 0.2s ease',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08)';
+        e.currentTarget.style.transform = 'translateY(-2px)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06)';
+        e.currentTarget.style.transform = 'translateY(0)';
+      }}
+    >
+      <div className="flex flex-col gap-5" style={{ padding: '20px' }}>
         <Flex align="center" justify="space-between">
-          <Flex align="center" gap={12}>
-            <Avatar size={48} src={avatarUrl}>
-              {name?.[0]}
+          <Flex align="center" gap={16}>
+            <Avatar 
+              size={56} 
+              src={avatarUrl}
+              style={{
+                backgroundColor: 'var(--bg-secondary)',
+                border: '2px solid var(--border)',
+              }}
+            >
+              {name?.[0] || email?.[0]?.toUpperCase()}
             </Avatar>
-            <div>
-              <div style={{ color: "var(--text-secondary)", fontWeight: 600 }}>
-                <Flex align="center" gap={8}>
-                  {name}
-                  {isActive !== undefined && (
-                    <Tag
-                      color={isActive ? "success" : "default"}
-                      style={{ fontSize: "12px" }}
-                    >
-                      {isActive ? "Active" : "Inactive"}
-                    </Tag>
-                  )}
-                </Flex>
+            <div className="flex flex-col gap-1">
+              {name && (
+                <div style={{ 
+                  color: "var(--text)", 
+                  fontWeight: 600,
+                  fontSize: '16px',
+                  lineHeight: '1.5'
+                }}>
+                  <Flex align="center" gap={8}>
+                    {name}
+                    {isActive !== undefined && (
+                      <Tag
+                        color={isActive ? "success" : "default"}
+                        style={{ 
+                          fontSize: "11px",
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          margin: 0,
+                          border: 'none'
+                        }}
+                      >
+                        {isActive ? "Active" : "Inactive"}
+                      </Tag>
+                    )}
+                  </Flex>
+                </div>
+              )}
+              <div style={{ 
+                color: "var(--text-secondary)", 
+                fontSize: '14px',
+                lineHeight: '1.4'
+              }}>
+                {email}
               </div>
-              <div style={{ color: "var(--text-secondary)" }}>{email}</div>
+              {!name && isActive !== undefined && (
+                <Tag
+                  color={isActive ? "success" : "default"}
+                  style={{ 
+                    fontSize: "11px",
+                    padding: '2px 8px',
+                    borderRadius: '4px',
+                    marginTop: "4px",
+                    width: 'fit-content',
+                    border: 'none'
+                  }}
+                >
+                  {isActive ? "Active" : "Inactive"}
+                </Tag>
+              )}
             </div>
           </Flex>
-          <Flex align="center" gap={8}>
-            <div style={{ color: "var(--text-secondary)" }}>{datetime}</div>
+          <Flex align="center" gap={12}>
+            {datetime && (
+              <div style={{ 
+                color: "var(--text-tertiary)", 
+                fontSize: '13px'
+              }}>
+                {datetime}
+              </div>
+            )}
             <Dropdown
               trigger={["click"]}
               menu={{ items, onClick: (info) => handleMenuClick(info.key) }}
             >
-              <button className="user-filter-more h-6 w-6 grid place-items-center rounded-md border border-[var(--border)] hover:bg-[var(--bg-tertiary)]">
+              <button 
+                className="user-filter-more h-8 w-8 grid place-items-center rounded-lg border border-[var(--border)] hover:bg-[var(--bg-secondary)] transition-colors"
+                style={{
+                  cursor: 'pointer',
+                }}
+              >
                 <Icon name="mdi:dots-vertical" />
               </button>
             </Dropdown>
           </Flex>
         </Flex>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2">
-          <div style={{ color: "var(--text-secondary)" }}>Ngày/Giờ:</div>
-          <div
-            className="md:col-span-3 text-right"
-            style={{ color: "var(--text-secondary)" }}
+        {(datetime || planLabel || amountLabel || statusLabel) && (
+          <div 
+            className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3"
+            style={{
+              paddingTop: '16px',
+              borderTop: '1px solid var(--border)'
+            }}
           >
-            {datetime}
-          </div>
+            {datetime && (
+              <>
+                <div style={{ 
+                  color: "var(--text-tertiary)", 
+                  fontSize: '13px'
+                }}>
+                  Ngày/Giờ:
+                </div>
+                <div
+                  className="md:col-span-3 text-right"
+                  style={{ 
+                    color: "var(--text-secondary)",
+                    fontSize: '13px'
+                  }}
+                >
+                  {datetime}
+                </div>
+              </>
+            )}
 
-          <div style={{ color: "var(--text-secondary)" }}>Gói dịch vụ:</div>
-          <div
-            className="md:col-span-3 text-right"
-            style={{ color: "#fa8c16", fontWeight: 600 }}
-          >
-            {planLabel}
-          </div>
+            {planLabel && (
+              <>
+                <div style={{ 
+                  color: "var(--text-tertiary)", 
+                  fontSize: '13px'
+                }}>
+                  Gói dịch vụ:
+                </div>
+                <div
+                  className="md:col-span-3 text-right"
+                  style={{ 
+                    color: "#fa8c16", 
+                    fontWeight: 600,
+                    fontSize: '13px'
+                  }}
+                >
+                  {planLabel}
+                </div>
+              </>
+            )}
 
-          <div style={{ color: "var(--text-secondary)" }}>Số tiền:</div>
-          <div
-            className="md:col-span-3 text-right"
-            style={{ color: "var( --success)", fontWeight: 600 }}
-          >
-            {amountLabel}
-          </div>
+            {amountLabel && (
+              <>
+                <div style={{ 
+                  color: "var(--text-tertiary)", 
+                  fontSize: '13px'
+                }}>
+                  Số tiền:
+                </div>
+                <div
+                  className="md:col-span-3 text-right"
+                  style={{ 
+                    color: "var(--success)", 
+                    fontWeight: 600,
+                    fontSize: '13px'
+                  }}
+                >
+                  {amountLabel}
+                </div>
+              </>
+            )}
 
-          <div style={{ color: "var(--text-secondary)" }}>Trạng thái:</div>
-          <div
-            className="md:col-span-3 text-right"
-            style={{ color: "var(--success)", fontWeight: 600 }}
-          >
-            {statusLabel}
+            {statusLabel && (
+              <>
+                <div style={{ 
+                  color: "var(--text-tertiary)", 
+                  fontSize: '13px'
+                }}>
+                  Trạng thái:
+                </div>
+                <div
+                  className="md:col-span-3 text-right"
+                  style={{ 
+                    color: "var(--success)", 
+                    fontWeight: 600,
+                    fontSize: '13px'
+                  }}
+                >
+                  {statusLabel}
+                </div>
+              </>
+            )}
           </div>
-        </div>
+        )}
       </div>
     </Card>
   );

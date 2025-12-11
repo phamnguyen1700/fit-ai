@@ -30,13 +30,6 @@ const Header: React.FC<HeaderProps> = ({
     rating: ''
   });
 
-  // Date range options for Segmented (Ngày, Tháng, Năm)
-  const dateRangeOptions = [
-    { label: "Ngày", value: "day" },
-    { label: "Tháng", value: "month" },
-    { label: "Năm", value: "year" },
-  ];
-
   // Category tabs (Danh sách phản hồi, Phản hồi công khai)
   const categoryTabItems: Tab4Item[] = [
     {
@@ -120,13 +113,6 @@ const Header: React.FC<HeaderProps> = ({
         <h1 className="feedback-page-title">
           Quản lý phản hồi
         </h1>
-        {/* Date Range Tabs */}
-        <Segmented
-          options={dateRangeOptions}
-          value={activeDateRange}
-          onChange={handleDateRangeChange}
-          className="ml-auto"
-        />
       </div>
 
       {/* Category Tabs */}
