@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { Card } from "@/shared/ui/core/Card";
 import Download from "@/shared/ui/layout/marketing/components/Download";
 import FeedbackCard from "@/shared/ui/common/FeedbackCard";
@@ -7,6 +7,9 @@ import Tabs3 from "@/shared/ui/core/Tabs3";
 import Premium from "@/shared/ui/layout/marketing/components/Premium";
 import Question from "@/shared/ui/layout/marketing/components/Question";
 import Footer from "@/shared/ui/layout/marketing/components/Footer";
+import { useGetActiveProducts } from "@/tanstack/hooks/subscription";
+import { SubscriptionProduct } from "@/types/subscription";
+import { Skeleton } from "antd";
 
 // TypeScript interfaces
 interface StatItemProps {
@@ -144,11 +147,70 @@ const FeatureDisplay: React.FC<{
 );
 
 export default function MarketingHomePage() {
+  const [selectedInterval, setSelectedInterval] = useState<'monthly' | 'yearly'>('yearly');
+  
+  // Fetch active products from API
+  const { data: productsData, isLoading: isLoadingProducts } = useGetActiveProducts({
+    isActive: true,
+  });
+
   const stats = [
     { value: "1K+", label: "NGƯỜI DÙNG HOẠT ĐỘNG MỖI NGÀY" },
     { value: "95%", label: "TỶ LỆ DUY TRÌ THÓI QUEN SAU 3 THÁNG" },
     { value: "4.5M", label: "BỮA ĂN & BÀI TẬP ĐÃ ĐƯỢC UP" },
   ];
+
+  // Transform API products to Premium component format
+  const transformedProducts = useMemo(() => {
+    if (!productsData?.data || !Array.isArray(productsData.data)) {
+      return undefined;
+    }
+
+    const products = productsData.data as SubscriptionProduct[];
+    
+    // Show all active products (no filtering by interval)
+    // Transform to PlanCardProps format
+    return products.map((product, index) => {
+      // Format price
+      const formattedPrice = new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: product.currency || 'VND',
+        minimumFractionDigits: 0,
+      }).format(product.amount || 0);
+
+      // Get period text from interval
+      const interval = product.interval?.toLowerCase() || '';
+      let periodText = 'tháng';
+      if (interval.includes('year') || interval.includes('yr') || interval.includes('yearly')) {
+        periodText = 'năm';
+      } else if (interval.includes('month') || interval.includes('mo') || interval.includes('monthly')) {
+        periodText = 'tháng';
+      } else if (interval.includes('day') || interval.includes('daily')) {
+        periodText = 'ngày';
+      } else if (interval.includes('week') || interval.includes('weekly')) {
+        periodText = 'tuần';
+      }
+
+      // Parse features from description (split by newline or comma)
+      const features = product.description
+        ? product.description
+            .split(/\n|,|\./)
+            .map((item) => item.trim())
+            .filter((item) => item.length > 0)
+            .map((text) => ({ text }))
+        : [{ text: 'Tính năng đang được cập nhật' }];
+
+      return {
+        name: product.name || 'Gói dịch vụ',
+        price: formattedPrice,
+        period: periodText,
+        features: features.length > 0 ? features : [{ text: 'Tính năng đang được cập nhật' }],
+        buttonText: 'Chọn gói này',
+        isPopular: index === 1 && products.length >= 3, // Make middle one popular if 3+ products
+        starColor: '#FF6B35',
+      };
+    });
+  }, [productsData]);
 
   const features = [
     {
@@ -366,42 +428,6 @@ export default function MarketingHomePage() {
         </div>
       </Section>
 
-      {/* Download App Section */}
-      <Section bgClass="bg-gradient-to-br from-orange-50 via-white to-orange-50" id="download">
-        <SectionTitle
-          title="TẢI XUỐNG APP"
-          subtitle="TRẢI NGHIỆM SỨC MẠNH CỦA AI TRONG FITNESS TRÊN MỌI THIẾT BỊ CỦA BẠN"
-        />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="flex justify-center lg:justify-start order-2 lg:order-1">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-600 rounded-3xl blur-2xl opacity-20 group-hover:opacity-30 transition-opacity duration-500"></div>
-              <img
-                src="/img/WelcomeScreens1.png"
-                alt="FIT AI Planning App"
-                className="relative w-96 h-auto max-w-full transition-transform duration-500 group-hover:scale-105"
-              />
-            </div>
-          </div>
-          <div className="flex flex-col justify-center order-1 lg:order-2">
-            <h3
-              className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6"
-              style={{ fontFamily: "Phudu, sans-serif" }}
-            >
-              FIT AI PLANNING – LUÔN BÊN BẠN
-            </h3>
-            <p className="text-gray-600 text-lg mb-8 leading-relaxed">
-              TẢI NGAY FIT AI PLANNING ĐỂ BẮT ĐẦU HÀNH TRÌNH KHỎE MẠNH
-            </p>
-            <div className="space-y-4 mb-10">
-              <CheckmarkItem text="Có mặt trên iOS & Android" />
-              <CheckmarkItem text="Miễn phí cài đặt, dùng thử dễ dàng" />
-            </div>
-            <Download />
-          </div>
-        </div>
-      </Section>
-
       {/* Features Section */}
       <div
         id="features"
@@ -462,11 +488,56 @@ export default function MarketingHomePage() {
               ]}
               defaultActiveKey="yearly"
               className="mb-8"
+              onChange={(key) => setSelectedInterval(key as 'monthly' | 'yearly')}
             />
           </div>
-          <Premium />
+          {isLoadingProducts ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} active paragraph={{ rows: 6 }} className="min-h-[500px]" />
+              ))}
+            </div>
+          ) : (
+            <Premium products={transformedProducts} />
+          )}
         </div>
       </div>
+
+      {/* Download App Section */}
+      <Section bgClass="bg-gradient-to-br from-orange-50 via-white to-orange-50" id="download">
+        <SectionTitle
+          title="TẢI XUỐNG APP"
+          subtitle="TRẢI NGHIỆM SỨC MẠNH CỦA AI TRONG FITNESS TRÊN MỌI THIẾT BỊ CỦA BẠN"
+        />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="flex justify-center lg:justify-start order-2 lg:order-1">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-600 rounded-3xl blur-2xl opacity-20 group-hover:opacity-30 transition-opacity duration-500"></div>
+              <img
+                src="/img/WelcomeScreens1.png"
+                alt="FIT AI Planning App"
+                className="relative w-96 h-auto max-w-full transition-transform duration-500 group-hover:scale-105"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col justify-center order-1 lg:order-2">
+            <h3
+              className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6"
+              style={{ fontFamily: "Phudu, sans-serif" }}
+            >
+              FIT AI PLANNING – LUÔN BÊN BẠN
+            </h3>
+            <p className="text-gray-600 text-lg mb-8 leading-relaxed">
+              TẢI NGAY FIT AI PLANNING ĐỂ BẮT ĐẦU HÀNH TRÌNH KHỎE MẠNH
+            </p>
+            <div className="space-y-4 mb-10">
+              <CheckmarkItem text="Có mặt trên iOS & Android" />
+              <CheckmarkItem text="Miễn phí cài đặt, dùng thử dễ dàng" />
+            </div>
+            <Download />
+          </div>
+        </div>
+      </Section>
 
       {/* FAQ Section */}
       <Section bgClass="bg-gradient-to-br from-gray-50 via-white to-gray-50">

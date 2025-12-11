@@ -108,10 +108,11 @@ const PlanCard: React.FC<PlanCardProps> = ({
 
 export interface PremiumProps {
   className?: string;
+  products?: PlanCardProps[];
 }
 
-export const Premium: React.FC<PremiumProps> = ({ className = '' }) => {
-  const plans: PlanCardProps[] = [
+export const Premium: React.FC<PremiumProps> = ({ className = '', products }) => {
+  const defaultPlans: PlanCardProps[] = [
     {
       name: 'Starter Plan',
       price: '99.000đ',
@@ -154,6 +155,8 @@ export const Premium: React.FC<PremiumProps> = ({ className = '' }) => {
       starColor: '#FF6B35'
     }
   ];
+
+  const plans = products || defaultPlans;
 
   return (
     <div className={`w-full min-h-screen p-8 ${className}`}
