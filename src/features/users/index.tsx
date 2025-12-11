@@ -73,7 +73,7 @@ export const UserPage: React.FC = () => {
   };
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-6 bg-white p-6 rounded-lg">
       <div>
         <h1 className="text-2xl font-semibold" style={{ color: 'var(--text)' }}>
           Quản lý người dùng

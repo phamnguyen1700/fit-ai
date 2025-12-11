@@ -39,13 +39,16 @@ export const CardTable = <T,>({
         ))}
       </div>
 
-      <div className="mt-4 flex justify-center">
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handleChangePage}
-        />
-      </div>
+      {/* Only show pagination if there are 20 or more items */}
+      {items.length >= 20 && (
+        <div className="mt-4 flex justify-center">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handleChangePage}
+          />
+        </div>
+      )}
     </div>
   );
 };
