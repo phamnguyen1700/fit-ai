@@ -296,7 +296,6 @@ export const AdvisorFeedbackRequests: React.FC = () => {
 								onStatusChange={setSelectedStatus}
 								selectedMedia={selectedMedia}
 								onMediaChange={setSelectedMedia}
-								onBulkAction={handleBulkAction}
 								layout="inline"
 							/>
 						</div>

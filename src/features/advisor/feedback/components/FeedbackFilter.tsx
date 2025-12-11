@@ -2,16 +2,12 @@
 
 import React from 'react';
 import { Select } from '@/shared/ui/core/Select';
-import { Dropdown } from 'antd';
-import type { MenuProps } from 'antd';
-import { Icon } from '@/shared/ui/icon';
 
 export interface FeedbackFilterProps {
   selectedStatus: string;
   onStatusChange: (value: string) => void;
   selectedMedia: string;
   onMediaChange: (value: string) => void;
-  onBulkAction?: (action: string) => void;
   layout?: 'stacked' | 'inline';
 }
 
@@ -27,17 +23,11 @@ const mediaOptions = [
   { value: 'image', label: 'Hình ảnh' },
 ];
 
-const moreActions: MenuProps['items'] = [
-  { key: 'export', label: 'Xuất danh sách' },
-  { key: 'download-media', label: 'Tải toàn bộ media' },
-];
-
 export const FeedbackFilter: React.FC<FeedbackFilterProps> = ({
   selectedStatus,
   onStatusChange,
   selectedMedia,
   onMediaChange,
-  onBulkAction,
   layout = 'stacked',
 }) => {
   const containerClass =
@@ -67,17 +57,6 @@ export const FeedbackFilter: React.FC<FeedbackFilterProps> = ({
           className="min-w-[180px]"
           classNames={{ popup: { root: "themed-select-dropdown" } }}
         />
-      </div>
-
-      <div className="flex items-center gap-2">
-        <Dropdown
-          trigger={[ 'click' ]}
-          menu={{ items: moreActions, onClick: ({ key }) => onBulkAction?.(key) }}
-        >
-          <button className="h-9 w-9 grid place-items-center rounded-md border border-[var(--border)] hover:bg-[var(--bg-tertiary)]">
-            <Icon name="mdi:dots-vertical" />
-          </button>
-        </Dropdown>
       </div>
     </div>
   );

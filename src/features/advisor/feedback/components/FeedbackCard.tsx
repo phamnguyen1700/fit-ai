@@ -64,12 +64,6 @@ export const FeedbackCard: React.FC<FeedbackCardProps> = ({
     onAction?.(action);
   };
 
-  const menuItems: MenuProps['items'] = [
-    { key: 'review', label: 'Đánh giá ngay' },
-    { key: 'mark-reviewed', label: 'Đánh dấu đã đánh giá' },
-    { key: 'request-rework', label: 'Yêu cầu tập lại' },
-  ];
-
   const renderMedia = () => {
     if (isWorkout) {
       return (
@@ -113,15 +107,6 @@ export const FeedbackCard: React.FC<FeedbackCardProps> = ({
               </div>
             </div>
           </Flex>
-
-          <Dropdown
-            trigger={['click']}
-            menu={{ items: menuItems, onClick: ({ key }) => handleMenuClick(key) }}
-          >
-            <button className="h-8 w-8 flex-shrink-0 grid place-items-center rounded-lg border border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors">
-              <Icon name="mdi:dots-vertical" size={18} className="text-[var(--text-secondary)]" />
-            </button>
-          </Dropdown>
         </Flex>
 
         {/* Content Section */}

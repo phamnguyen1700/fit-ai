@@ -140,7 +140,6 @@ export const AdvisorMonthlyCustomers: React.FC = () => {
   }, []);
   const defaultMonth = monthOptions[0]?.value ?? fallbackMonthValue;
   const [selectedMonth, setSelectedMonth] = useState<string>(defaultMonth);
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
 
   const { month, year } = useMemo(() => parseMonthValue(selectedMonth), [selectedMonth]);
 
@@ -173,9 +172,8 @@ export const AdvisorMonthlyCustomers: React.FC = () => {
 
   const filteredCustomers = useMemo(() => {
     return normalizedCustomers
-      .filter((item) => (selectedStatus === 'all' ? true : item.status === selectedStatus))
       .sort((a, b) => b.progressPercent - a.progressPercent);
-  }, [normalizedCustomers, selectedStatus]);
+  }, [normalizedCustomers]);
 
   const summary = useMemo(() => {
     if (data?.data) {
@@ -234,10 +232,6 @@ export const AdvisorMonthlyCustomers: React.FC = () => {
             months={monthOptions}
             selectedMonth={selectedMonth}
             onMonthChange={setSelectedMonth}
-            selectedStatus={selectedStatus}
-            onStatusChange={setSelectedStatus}
-            onCreatePlan={handleCreatePlan}
-            onMoreAction={handleMoreAction}
           />
 
           {isLoading && (
