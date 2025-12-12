@@ -1,8 +1,6 @@
 "use client";
 import React from "react";
 import Tabs2, { TabItem } from "@/shared/ui/core/Tabs2";
-import { Button } from "@/shared/ui/core/Button";
-import { Icon, icons } from "@/shared/ui/icon";
 
 const tabItems: TabItem[] = [
   { key: "exercise", label: "Quản lý bài tập" },
@@ -18,7 +16,6 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({
   activeTab,
   onTabChange,
-  onImportExport,
 }) => {
   return (
     <div className="w-full border-b border-gray-200">

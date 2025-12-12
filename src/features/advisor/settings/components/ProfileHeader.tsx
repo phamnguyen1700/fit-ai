@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { Avatar, Flex, Button } from '@/shared/ui';
+import { Avatar, Flex } from '@/shared/ui';
 import { Icon, icons } from '@/shared/ui/icon';
 import { useUploadAdvisorProfilePicture } from '@/tanstack/hooks/advisor';
 import { useAuthStore } from '@/stores/stores';

@@ -43,7 +43,6 @@ const FeedbackCard: React.FC<FeedbackCardProps> = ({
   onApprove,
   onReject,
   onPublish,
-  onRestore,
   className = ""
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);

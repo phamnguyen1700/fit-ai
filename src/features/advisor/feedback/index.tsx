@@ -231,10 +231,6 @@ export const AdvisorFeedbackRequests: React.FC = () => {
 		console.log('Advisor feedback action', action, id);
 	};
 
-	const handleBulkAction = (action: string) => {
-		console.log('Advisor feedback bulk', action);
-	};
-
 	return (
 		<div className="flex flex-col gap-4">
 			<Card>

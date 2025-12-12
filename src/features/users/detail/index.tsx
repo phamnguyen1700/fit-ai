@@ -2,7 +2,7 @@
 
 import React, { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Breadcrumb, Avatar, Button, Badge, Flex } from '@/shared/ui';
+import { Card, Breadcrumb, Avatar, Button, Flex } from '@/shared/ui';
 import { Tag } from 'antd';
 import { Icon } from '@/shared/ui/icon';
 import { useUserDetail } from '@/tanstack/hooks/users';
