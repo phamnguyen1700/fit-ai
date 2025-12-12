@@ -194,14 +194,6 @@ export const AdvisorMonthlyCustomers: React.FC = () => {
     console.log('Advisor action', action, customer.id);
   };
 
-  const handleCreatePlan = () => {
-    console.log('Create new coaching plan');
-  };
-
-  const handleMoreAction = (action: string) => {
-    console.log('Advisor bulk action', action);
-  };
-
   return (
     <div className="flex flex-col gap-4">
       <Card>

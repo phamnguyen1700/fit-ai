@@ -16,7 +16,6 @@ export const UserFilter: React.FC<UserFilterProps> = ({
   onAdd,
   onPlanChange,
   onStatusChange,
-  onMoreClick,
   onSearchChange,
 }) => {
   const [searchValue, setSearchValue] = useState('');

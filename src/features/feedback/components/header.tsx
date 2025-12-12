@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import Tabs4, { Tab4Item } from "../../../shared/ui/core/Tabs4";
-import { Segmented } from "../../../shared/ui/core/Segmented";
 import { SearchInput } from "../../../shared/ui/layout/admin/components/SearchInput";
 import Filter from "@/shared/ui/core/Filter";
 import { FilterConfig } from "@/shared/ui/core/Filter";
@@ -84,12 +83,6 @@ const Header: React.FC<HeaderProps> = ({
       className: "min-w-[150px]"
     }
   ];
-
-  const handleDateRangeChange = (value: string | number) => {
-    const key = String(value);
-    setActiveDateRange(key);
-    onDateRangeChange?.(key);
-  };
 
   const handleCategoryChange = (key: string) => {
     setActiveCategory(key);

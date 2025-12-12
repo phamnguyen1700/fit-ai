@@ -1,9 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import Tabs4, { Tab4Item } from "../../../shared/ui/core/Tabs4";
 import { SearchInput } from "../../../shared/ui/layout/admin/components/SearchInput";
-import Filter from "@/shared/ui/core/Filter";
-import { FilterConfig } from "@/shared/ui/core/Filter";
 import { Button } from "@/shared/ui/core/Button";
 
 interface HeaderProps {
@@ -21,11 +19,6 @@ const Header: React.FC<HeaderProps> = ({
   activeTab = "subscription-list",
   className = "",
 }) => {
-  const [filterValues, setFilterValues] = useState<Record<string, string>>({
-    packageType: '',
-    status: '',
-    period: ''
-  });
 
   // Category tabs (Danh sách gói đăng ký, Quản lý Giá, Lịch sử Thanh toán)
   const categoryTabItems: Tab4Item[] = [
@@ -39,59 +32,8 @@ const Header: React.FC<HeaderProps> = ({
     },
   ];
 
-  // Filter configuration for plans page
-  const plansFilters: FilterConfig[] = [
-    {
-      key: "packageType",
-      placeholder: "Loại gói",
-      options: [
-        { value: "", label: "Tất cả loại gói" },
-        { value: "basic", label: "Gói Cơ bản" },
-        { value: "premium", label: "Gói Premium" },
-        { value: "professional", label: "Gói Chuyên nghiệp" },
-        { value: "enterprise", label: "Gói Doanh nghiệp" },
-      ],
-      className: "min-w-[150px]"
-    },
-    {
-      key: "status",
-      placeholder: "Trạng thái",
-      options: [
-        { value: "", label: "Tất cả trạng thái" },
-        { value: "active", label: "Hoạt động" },
-        { value: "inactive", label: "Không hoạt động" },
-        { value: "expired", label: "Hết hạn" },
-        { value: "pending", label: "Chờ xử lý" },
-        { value: "cancelled", label: "Đã hủy" },
-      ],
-      className: "min-w-[150px]"
-    },
-    {
-      key: "period",
-      placeholder: "Thời hạn",
-      options: [
-        { value: "", label: "Tất cả thời hạn" },
-        { value: "monthly", label: "Hàng tháng" },
-        { value: "quarterly", label: "Hàng quý" },
-        { value: "yearly", label: "Hàng năm" },
-        { value: "lifetime", label: "Trọn đời" },
-      ],
-      className: "min-w-[150px]"
-    }
-  ];
-
   const handleCategoryChange = (key: string) => {
     onCategoryChange?.(key);
-  };
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onSearch?.(e.target.value);
-  };
-
-  const handleFilterChange = (filters: Record<string, string>) => {
-    setFilterValues(filters);
-    // You can add additional logic here to handle filter changes
-    console.log('Filters changed:', filters);
   };
 
   return (

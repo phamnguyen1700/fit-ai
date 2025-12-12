@@ -4,8 +4,6 @@ import React from 'react';
 import { Card } from '@/shared/ui/core/Card';
 import { Avatar } from '@/shared/ui/core/Avatar';
 import { Flex } from '@/shared/ui/core/Flex';
-import { Dropdown } from 'antd';
-import type { MenuProps } from 'antd';
 import { Icon } from '@/shared/ui/icon';
 import type {
   WorkoutReview,

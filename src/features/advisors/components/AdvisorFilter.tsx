@@ -14,7 +14,6 @@ export const AdvisorFilter: React.FC<AdvisorFilterProps> = ({
   onAdd,
   onSpecialtyChange,
   onStatusChange,
-  onMoreClick,
 }) => {
   const specialtyItems: MenuProps['items'] = [
     { key: 'all', label: 'Tất cả chuyên môn' },
@@ -30,12 +29,6 @@ export const AdvisorFilter: React.FC<AdvisorFilterProps> = ({
     { key: 'active', label: 'Hoạt động' },
     { key: 'break', label: 'Tạm nghỉ' },
     { key: 'inactive', label: 'Ngưng hoạt động' },
-  ];
-
-  const moreItems: MenuProps['items'] = [
-    { key: 'import', label: 'Nhập danh sách' },
-    { key: 'export', label: 'Xuất danh sách' },
-    { key: 'statistics', label: 'Thống kê' },
   ];
 
   return (
