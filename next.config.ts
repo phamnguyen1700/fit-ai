@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/api/:path*", // FE gọi /api/xxx
+        source: "/api/:path*", 
         destination: "http://52.64.148.181:8080/:path*", // BE thật
       },
     ];
