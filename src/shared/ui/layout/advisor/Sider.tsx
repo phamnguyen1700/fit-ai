@@ -49,7 +49,7 @@ export const AdvisorSider: React.FC<AdvisorSiderProps> = ({
     const items: { key: string; label: React.ReactNode; icon?: React.ReactNode }[] = [
       { key: '/advisor/customers', label: 'Khách hàng trong tháng', icon: <Icon name={icons.clients} /> },
       { key: '/advisor/feedback', label: 'Cần đánh giá', icon: <Icon name={icons.feedback} /> },
-      { key: '/advisor/plans', label: 'Duyệt plan', icon: <Icon name={icons.plans} /> },
+      { key: '/advisor/plans', label: 'Duyệt gói', icon: <Icon name={icons.plans} /> },
       { 
         key: '/advisor/chat', 
         label: 'Chat với khách hàng',
@@ -94,7 +94,7 @@ export const AdvisorSider: React.FC<AdvisorSiderProps> = ({
           <div className="text-2xl font-bold text-primary">A</div>
         ) : (
           <div className="text-xl font-bold">
-            <span className="text-text">Advisor</span>
+            <span className="text-text">Cố vấn</span>
             <span className="text-primary"> FIT</span>
           </div>
         )}

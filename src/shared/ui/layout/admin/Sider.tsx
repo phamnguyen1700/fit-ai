@@ -23,9 +23,9 @@ const menuItems: { key: string; label: React.ReactNode; icon?: React.ReactNode }
   { label: 'Quản lý nội dung', key: '/admin/content', icon: <Icon name={icons.content} /> },
   { label: 'Quản lý phản hồi', key: '/admin/feedback', icon: <Icon name={icons.feedback} /> },
   { label: 'Quản lý gói', key: '/admin/plans', icon: <Icon name={icons.plans} /> },
-  { label: 'Quản lý Plan Demo', key: '/admin/plan-demo', icon: <Icon name={icons.plans} /> },
-  { label: 'Quản lý Advisor', key: '/admin/advisors', icon: <Icon name={icons.advisors} /> },
-  { label: 'Quản lý Policy', key: '/admin/policies', icon: <Icon name={icons.policies} /> },
+  { label: 'Quản lý gói demo', key: '/admin/plan-demo', icon: <Icon name={icons.plans} /> },
+  { label: 'Quản lý cố vấn', key: '/admin/advisors', icon: <Icon name={icons.advisors} /> },
+  { label: 'Quản lý chính sách', key: '/admin/policies', icon: <Icon name={icons.policies} /> },
   { label: 'Cài đặt', key: '/admin/settings', icon: <Icon name={icons.settings} /> },
 ];
 
@@ -121,7 +121,7 @@ export const Sider: React.FC<SiderProps> = ({
 
       <div className="absolute left-2 right-2 bottom-2">
         <Menu
-          items={[{ key: 'logout', label: 'Logout', icon: <Icon name={icons.logout} /> }]}
+          items={[{ key: 'logout', label: 'Đăng xuất', icon: <Icon name={icons.logout} /> }]}
           selectedKeys={[]}
           onItemClick={(key) => handleMenuClick({ key })}
           variant="light"
