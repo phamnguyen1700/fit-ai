@@ -49,10 +49,10 @@ export const AdvisorSider: React.FC<AdvisorSiderProps> = ({
     const items: { key: string; label: React.ReactNode; icon?: React.ReactNode }[] = [
       { key: '/advisor/customers', label: 'Khách hàng trong tháng', icon: <Icon name={icons.clients} /> },
       { key: '/advisor/feedback', label: 'Cần đánh giá', icon: <Icon name={icons.feedback} /> },
-      { key: '/advisor/plans', label: 'Duyệt gói', icon: <Icon name={icons.plans} /> },
+      { key: '/advisor/plans', label: 'Duyệt kế hoạch', icon: <Icon name={icons.plans} /> },
       { 
         key: '/advisor/chat', 
-        label: 'Chat với khách hàng',
+        label: 'Chat',
         icon: unreadCount > 0 ? (
           <Badge count={unreadCount} size="small" offset={[-2, 2]}>
             <Icon name={icons.message} />
