@@ -26,6 +26,7 @@ const menuItems: { key: string; label: React.ReactNode; icon?: React.ReactNode }
   { label: 'Quản lý gói demo', key: '/admin/plan-demo', icon: <Icon name={icons.plans} /> },
   { label: 'Quản lý cố vấn', key: '/admin/advisors', icon: <Icon name={icons.advisors} /> },
   { label: 'Quản lý chính sách', key: '/admin/policies', icon: <Icon name={icons.policies} /> },
+  { label: 'Quản lý thực phẩm Brol', key: '/admin/foods', icon: <Icon name={icons.foods} /> },
   { label: 'Cài đặt', key: '/admin/settings', icon: <Icon name={icons.settings} /> },
 ];
 

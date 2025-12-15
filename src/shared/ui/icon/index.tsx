@@ -43,6 +43,7 @@ export const icons = {
   file : 'mdi:file-outline',
   workoutPlans: 'mdi:dumbbell',
   policies: 'mdi:file-document-edit-outline',
+  foods: 'mdi:food-apple-outline',
 };
 
 // Usage: <Icon name={icons.dashboard} />
