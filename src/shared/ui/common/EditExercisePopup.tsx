@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Icon } from "../icon";
 import { useUpdateExerciseMutation } from "@/tanstack/hooks/exercise";
-import { UpdateExerciseData } from "@/types/exercise";
+import { UpdateExerciseData, FormValidationRule, KeypointId, KEYPOINT_LABELS } from "@/types/exercise";
 import { useGetExerciseCategories } from "@/tanstack/hooks/exercisecategory";
 export type ExerciseItem = {
   id: string;
@@ -12,7 +12,9 @@ export type ExerciseItem = {
   muscleGroup: string;
   difficulty: "Beginner" | "Intermediate" | "Advanced";
   description: string;
-}
+  cameraAngle?: string;
+  formValidationRules?: FormValidationRule[];
+};
 
 interface EditExercisePopupProps {
   isOpen: boolean;
@@ -70,6 +72,17 @@ export const EditExercisePopup: React.FC<EditExercisePopupProps> = ({
     muscleGroup: "",
     difficulty: "Beginner" as "Beginner" | "Intermediate" | "Advanced",
     description: "",
+    cameraAngle: "",
+    formValidationRules: [] as FormValidationRule[],
+  });
+
+  // Helper to create empty rule
+  const createEmptyRule = (): FormValidationRule => ({
+    ruleName: "",
+    keypointIds: [],
+    minAngle: 0,
+    maxAngle: 180,
+    errorMessage: "",
   });
 
   // Load exercise data when popup opens
@@ -82,6 +95,8 @@ export const EditExercisePopup: React.FC<EditExercisePopupProps> = ({
         muscleGroup: exercise.muscleGroup,
         difficulty: exercise.difficulty as "Beginner" | "Intermediate" | "Advanced",
         description: exercise.description,
+        cameraAngle: (exercise as any).cameraAngle || "",
+        formValidationRules: ((exercise as any).formValidationRules as FormValidationRule[] | undefined) || [],
       });
       setVideoFile(undefined); // Reset video file
     }
@@ -109,6 +124,49 @@ export const EditExercisePopup: React.FC<EditExercisePopupProps> = ({
     }
   };
 
+  // Form validation rules handlers
+  const handleAddRule = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    setFormData((prev) => ({
+      ...prev,
+      formValidationRules: [...prev.formValidationRules, createEmptyRule()],
+    }));
+  };
+
+  const handleRemoveRule = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      formValidationRules: prev.formValidationRules.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleRuleChange = (index: number, field: keyof FormValidationRule, value: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      formValidationRules: prev.formValidationRules.map((rule, i) =>
+        i === index ? { ...rule, [field]: value } : rule
+      ),
+    }));
+  };
+
+  const handleKeypointToggle = (ruleIndex: number, keypointId: KeypointId) => {
+    setFormData((prev) => ({
+      ...prev,
+      formValidationRules: prev.formValidationRules.map((rule, i) => {
+        if (i !== ruleIndex) return rule;
+        const currentIds = rule.keypointIds;
+        const isSelected = currentIds.includes(keypointId);
+        return {
+          ...rule,
+          keypointIds: isSelected
+            ? currentIds.filter((id) => id !== keypointId)
+            : [...currentIds, keypointId].sort((a, b) => a - b),
+        };
+      }),
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!exercise) return;
@@ -122,6 +180,17 @@ export const EditExercisePopup: React.FC<EditExercisePopupProps> = ({
       videoUrl: formData.videoThumbnail,
       video: videoFile,
     };
+
+    if (formData.cameraAngle) {
+      updateData.cameraAngle = formData.cameraAngle;
+    }
+
+    const validRules = formData.formValidationRules.filter(
+      (rule) => rule.ruleName.trim() && rule.keypointIds.length > 0
+    );
+    if (validRules.length > 0) {
+      updateData.formValidationRules = validRules;
+    }
 
     // Call API update
     updateMutation.mutate(
@@ -367,6 +436,187 @@ export const EditExercisePopup: React.FC<EditExercisePopupProps> = ({
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none"
                 placeholder="Nhập mô tả chi tiết về bài tập..."
               />
+            </div>
+
+            {/* Camera Angle */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                Góc quay (Camera Angle)
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                  <Icon name="mdi:camera-outline" size={16} className="text-gray-400" />
+                </div>
+                <select
+                  name="cameraAngle"
+                  value={formData.cameraAngle}
+                  onChange={handleInputChange}
+                  className="w-full pl-9 pr-8 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all appearance-none bg-white cursor-pointer"
+                >
+                  <option value="">Giữ nguyên / Không đặt</option>
+                  <option value="Front">Front</option>
+                  <option value="Side">Side</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none">
+                  <Icon name="mdi:chevron-down" size={16} className="text-gray-400" />
+                </div>
+              </div>
+            </div>
+
+            {/* Form Validation Rules */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs font-semibold text-gray-700">
+                  Luật kiểm tra động tác (Form Validation Rules)
+                </label>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleAddRule(e);
+                  }}
+                  className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-all cursor-pointer"
+                >
+                  <Icon name="mdi:plus" size={14} />
+                  Thêm rule
+                </button>
+              </div>
+
+              {formData.formValidationRules.length === 0 ? (
+                <p className="text-xs text-gray-500 bg-gray-50 border border-dashed border-gray-300 rounded-lg px-3 py-2">
+                  Chưa có rule nào. Nhấn "Thêm rule" để cấu hình kiểm tra góc khớp.
+                </p>
+              ) : (
+                <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
+                  {formData.formValidationRules.map((rule, index) => (
+                    <div
+                      key={index}
+                      className="border border-gray-200 rounded-lg p-3 bg-gray-50"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs font-semibold text-gray-700">
+                          Rule #{index + 1}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveRule(index)}
+                          className="text-red-500 hover:text-red-600"
+                        >
+                          <Icon name="mdi:delete" size={16} />
+                        </button>
+                      </div>
+
+                      <div className="space-y-2.5">
+                        {/* Rule name */}
+                        <div>
+                          <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                            Tên rule
+                          </label>
+                          <input
+                            type="text"
+                            value={rule.ruleName}
+                            onChange={(e) =>
+                              handleRuleChange(index, "ruleName", e.target.value)
+                            }
+                            className="w-full px-2.5 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-transparent outline-none"
+                            placeholder="VD: Pushup Phase"
+                          />
+                        </div>
+
+                        {/* Keypoints */}
+                        <div>
+                          <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                            Các điểm khớp (Keypoints)
+                          </label>
+                          <div className="grid grid-cols-2 gap-1.5 max-h-32 overflow-y-auto bg-white border border-gray-200 rounded-lg p-2">
+                            {Object.entries(KEYPOINT_LABELS).map(([key, label]) => {
+                              const keypointId = Number(key) as KeypointId;
+                              const isSelected = rule.keypointIds.includes(keypointId);
+                              return (
+                                <label
+                                  key={keypointId}
+                                  className="flex items-center gap-1.5 text-[11px] cursor-pointer"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={() =>
+                                      handleKeypointToggle(index, keypointId)
+                                    }
+                                    className="w-3.5 h-3.5 text-primary border-gray-300 rounded focus:ring-primary"
+                                  />
+                                  <span>
+                                    <span className="font-mono mr-0.5">
+                                      {keypointId}
+                                    </span>
+                                    - {label}
+                                  </span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                          {rule.keypointIds.length > 0 && (
+                            <p className="text-[11px] text-gray-500 mt-1">
+                              Đã chọn: [{rule.keypointIds.join(", ")}]
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Min / Max angle */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                              Góc tối thiểu
+                            </label>
+                            <input
+                              type="number"
+                              value={rule.minAngle}
+                              onChange={(e) =>
+                                handleRuleChange(index, "minAngle", Number(e.target.value))
+                              }
+                              className="w-full px-2.5 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-transparent outline-none"
+                              min={0}
+                              max={180}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                              Góc tối đa
+                            </label>
+                            <input
+                              type="number"
+                              value={rule.maxAngle}
+                              onChange={(e) =>
+                                handleRuleChange(index, "maxAngle", Number(e.target.value))
+                              }
+                              className="w-full px-2.5 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-transparent outline-none"
+                              min={0}
+                              max={180}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Error message */}
+                        <div>
+                          <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                            Thông báo lỗi
+                          </label>
+                          <input
+                            type="text"
+                            value={rule.errorMessage}
+                            onChange={(e) =>
+                              handleRuleChange(index, "errorMessage", e.target.value)
+                            }
+                            className="w-full px-2.5 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-transparent outline-none"
+                            placeholder="VD: Complete proper pushup in burpee"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </form>

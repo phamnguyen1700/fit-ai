@@ -5,14 +5,22 @@ import { Icon } from "../icon";
 
 interface ExerciseCardProps {
   // Fields từ API
+  exerciseId?: string;
   title: string;           // name từ API
-  videoThumbnail: string;  // videoUrl từ API
+  videoThumbnail: string;  // videoUrl từ API (hoặc thumbnail)
   muscleGroup: string;     // categoryName từ API
   difficulty: string;      // level từ API
+  description?: string;
+  cameraAngle?: string;
+  lastCreate?: string;
+  lastUpdate?: string;
+  videoUrl?: string;
+  thumbnailUrl?: string;
   // Action handlers
   onPlay?: () => void;
   onEdit?: () => void;
-  onView?: () => void;
+  onView?: () => void;     // Ghim / Bỏ ghim
+  onShowDetail?: () => void; // Xem chi tiết
   onDelete?: () => void;
   className?: string;
   isPinned?: boolean;      // Trạng thái ghim
@@ -51,20 +59,28 @@ const getVideoThumbnail = (videoUrl: string): string => {
 }
 
 export const ExerciseCard: React.FC<ExerciseCardProps> = ({
+  exerciseId,
   title,
   videoThumbnail,
   muscleGroup,
   difficulty,
+  description,
+  cameraAngle,
+  lastCreate,
+  lastUpdate,
+  videoUrl,
+  thumbnailUrl,
   onPlay,
   onEdit,
   onView,
+  onShowDetail,
   onDelete,
   className,
   isPinned = false,
 }) => {
   const [isContentHovered, setIsContentHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const thumbnailUrl = getVideoThumbnail(videoThumbnail);
+  const resolvedThumbnail = getVideoThumbnail(thumbnailUrl || videoThumbnail);
 
   return (
     <Card
@@ -79,7 +95,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
             {/* Video thumbnail image */}
             {!imageError ? (
               <img
-                src={thumbnailUrl}
+                src={resolvedThumbnail}
                 alt={title}
                 className="w-full h-full object-cover"
                 onError={() => setImageError(true)}
@@ -187,13 +203,51 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                 </div>
               </div>
 
+              {/* Camera Angle + Created / Updated */}
+              {(cameraAngle || lastCreate || lastUpdate) && (
+                <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                  <Icon name="mdi:video-3d" size={20} className="text-gray-600 mt-0.5" />
+                  <div className="flex-1 space-y-1">
+                    {cameraAngle && (
+                      <p className="text-sm text-gray-800">
+                        <span className="text-xs text-gray-500 mr-1">Góc quay:</span>
+                        <span className="font-semibold">{cameraAngle}</span>
+                      </p>
+                    )}
+                    {lastCreate && (
+                      <p className="text-xs text-gray-500">
+                        Tạo: {new Date(lastCreate as string).toLocaleString()}
+                      </p>
+                    )}
+                    {lastUpdate && (
+                      <p className="text-xs text-gray-500">
+                        Cập nhật: {new Date(lastUpdate as string).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Description */}
+              {description && (
+                <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                  <Icon name="mdi:text" size={20} className="text-gray-600 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-500 mb-1">Mô tả</p>
+                    <p className="text-sm text-gray-800 whitespace-pre-line">
+                      {description}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Video Link */}
               <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
                 <Icon name="mdi:video" size={20} className="text-gray-600 mt-0.5" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-gray-500 mb-1">Video</p>
-                  <a 
-                    href={videoThumbnail} 
+                  <a
+                    href={videoUrl || videoThumbnail}
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-xs text-blue-600 hover:text-blue-800 hover:underline truncate block"
@@ -217,7 +271,19 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                   <Icon name="mdi:pencil" size={20} />
                   <span>Chỉnh sửa bài tập</span>
                 </button>
-                
+
+                {/* View detail */}
+                {onShowDetail && (
+                  <button
+                    type="button"
+                    onClick={onShowDetail}
+                    className="w-full bg-primary/10 text-gray-900 hover:bg-primary/20 px-4 py-3 rounded-lg font-semibold text-sm shadow-md transform hover:scale-105 transition-all flex items-center justify-center gap-2 border border-white/20"
+                  >
+                    <Icon name="mdi:eye" size={18} />
+                    <span>Xem chi tiết</span>
+                  </button>
+                )}
+
                 {/* Secondary Actions */}
                 <div className="flex gap-3">
                   <button

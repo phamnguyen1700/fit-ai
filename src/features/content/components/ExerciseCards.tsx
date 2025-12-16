@@ -5,6 +5,7 @@ import { Row, Col } from '@/shared/ui';
 import { useGetExercises, useDeleteExerciseMutation } from '@/tanstack/hooks/exercise';
 import { Exercise } from '@/types/exercise';
 import { ExerciseItem } from '@/shared/ui/common/EditExercisePopup';
+import ExerciseDetailModal, { ExerciseDetailData } from './ExerciseDetailModal';
 
 interface ExerciseCardsProps {
   className?: string;
@@ -38,6 +39,12 @@ const convertExerciseToUIFormat = (exercise: Exercise) => ({
   muscleGroup: exercise.categoryName,
   difficulty: exercise.level,
   description: exercise.description,
+  cameraAngle: exercise.cameraAngle,
+  lastCreate: exercise.lastCreate,
+  lastUpdate: exercise.lastUpdate,
+  videoUrl: exercise.videoUrl,
+  thumbnailUrl: exercise.thumbnailUrl,
+  formValidationRules: exercise.formValidationRules,
 });
 
 
@@ -51,6 +58,8 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({
   const [selectedExercise, setSelectedExercise] = useState<ExerciseItem | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [exerciseToDelete, setExerciseToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [detailExercise, setDetailExercise] = useState<ExerciseDetailData | null>(null);
   
   // Load pinned exercises from localStorage
   const [pinnedExerciseIds, setPinnedExerciseIds] = useState<string[]>(() => {
@@ -186,6 +195,14 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({
     handleCloseEditPopup();
   };
 
+  const handleShowDetail = (exerciseId: string) => {
+    const found = allExerciseData.find((item) => item.id === exerciseId);
+    if (found) {
+      setDetailExercise(found as ExerciseDetailData);
+      setIsDetailOpen(true);
+    }
+  };
+
   const handleView = (exerciseId: string) => {
     // Toggle pin exercise - chỉ cho phép pin tối đa 2 cards
     if (pinnedExerciseIds.includes(exerciseId)) {
@@ -299,14 +316,22 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({
                   </div>
                 )}
                 <ExerciseCard
+                  exerciseId={exercise.id}
                   title={exercise.title}
                   videoThumbnail={exercise.videoThumbnail}
                   muscleGroup={exercise.muscleGroup}
                   difficulty={exercise.difficulty}
+                  description={exercise.description}
+                  cameraAngle={exercise.cameraAngle}
+                  lastCreate={exercise.lastCreate}
+                  lastUpdate={exercise.lastUpdate}
+                  videoUrl={exercise.videoUrl}
+                  thumbnailUrl={exercise.thumbnailUrl}
                   isPinned={isPinned}
                   onPlay={() => handlePlay(exercise.id)}
                   onEdit={() => handleEdit(exercise.id)}
-                  onView={() => handleView(exercise.id)}
+                  onShowDetail={() => handleShowDetail(exercise.id)}
+                  onView={() => handleView(exercise.id)}  // vẫn dùng để Ghim/Bỏ ghim
                   onDelete={() => handleDelete(exercise.id)}
                 />
               </div>
@@ -404,6 +429,13 @@ const ExerciseCards: React.FC<ExerciseCardsProps> = ({
           </div>
         </div>
       </Modal>
+
+      {/* Exercise Detail Modal */}
+      <ExerciseDetailModal
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        exercise={detailExercise}
+      />
     </div>
   );
 };

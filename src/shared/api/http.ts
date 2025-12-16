@@ -30,6 +30,14 @@ class HttpClient {
           config.headers.Authorization = `Bearer ${token}`;
         }
       }
+      
+      // Nếu data là FormData, xóa Content-Type để axios tự động set multipart/form-data với boundary
+      if (config.data instanceof FormData) {
+        if (config.headers) {
+          delete config.headers['Content-Type'];
+        }
+      }
+      
       return config;
     });
 
