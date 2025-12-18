@@ -2,11 +2,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { IApiResponse } from '@/shared/api/http';
 import {
-  WorkoutReviewResponse,
-  MealReviewResponse,
+  WorkoutReview,
+  MealReview,
   WorkoutReviewRequest,
-  WorkoutReviewedResponse,
-  MealReviewedResponse,
+  WorkoutReviewedItem,
+  MealReviewedItem,
   MealReviewRequest,
 } from '@/types/advisorreview';
 import {
@@ -21,7 +21,7 @@ import toast from 'react-hot-toast';
 import { APIError } from '@/types/utils/APIError';
 
 export const usePendingWorkoutReviews = () => {
-  const query = useQuery<IApiResponse<WorkoutReviewResponse>>({
+  const query = useQuery<IApiResponse<WorkoutReview[]>>({
     queryKey: ['pending-workout-reviews'],
     queryFn: () => getPendingWorkoutReviewsService(),
     staleTime: 2 * 60 * 1000, // 2 minutes
@@ -32,7 +32,7 @@ export const usePendingWorkoutReviews = () => {
     if (query.data) {
       console.log('✅ [Hook] Pending workout reviews success:', query.data);
       console.log('✅ [Hook] Response data:', query.data?.data);
-      console.log('✅ [Hook] Reviews array:', query.data?.data?.data);
+      console.log('✅ [Hook] Reviews array:', query.data?.data);
     }
     if (query.error) {
       console.error('❌ [Hook] Pending workout reviews error:', query.error);
@@ -43,7 +43,7 @@ export const usePendingWorkoutReviews = () => {
 };
 
 export const usePendingMealReviews = () => {
-  const query = useQuery<IApiResponse<MealReviewResponse>>({
+  const query = useQuery<IApiResponse<MealReview[]>>({
     queryKey: ['pending-meal-reviews'],
     queryFn: () => getPendingMealReviewsService(),
     staleTime: 2 * 60 * 1000, // 2 minutes
@@ -54,7 +54,7 @@ export const usePendingMealReviews = () => {
     if (query.data) {
       console.log('✅ [Hook] Pending meal reviews success:', query.data);
       console.log('✅ [Hook] Response data:', query.data?.data);
-      console.log('✅ [Hook] Reviews array:', query.data?.data?.data);
+      console.log('✅ [Hook] Reviews array:', query.data?.data);
     }
     if (query.error) {
       console.error('❌ [Hook] Pending meal reviews error:', query.error);
@@ -116,14 +116,14 @@ export const useSubmitMealReview = () => {
 };
 
 export const useReviewedWorkouts = () =>
-  useQuery<IApiResponse<WorkoutReviewedResponse>>({
+  useQuery<IApiResponse<WorkoutReviewedItem[]>>({
     queryKey: ['reviewed-workout-list'],
     queryFn: getReviewedWorkoutsService,
     staleTime: 2 * 60 * 1000,
   });
 
 export const useReviewedMeals = () =>
-  useQuery<IApiResponse<MealReviewedResponse>>({
+  useQuery<IApiResponse<MealReviewedItem[]>>({
     queryKey: ['reviewed-meal-list'],
     queryFn: getReviewedMealsService,
     staleTime: 2 * 60 * 1000,

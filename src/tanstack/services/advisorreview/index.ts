@@ -1,11 +1,11 @@
 import { get, post } from '@/shared/api/http';
 import {
-  WorkoutReviewResponse,
-  MealReviewResponse,
+  WorkoutReview,
+  MealReview,
   WorkoutReviewRequest,
   WorkoutReviewSubmitResponse,
-  WorkoutReviewedResponse,
-  MealReviewedResponse,
+  WorkoutReviewedItem,
+  MealReviewedItem,
   MealReviewRequest,
   MealReviewSubmitResponse,
 } from '@/types/advisorreview';
@@ -14,13 +14,13 @@ const BASE_PATH = 'api/advisorreview';
 
 export const getPendingWorkoutReviewsService = async () => {
   const url = `${BASE_PATH}/workout/pending`;
-  const response = await get<WorkoutReviewResponse>(url);
+  const response = await get<WorkoutReview[]>(url);
   return response;
 };
 
 export const getPendingMealReviewsService = async () => {
   const url = `${BASE_PATH}/meal/pending`;
-  const response = await get<MealReviewResponse>(url);
+  const response = await get<MealReview[]>(url);
   return response;
 };
 
@@ -39,13 +39,13 @@ export const submitWorkoutReviewService = async (workoutLogId: string, data: Wor
 
 export const getReviewedWorkoutsService = async () => {
   const url = `${BASE_PATH}/workout/reviewed`;
-  const response = await get<WorkoutReviewedResponse>(url);
+  const response = await get<WorkoutReviewedItem[]>(url);
   return response;
 };
 
 export const getReviewedMealsService = async () => {
   const url = `${BASE_PATH}/meal/reviewed`;
-  const response = await get<MealReviewedResponse>(url);
+  const response = await get<MealReviewedItem[]>(url);
   return response;
 };
 

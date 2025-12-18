@@ -1,3 +1,8 @@
+export interface WorkoutSegment {
+  setNumber: number;
+  completed: number;
+}
+
 export interface WorkoutReview {
   workoutLogId: string;
   userId: string;
@@ -8,6 +13,10 @@ export interface WorkoutReview {
   createdAt: string;
   hasComments: boolean;
   lastCommentFrom?: string;
+  // Optional fields returned by the pending workout review API
+  comments?: WorkoutReviewedComment[];
+  segments?: WorkoutSegment[];
+  actualDurationMinutes?: number | null;
 }
 
 export interface WorkoutReviewResponse {
@@ -34,6 +43,9 @@ export interface WorkoutReviewedItem {
   hasComments: boolean;
   lastCommentFrom?: string;
   comments: WorkoutReviewedComment[];
+  // Optional fields returned by reviewed workout API
+  segments?: WorkoutSegment[] | null;
+  actualDurationMinutes?: number | null;
 }
 
 export interface WorkoutReviewedResponse {
@@ -51,6 +63,29 @@ export interface MealReview {
   hasComments: boolean;
   lastCommentFrom?: string;
   lastCommentAt?: string | null;
+}
+
+export interface MealFoodWeight {
+  foodName: string;
+  weightInGrams: number;
+  caloriesPer100g: number;
+  calculatedCalories: number;
+}
+
+export interface MealReview {
+  mealLogId: string;
+  userId: string;
+  userName: string;
+  dayNumber: number;
+  mealType: string;
+  photoUrl: string;
+  createdAt: string;
+  hasComments: boolean;
+  lastCommentFrom?: string;
+  lastCommentAt?: string | null;
+  // Optional fields returned by the pending meal review API (see Swagger)
+  comments?: MealReviewedComment[];
+  foodWeights?: MealFoodWeight[] | null;
 }
 
 export interface MealReviewResponse {

@@ -7,7 +7,12 @@ import { Flex } from '@/shared/ui/core/Flex';
 import { Avatar } from '@/shared/ui/core/Avatar';
 import { TextArea, Input } from '@/shared/ui';
 import { Icon } from '@/shared/ui/icon';
-import { useSubmitMealReview, useSubmitWorkoutReview } from '@/tanstack/hooks/advisorreview';
+import {
+  usePendingMealReviews,
+  usePendingWorkoutReviews,
+  useSubmitMealReview,
+  useSubmitWorkoutReview,
+} from '@/tanstack/hooks/advisorreview';
 import { useAddMealPlanComment, useMealPlanComments } from '@/tanstack/hooks/mealplan';
 import { useAddWorkoutPlanComment, useWorkoutPlanComments } from '@/tanstack/hooks/workoutplan';
 import type { WorkoutReview, MealReview } from '@/types/advisorreview';
@@ -61,11 +66,33 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
   const [selectedRemarks, setSelectedRemarks] = useState<string[]>([]);
   const [localComments, setLocalComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
+  const pendingWorkoutQuery = usePendingWorkoutReviews();
+  const pendingMealQuery = usePendingMealReviews();
   const submitWorkoutReviewMutation = useSubmitWorkoutReview();
   const submitMealReviewMutation = useSubmitMealReview();
 
-  const mealLogId = submission && 'mealLogId' in submission ? submission.mealLogId : undefined;
-  const workoutLogId = submission && 'workoutLogId' in submission ? submission.workoutLogId : undefined;
+  const activeSubmission = useMemo<WorkoutReview | MealReview | null>(() => {
+    if (!submission) return null;
+
+    // Enrich submission with latest data from pending workout/meal APIs (including comments, segments, foodWeights, ...)
+    if ('workoutLogId' in submission) {
+      const list = pendingWorkoutQuery.data?.data ?? [];
+      const found = list.find((item) => item.workoutLogId === submission.workoutLogId);
+      return found ?? submission;
+    }
+
+    if ('mealLogId' in submission) {
+      const list = pendingMealQuery.data?.data ?? [];
+      const found = list.find((item) => item.mealLogId === submission.mealLogId);
+      return found ?? submission;
+    }
+
+    return submission;
+  }, [submission, pendingWorkoutQuery.data, pendingMealQuery.data]);
+
+  const mealLogId = activeSubmission && 'mealLogId' in activeSubmission ? activeSubmission.mealLogId : undefined;
+  const workoutLogId =
+    activeSubmission && 'workoutLogId' in activeSubmission ? activeSubmission.workoutLogId : undefined;
 
   const mealCommentsQuery = useMealPlanComments(mealLogId, Boolean(mealLogId));
   const workoutCommentsQuery = useWorkoutPlanComments(workoutLogId, Boolean(workoutLogId));
@@ -104,9 +131,10 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
     return [];
   }, [mealLogId, mealCommentsQuery.data, submission?.userName, workoutCommentsQuery.data, workoutLogId]);
 
+  // For display, only use remote comments from server to avoid duplication
   const combinedComments = React.useMemo(
-    () => [...remoteComments, ...localComments],
-    [localComments, remoteComments]
+    () => remoteComments,
+    [remoteComments]
   );
 
   const isLoadingComments = mealLogId
@@ -172,7 +200,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
   };
 
   const handleAddComment = () => {
-    if (!newComment.trim() || !submission) return;
+    if (!newComment.trim() || !activeSubmission) return;
     
     const comment: Comment = {
       id: `comment-${Date.now()}`,
@@ -193,27 +221,27 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
   };
 
   const preview = useMemo(() => {
-    if (!submission) return null;
+    if (!activeSubmission) return null;
     
     // Check if it's a workout (has videoUrl) or meal (has photoUrl)
-    if ('videoUrl' in submission) {
+    if ('videoUrl' in activeSubmission) {
       return (
         <video
           controls
           preload="metadata"
           className="w-full rounded-lg shadow-sm"
         >
-          <source src={submission.videoUrl} />
+          <source src={activeSubmission.videoUrl} />
           Trình duyệt không hỗ trợ phát video.
         </video>
       );
     }
 
-    if ('photoUrl' in submission) {
+    if ('photoUrl' in activeSubmission) {
       return (
         <img
-          src={submission.photoUrl}
-          alt={`${submission.mealType} - Ngày ${submission.dayNumber}`}
+          src={activeSubmission.photoUrl}
+          alt={`${activeSubmission.mealType} - Ngày ${activeSubmission.dayNumber}`}
           className="w-full rounded-lg object-cover shadow-sm"
           loading="lazy"
         />
@@ -221,13 +249,13 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
     }
 
     return null;
-  }, [submission]);
+  }, [activeSubmission]);
 
-  const userName = submission ? submission.userName : '';
-  const displayName = 'exerciseName' in (submission || {}) 
-    ? `${(submission as WorkoutReview).exerciseName} - Ngày ${(submission as WorkoutReview).dayNumber}`
-    : 'mealType' in (submission || {})
-    ? `${(submission as MealReview).mealType} - Ngày ${(submission as MealReview).dayNumber}`
+  const userName = activeSubmission ? activeSubmission.userName : '';
+  const displayName = 'exerciseName' in (activeSubmission || {})
+    ? `${(activeSubmission as WorkoutReview).exerciseName} - Ngày ${(activeSubmission as WorkoutReview).dayNumber}`
+    : 'mealType' in (activeSubmission || {})
+    ? `${(activeSubmission as MealReview).mealType} - Ngày ${(activeSubmission as MealReview).dayNumber}`
     : '';
 
   return (
@@ -238,7 +266,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
       size="xl"
       showFooter={false}
     >
-      {submission ? (
+      {activeSubmission ? (
         <div className="flex flex-col gap-6">
           {/* Header */}
           <Flex align="center" gap={14} wrap>
@@ -248,18 +276,96 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
             <div className="min-w-0 flex-1">
               <div className="text-lg font-semibold text-[var(--text)] mb-1">{userName}</div>
               <div className="flex items-center gap-2">
-                <Icon name="mdi:dumbbell" size={16} className="text-[var(--primary)]" />
+                <Icon
+                  name={'workoutLogId' in activeSubmission ? 'mdi:dumbbell' : 'mdi:food-apple'}
+                  size={16}
+                  className="text-[var(--primary)]"
+                />
                 <span className="text-sm font-medium text-[var(--text)]">{displayName}</span>
               </div>
             </div>
           </Flex>
 
           <div className="grid gap-6 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-            {/* Left Column - Media & Comments */}
+            {/* Left Column - Media, Workout/Meal Details & Comments */}
             <div className="flex flex-col gap-4">
               <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)]">
                 {preview}
               </div>
+
+              {/* Workout details (segments, duration) */}
+              {'workoutLogId' in activeSubmission && (activeSubmission.segments?.length || activeSubmission.actualDurationMinutes != null) ? (
+                <div className="rounded-lg border border-[var(--border)] bg-white p-4">
+                  <div className="mb-3 flex items-center gap-2">
+                    <Icon name="mdi:dumbbell" size={18} className="text-[var(--primary)]" />
+                    <span className="text-sm font-semibold text-[var(--text-secondary)]">
+                      Chi tiết bài tập
+                    </span>
+                  </div>
+
+                  {activeSubmission.segments?.length ? (
+                    <div className="mb-3 space-y-2 text-sm">
+                      {activeSubmission.segments.map((segment, index) => (
+                        <div
+                          key={`${segment.setNumber}-${index}`}
+                          className="flex items-center justify-between rounded-md bg-[var(--bg-tertiary)]/60 px-3 py-2"
+                        >
+                          <span className="font-medium text-[var(--text)]">
+                            Set {segment.setNumber}
+                          </span>
+                          <span className="text-sm text-[var(--text-secondary)]">
+                            Hoàn thành: {segment.completed}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  {activeSubmission.actualDurationMinutes != null && (
+                    <div className="mt-1 text-xs text-[var(--text-secondary)]">
+                      Thời lượng thực tế:{" "}
+                      <span className="font-semibold text-[var(--text)]">
+                        {activeSubmission.actualDurationMinutes} phút
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ) : null}
+
+              {/* Meal details (foodWeights) */}
+              {'mealLogId' in activeSubmission && activeSubmission.foodWeights?.length ? (
+                <div className="rounded-lg border border-[var(--border)] bg-white p-4">
+                  <div className="mb-3 flex items-center gap-2">
+                    <Icon name="mdi:food-apple" size={18} className="text-[var(--primary)]" />
+                    <span className="text-sm font-semibold text-[var(--text-secondary)]">
+                      Chi tiết khẩu phần ăn
+                    </span>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    {activeSubmission.foodWeights.map((item, index) => (
+                      <div
+                        key={`${item.foodName}-${index}`}
+                        className="flex items-center justify-between rounded-md bg-[var(--bg-tertiary)]/60 px-3 py-2"
+                      >
+                        <div className="flex flex-col">
+                          <span className="font-medium text-[var(--text)]">{item.foodName}</span>
+                          <span className="text-xs text-[var(--text-secondary)]">
+                            {item.caloriesPer100g} kcal / 100g
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-semibold text-[var(--text)]">
+                            {item.weightInGrams} g
+                          </div>
+                          <div className="text-xs text-[var(--text-secondary)]">
+                            ~ {item.calculatedCalories} kcal
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
 
               {/* Comments Section */}
               <div className="rounded-lg border border-[var(--border)] bg-white">
@@ -419,11 +525,11 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
                 <button
                   type="button"
                   onClick={async () => {
-                    if (!submission) return;
+                    if (!activeSubmission) return;
                     
                     // Check if it's a workout review (has workoutLogId)
-                    if ('workoutLogId' in submission) {
-                      const workoutLogId = submission.workoutLogId;
+                    if ('workoutLogId' in activeSubmission) {
+                      const workoutLogId = activeSubmission.workoutLogId;
                       const completionPercent = score || 0;
                       const feedback = notes || selectedRemarks.join('\n') || '';
                       
@@ -441,7 +547,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
                         // Error đã được xử lý trong hook
                         console.error('Submit workout review error:', error);
                       }
-                    } else if ('mealLogId' in submission) {
+                    } else if ('mealLogId' in activeSubmission) {
                       const completionPercent = score || 0;
                       let commentsPayload = buildMealCommentsPayload();
                       if (commentsPayload.length === 0) {
@@ -449,7 +555,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ submission, isOpen, on
                       }
                       try {
                         await submitMealReviewMutation.mutateAsync({
-                          mealLogId: submission.mealLogId,
+                          mealLogId: activeSubmission.mealLogId,
                           data: {
                             completionPercent,
                             comments: commentsPayload,
