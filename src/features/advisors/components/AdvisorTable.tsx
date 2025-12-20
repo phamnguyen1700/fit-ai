@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { CardTable } from '@/shared/ui/core/CardTable';
 import { AdvisorCard, type AdvisorCardProps } from '@/shared/ui/common/AdvisorCard';
 import AdvisorFilter from './AdvisorFilter';
-import { useGetAdvisors, useSoftDeleteAdvisor, useReactivateAdvisor } from '@/tanstack/hooks/advisor';
+import { useGetAdvisors, useSoftDeleteAdvisor, useReactivateAdvisor, useHardDeleteAdvisor } from '@/tanstack/hooks/advisor';
 import type { Advisor } from '@/types/advisor';
 import { App } from 'antd';
 
@@ -102,6 +102,7 @@ export const AdvisorTable: React.FC<AdvisorTableProps> = ({
   const { data, isLoading, isError } = useGetAdvisors({ page: 1, pageSize });
   const softDeleteAdvisor = useSoftDeleteAdvisor();
   const reactivateAdvisor = useReactivateAdvisor();
+  const hardDeleteAdvisor = useHardDeleteAdvisor();
   const { modal } = App.useApp();
 
   const advisors = useMemo(() => {
@@ -214,6 +215,54 @@ export const AdvisorTable: React.FC<AdvisorTableProps> = ({
             },
           });
           console.log('Modal.confirm() called for reactivate');
+        } else {
+          console.warn('Advisor not found for ID:', advisorId);
+        }
+        break;
+      case 'delete':
+        if (advisor) {
+          console.log('Showing confirm modal for hard delete');
+          modal.confirm({
+            title: 'Xác nhận xóa vĩnh viễn',
+            content: (
+              <div>
+                <p>Bạn có chắc chắn muốn xóa vĩnh viễn advisor <strong>"{advisor.name}"</strong>?</p>
+                <p style={{ color: 'var(--error)', marginTop: 8, fontSize: '0.875rem' }}>
+                  ⚠️ Hành động này không thể hoàn tác. Tất cả dữ liệu của advisor sẽ bị xóa vĩnh viễn.
+                </p>
+              </div>
+            ),
+            okText: 'Xóa vĩnh viễn',
+            cancelText: 'Hủy',
+            okButtonProps: {
+              danger: true,
+              loading: hardDeleteAdvisor.isPending,
+              style: {
+                backgroundColor: 'var(--error)',
+                borderColor: 'var(--error)',
+                color: 'white',
+              },
+            },
+            onOk: () => {
+              console.log('Modal confirmed, calling hard delete mutation for:', advisorId);
+              return new Promise<void>((resolve, reject) => {
+                hardDeleteAdvisor.mutate(advisorId, {
+                  onSuccess: (data) => {
+                    console.log('Hard delete mutation success in onOk callback:', data);
+                    resolve();
+                  },
+                  onError: (error) => {
+                    console.error('Hard delete mutation error in onOk callback:', error);
+                    reject(error);
+                  },
+                });
+              });
+            },
+            onCancel: () => {
+              console.log('Modal cancelled');
+            },
+          });
+          console.log('Modal.confirm() called for hard delete');
         } else {
           console.warn('Advisor not found for ID:', advisorId);
         }

@@ -39,8 +39,8 @@ export const CardTable = <T,>({
         ))}
       </div>
 
-      {/* Only show pagination if there are 20 or more items */}
-      {items.length >= 20 && (
+      {/* Show pagination if there are more items than pageSize */}
+      {items.length > pageSize && totalPages > 1 && (
         <div className="mt-4 flex justify-center">
           <Pagination
             currentPage={currentPage}

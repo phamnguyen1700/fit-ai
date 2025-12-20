@@ -5,7 +5,6 @@ import { Icon } from '@/shared/ui/icon';
 import { Input } from '@/shared/ui/core/Input';
 
 export interface UserFilterProps {
-  onAdd?: () => void;
   onPlanChange?: (key: string) => void;
   onStatusChange?: (key: string) => void;
   onMoreClick?: (key: string) => void;
@@ -13,7 +12,6 @@ export interface UserFilterProps {
 }
 
 export const UserFilter: React.FC<UserFilterProps> = ({
-  onAdd,
   onPlanChange,
   onStatusChange,
   onSearchChange,
@@ -34,15 +32,6 @@ export const UserFilter: React.FC<UserFilterProps> = ({
 
   return (
     <div className="w-full flex items-center gap-3">
-      <button
-        type="button"
-        onClick={onAdd}
-        className="btn-add-user"
-      >
-        <Icon name="mdi:plus-circle-outline" />
-        <span>Thêm người dùng</span>
-      </button>
-
       <div className="flex-1 min-w-[200px]">
         <Input
           prefix={<Icon name="mdi:magnify" />}
