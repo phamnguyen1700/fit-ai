@@ -23,7 +23,29 @@ export const useRegisterMutation = () =>
 export const useGetUsers = (params: Params) => {
   return useQuery<IApiResponse<UserState>>({
     queryKey: ['users', params],
-    queryFn: () => getUsersService(params),
+    queryFn: async () => {
+      try {
+        const response = await getUsersService(params);
+        // Đảm bảo response có data và items
+        if (response.success && response.data) {
+          // Validate structure
+          if (!response.data.items) {
+            console.warn('Users API response missing items array:', response);
+          }
+          return response;
+        }
+        // Log warning nếu response không thành công
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Users API response not successful:', response);
+        }
+        return response;
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        throw error;
+      }
+    },
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    retry: 1,
   })
 }
 

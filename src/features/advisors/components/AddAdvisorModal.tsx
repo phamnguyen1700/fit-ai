@@ -309,10 +309,10 @@ export const AddAdvisorModal: React.FC<AddAdvisorModalProps> = ({
               disabled={isLoading}
             >
               {isLoading ? (
-                <>
+                <div className="flex items-center gap-2">
                   <Icon name="mdi:loading" className="animate-spin mr-2" />
                   Đang tạo...
-                </>
+                </div>
               ) : (
                 "Tạo advisor"
               )}

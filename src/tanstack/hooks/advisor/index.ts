@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getAdvisorsService, getAdvisorDetailService, softDeleteAdvisorService, reactivateAdvisorService, updateAdvisorProfileService, uploadAdvisorProfilePictureService, changeAdvisorPasswordService, createAdvisorService, ChangeAdvisorPasswordRequest } from '@/tanstack/services/advisor'
+import { getAdvisorsService, getAdvisorDetailService, softDeleteAdvisorService, reactivateAdvisorService, updateAdvisorProfileService, uploadAdvisorProfilePictureService, changeAdvisorPasswordService, createAdvisorService, hardDeleteAdvisorService, ChangeAdvisorPasswordRequest } from '@/tanstack/services/advisor'
 import { AdvisorListResponse, AdvisorParams, AdvisorDetail, UpdateAdvisorProfileRequest, CreateAdvisorRequest } from '@/types/advisor'
 import { IApiResponse } from '@/shared/api/http'
 import toast from 'react-hot-toast'
@@ -237,6 +237,41 @@ export const useCreateAdvisor = () => {
     onError: (error: unknown) => {
       console.error('Create advisor error:', error)
       const errorMessage = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Tạo advisor thất bại. Vui lòng thử lại.'
+      toast.error(errorMessage)
+    },
+  })
+}
+
+export const useHardDeleteAdvisor = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: (advisorId: string) => {
+      console.log('Hard deleting advisor:', advisorId)
+      return hardDeleteAdvisorService(advisorId)
+    },
+    onSuccess: (response, advisorId) => {
+      console.log('Hard delete advisor success - full response:', response)
+      console.log('Response success:', response.success)
+      console.log('Response data:', response.data)
+      console.log('Response message:', response.message)
+      
+      // Chỉ xử lý khi response.success === true
+      if (response.success === true) {
+        toast.success('Xóa vĩnh viễn advisor thành công!')
+        // Invalidate và refetch advisor detail và list
+        queryClient.invalidateQueries({ queryKey: ['advisor-detail', advisorId] })
+        queryClient.invalidateQueries({ queryKey: ['advisors'] })
+      } else {
+        // Nếu success = false, throw error để vào onError
+        console.warn('API returned success: false', response)
+        throw new Error(response.message || 'Xóa vĩnh viễn advisor thất bại')
+      }
+    },
+    onError: (error: unknown) => {
+      console.error('Hard delete advisor error:', error)
+      console.error('Error response:', (error as APIError)?.response)
+      const errorMessage = (error as APIError)?.response?.data?.message || (error as Error)?.message || 'Xóa vĩnh viễn advisor thất bại. Vui lòng thử lại.'
       toast.error(errorMessage)
     },
   })

@@ -1,4 +1,4 @@
-import { get, put, post } from '@/shared/api/http'
+import { get, put, post, del } from '@/shared/api/http'
 import {
   AdvisorListResponse,
   AdvisorParams,
@@ -23,6 +23,11 @@ export const softDeleteAdvisorService = (advisorId: string) => {
 export const reactivateAdvisorService = (advisorId: string) => {
   console.log('Calling reactivate endpoint for advisor:', advisorId)
   return put<string>(`${ACCOUNT_BASE_URL}/api/advisor/${advisorId}/reactivate`)
+}
+
+export const hardDeleteAdvisorService = (advisorId: string) => {
+  console.log('Calling hard delete endpoint for advisor:', advisorId)
+  return del<string>(`${ACCOUNT_BASE_URL}/api/advisor/${advisorId}/hard-delete`)
 }
 
 export const updateAdvisorProfileService = (
