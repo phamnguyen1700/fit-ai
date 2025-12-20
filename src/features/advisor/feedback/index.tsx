@@ -82,10 +82,8 @@ export const AdvisorFeedbackRequests: React.FC = () => {
 	const workoutReviews = useMemo(() => {
 		let reviews: WorkoutReview[] = [];
 
-		if (Array.isArray(workoutApiData?.data)) {
+		if (workoutApiData?.data && Array.isArray(workoutApiData.data)) {
 			reviews = workoutApiData.data;
-		} else if (Array.isArray(workoutApiData?.data?.data)) {
-			reviews = workoutApiData.data.data;
 		}
 
 		console.log('✅ [Feedback] Workout reviews:', reviews);
@@ -96,10 +94,8 @@ export const AdvisorFeedbackRequests: React.FC = () => {
 	const mealReviews = useMemo(() => {
 		let reviews: MealReview[] = [];
 
-		if (Array.isArray(mealApiData?.data)) {
+		if (mealApiData?.data && Array.isArray(mealApiData.data)) {
 			reviews = mealApiData.data;
-		} else if (Array.isArray(mealApiData?.data?.data)) {
-			reviews = mealApiData.data.data;
 		}
 
 		console.log('✅ [Feedback] Meal reviews:', reviews);
