@@ -3,16 +3,7 @@ import React from 'react';
 import ReportCard, { ReportCardItem } from '@/shared/ui/common/ReportCard';
 import { useRevenueStats } from '@/tanstack/hooks/analytics';
 
-const formatCurrency = (value: number, currency: string) => {
-  const normalizedCurrency = currency?.toLowerCase();
-  if (normalizedCurrency === 'usd') {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0,
-    }).format(value);
-  }
-
+const formatCurrency = (value: number) => {
   return `${new Intl.NumberFormat('vi-VN').format(value)} đ`;
 };
 
@@ -32,12 +23,12 @@ const ReportTable: React.FC = () => {
   const revenueItems: ReportCardItem[] = [
     {
       label: 'Tổng doanh thu',
-      value: revenueStats ? formatCurrency(revenueStats.totalRevenue ?? 0, revenueStats.currency ?? 'VND') : '--',
+      value: revenueStats ? formatCurrency(revenueStats.totalRevenue ?? 0) : '--',
       unit: '',
     },
     {
       label: 'Doanh thu tháng này',
-      value: revenueStats ? formatCurrency(revenueStats.revenueThisMonth ?? 0, revenueStats.currency ?? 'VND') : '--',
+      value: revenueStats ? formatCurrency(revenueStats.revenueThisMonth ?? 0) : '--',
       unit: '',
     },
     {
@@ -47,7 +38,7 @@ const ReportTable: React.FC = () => {
     },
     {
       label: 'Trung bình mỗi giao dịch',
-      value: revenueStats ? formatCurrency(revenueStats.averagePayment ?? 0, revenueStats.currency ?? 'VND') : '--',
+      value: revenueStats ? formatCurrency(revenueStats.averagePayment ?? 0) : '--',
       unit: '',
     },
     {
@@ -57,7 +48,7 @@ const ReportTable: React.FC = () => {
     },
     {
       label: 'Doanh thu hôm nay',
-      value: revenueStats ? formatCurrency(revenueStats.revenueToday ?? 0, revenueStats.currency ?? 'VND') : '--',
+      value: revenueStats ? formatCurrency(revenueStats.revenueToday ?? 0) : '--',
       unit: '',
     },
   ];
