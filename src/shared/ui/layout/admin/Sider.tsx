@@ -23,7 +23,7 @@ const menuItems: { key: string; label: React.ReactNode; icon?: React.ReactNode }
   { label: 'Quản lý nội dung', key: '/admin/content', icon: <Icon name={icons.content} /> },
   { label: 'Quản lý phản hồi', key: '/admin/feedback', icon: <Icon name={icons.feedback} /> },
   { label: 'Quản lý gói', key: '/admin/plans', icon: <Icon name={icons.plans} /> },
-  { label: 'Quản lý gói demo', key: '/admin/plan-demo', icon: <Icon name={icons.plans} /> },
+  { label: 'Quản lý plan demo', key: '/admin/plan-demo', icon: <Icon name={icons.plans} /> },
   { label: 'Quản lý cố vấn', key: '/admin/advisors', icon: <Icon name={icons.advisors} /> },
   { label: 'Quản lý chính sách', key: '/admin/policies', icon: <Icon name={icons.policies} /> },
   { label: 'Quản lý thực phẩm Brol', key: '/admin/foods', icon: <Icon name={icons.foods} /> },
