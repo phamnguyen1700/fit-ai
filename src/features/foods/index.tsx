@@ -208,12 +208,24 @@ export const FoodManagementPage: React.FC = () => {
               </h1>
             </div>
             <div className="flex flex-wrap gap-2">
-              <input
-                className="border rounded-md px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary min-w-[200px]"
-                placeholder="Tìm theo tên hoặc thương hiệu..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+              <div className="relative min-w-[200px]">
+                <input
+                  className="border rounded-md px-3 py-1.5 pr-8 text-sm outline-none focus:ring-2 focus:ring-primary w-full"
+                  placeholder="Tìm theo tên hoặc thương hiệu..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() => setSearch('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    aria-label="Xóa tìm kiếm"
+                  >
+                    <Icon name="mdi:close-circle" size={18} />
+                  </button>
+                )}
+              </div>
               <Button
                 variant="secondary"
                 size="md"

@@ -106,7 +106,7 @@ export const FoodTable: React.FC<FoodTableProps> = ({
       />
 
       {total && total > 15 && onChangePage && page && pageSize && (
-        <div className="flex justify-end">
+        <div className="flex justify-center">
           <Pagination
             currentPage={page}
             totalPages={Math.ceil(total / pageSize)}
