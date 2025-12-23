@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { App } from 'antd';
 import { Card } from '@/shared/ui/core/Card';
 import { Button } from '@/shared/ui/core/Button';
@@ -10,7 +10,12 @@ import { FoodSearchModal } from './components/FoodSearchModal';
 import type { FoodLibraryItem, FoodLibraryPagedItem } from '@/types/foodlibrary';
 import type { FoodCategory } from '@/types/foodcategory';
 import { FoodFormModal } from './components/FoodFormModal';
-import { useCreateFoodLibraryItem, useDeleteFoodLibraryItem, useGetFoodLibraryPaged } from '@/tanstack/hooks/foodlibrary';
+import {
+  useCreateFoodLibraryItem,
+  useDeleteFoodLibraryItem,
+  useGetFoodLibraryPaged,
+  useSearchFoodLibraryInLibrary,
+} from '@/tanstack/hooks/foodlibrary';
 
 export interface FoodItem {
   id: string;
@@ -46,13 +51,36 @@ export const FoodManagementPage: React.FC = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(15);
 
-  const { data: pagedFoodsResponse, isLoading: isFoodsLoading } = useGetFoodLibraryPaged({
-    pageNumber,
-    pageSize,
-  });
+  // Khi thay đổi từ khoá search, luôn quay về trang 1
+  useEffect(() => {
+    setPageNumber(1);
+  }, [search]);
+
+  const { data: pagedFoodsResponse, isLoading: isFoodsLoadingPaged } = useGetFoodLibraryPaged(
+    {
+      pageNumber,
+      pageSize,
+    },
+  );
+
+  const { data: searchFoodsResponse, isLoading: isFoodsLoadingSearch } = useSearchFoodLibraryInLibrary(
+    {
+      query: search,
+      pageNumber,
+      pageSize,
+    },
+    {
+      enabled: !!search.trim(),
+      staleTime: 2 * 60 * 1000,
+    },
+  );
+
+  const isSearching = !!search.trim();
+  const activeResponse = isSearching ? searchFoodsResponse : pagedFoodsResponse;
+  const isFoodsLoading = isSearching ? isFoodsLoadingSearch : isFoodsLoadingPaged;
 
   const apiFoods: FoodItem[] = useMemo(() => {
-    const items: FoodLibraryPagedItem[] = pagedFoodsResponse?.data?.data || [];
+    const items: FoodLibraryPagedItem[] = activeResponse?.data?.data || [];
     return items.map((item) => ({
       id: item.id,
       name: item.name,
@@ -70,22 +98,15 @@ export const FoodManagementPage: React.FC = () => {
       lastUpdate: item.lastUpdate,
       isActive: true,
     }));
-  }, [pagedFoodsResponse]);
+  }, [activeResponse]);
 
   const combinedFoods = useMemo(() => {
     // API foods + local created foods
     return [...apiFoods, ...foods];
   }, [apiFoods, foods]);
 
-  const filteredFoods = useMemo(() => {
-    if (!search.trim()) return combinedFoods;
-    const keyword = search.toLowerCase();
-    return combinedFoods.filter(
-      (f) =>
-        f.name.toLowerCase().includes(keyword) ||
-        (f.brand && f.brand.toLowerCase().includes(keyword)),
-    );
-  }, [combinedFoods, search]);
+  // Khi search, đã dùng API /api/foodlibrary/search nên không cần filter client nữa
+  const filteredFoods = useMemo(() => combinedFoods, [combinedFoods]);
 
   const handleCreateClick = () => {
     setEditingFood(null);
@@ -251,10 +272,11 @@ export const FoodManagementPage: React.FC = () => {
         <FoodTable
           foods={filteredFoods}
           onDelete={handleDelete}
+          onEdit={handleEdit}
           loading={isFoodsLoading}
           page={pageNumber}
           pageSize={pageSize}
-          total={pagedFoodsResponse?.data?.totalCount || filteredFoods.length}
+          total={activeResponse?.data?.totalCount || filteredFoods.length}
           onChangePage={(page, size) => {
             setPageNumber(page);
             setPageSize(size || pageSize);

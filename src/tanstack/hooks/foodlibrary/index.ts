@@ -6,12 +6,16 @@ import {
   FoodLibraryPagedParams,
   FoodLibraryPagedResponse,
   CreateFoodLibraryRequest,
+  UpdateFoodLibraryRequest,
+  FoodLibrarySearchInLibraryParams,
 } from '@/types/foodlibrary';
 import {
   searchFoodLibraryService,
   getFoodLibraryPagedService,
   createFoodLibraryItemService,
   deleteFoodLibraryItemService,
+  updateFoodLibraryItemService,
+  searchFoodLibraryInLibraryService,
 } from '@/tanstack/services/foodlibrary';
 import toast from 'react-hot-toast';
 import { APIError } from '@/types/utils/APIError';
@@ -66,6 +70,20 @@ export const useCreateFoodLibraryItem = () => {
   });
 };
 
+export const useSearchFoodLibraryInLibrary = (
+  params: FoodLibrarySearchInLibraryParams,
+  options?: UseSearchFoodLibraryOptions,
+) => {
+  const { enabled = true, staleTime = 2 * 60 * 1000 } = options || {};
+
+  return useQuery<IApiResponse<FoodLibraryPagedResponse>>({
+    queryKey: ['foodlibrary-search-internal', params],
+    queryFn: () => searchFoodLibraryInLibraryService(params),
+    enabled: enabled && !!params.query,
+    staleTime,
+  });
+};
+
 export const useDeleteFoodLibraryItem = () => {
   const queryClient = useQueryClient();
 
@@ -88,5 +106,29 @@ export const useDeleteFoodLibraryItem = () => {
     },
   });
 };
+
+export const useUpdateFoodLibraryItem = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: UpdateFoodLibraryRequest) => updateFoodLibraryItemService(data),
+    onSuccess: (response) => {
+      if (response.success) {
+        toast.success('Đã cập nhật thực phẩm trong thư viện!');
+        queryClient.invalidateQueries({ queryKey: ['foodlibrary-paged'] });
+      } else {
+        toast.error(response.message || 'Cập nhật thực phẩm thất bại');
+      }
+    },
+    onError: (error: unknown) => {
+      const message =
+        (error as APIError)?.response?.data?.message ||
+        (error as Error)?.message ||
+        'Cập nhật thực phẩm thất bại. Vui lòng thử lại.';
+      toast.error(message);
+    },
+  });
+};
+
 
 

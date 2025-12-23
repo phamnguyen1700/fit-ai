@@ -9,6 +9,7 @@ import { Pagination } from '@/shared/ui/core/Pagination';
 interface FoodTableProps {
   foods: FoodItem[];
   onDelete: (id: string) => void;
+  onEdit: (food: FoodItem) => void;
   loading?: boolean;
   page?: number;
   pageSize?: number;
@@ -19,6 +20,7 @@ interface FoodTableProps {
 export const FoodTable: React.FC<FoodTableProps> = ({
   foods,
   onDelete,
+  onEdit,
   loading,
   page,
   pageSize,
@@ -83,6 +85,13 @@ export const FoodTable: React.FC<FoodTableProps> = ({
       key: 'actions',
       render: (_, record) => (
         <div className="flex items-center gap-3">
+          <button
+            className="text-primary text-sm hover:underline"
+            type="button"
+            onClick={() => onEdit(record)}
+          >
+            Sửa
+          </button>
           <button
             className="text-primary text-sm hover:underline"
             type="button"

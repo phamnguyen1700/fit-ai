@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { Modal, Form, Input, InputNumber, ConfigProvider, Button, Select } from 'antd';
 import type { FoodItem } from '..';
 import { useGetFoodCategories } from '@/tanstack/hooks/foodcategory';
-import { useCreateFoodLibraryItem } from '@/tanstack/hooks/foodlibrary';
+import { useCreateFoodLibraryItem, useUpdateFoodLibraryItem } from '@/tanstack/hooks/foodlibrary';
 
 interface FoodFormModalProps {
   open: boolean;
@@ -17,6 +17,7 @@ export const FoodFormModal: React.FC<FoodFormModalProps> = ({ open, food, onClos
   const [form] = Form.useForm();
   const { data: categoriesResponse, isLoading: isLoadingCategories } = useGetFoodCategories(open);
   const createFoodMutation = useCreateFoodLibraryItem();
+  const updateFoodMutation = useUpdateFoodLibraryItem();
 
   const categories = categoriesResponse?.data || [];
 
@@ -43,16 +44,35 @@ export const FoodFormModal: React.FC<FoodFormModalProps> = ({ open, food, onClos
       .validateFields()
       .then((values) => {
         const { name, categoryId, unit, calories, protein, carbs, fat } = values;
-        
-        // Nếu đang edit, dùng onSubmit callback như cũ
+
+        const weight = parseWeightFromUnit(unit || food?.unit || '100g');
+
         if (food?.id) {
-          onSubmit({ ...(values as Omit<FoodItem, 'id'>), id: food.id });
+          // Đang chỉnh sửa: gọi API update
+          updateFoodMutation.mutate(
+            {
+              id: food.id,
+              name,
+              categoryId: categoryId || undefined,
+              fatSecretFoodId: food.fatSecretFoodId || '',
+              nutrition: {
+                calories: Number(calories),
+                protein: Number(protein),
+                carbs: Number(carbs),
+                fat: Number(fat),
+                weight,
+              },
+            },
+            {
+              onSuccess: () => {
+                onClose();
+              },
+            },
+          );
           return;
         }
 
-        // Nếu đang tạo mới, gọi API
-        const weight = parseWeightFromUnit(unit || '100g');
-        
+        // Nếu đang tạo mới, gọi API create
         createFoodMutation.mutate(
           {
             name,
@@ -107,7 +127,7 @@ export const FoodFormModal: React.FC<FoodFormModalProps> = ({ open, food, onClos
             <Button 
               type="primary" 
               onClick={handleOk}
-              loading={createFoodMutation.isPending}
+              loading={food ? updateFoodMutation.isPending : createFoodMutation.isPending}
             >
               {food ? 'Lưu thay đổi' : 'Tạo mới'}
             </Button>
@@ -141,13 +161,6 @@ export const FoodFormModal: React.FC<FoodFormModalProps> = ({ open, food, onClos
                 label: cat.name,
               }))}
             />
-          </Form.Item>
-
-          <Form.Item 
-            label="Thương hiệu" 
-            name="brand"
-          >
-            <Input placeholder="Ví dụ: Brol" />
           </Form.Item>
 
           <Form.Item

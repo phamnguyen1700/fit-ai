@@ -29,6 +29,13 @@ export interface FoodLibraryPagedParams {
   categoryId?: string;
 }
 
+// Search foods trong thư viện (GET /api/foodlibrary/search)
+export interface FoodLibrarySearchInLibraryParams {
+  query: string;
+  pageNumber?: number;
+  pageSize?: number;
+}
+
 export interface FoodLibraryPagedItem {
   id: string;
   name: string;
@@ -69,4 +76,9 @@ export interface CreateFoodLibraryRequest {
   };
 }
 
-
+// Update một item trong thư viện (PUT /api/foodlibrary/{id})
+// Backend yêu cầu id trên route param, body gửi lại đầy đủ thông tin giống create
+// nên ta tái sử dụng CreateFoodLibraryRequest và bổ sung id
+export interface UpdateFoodLibraryRequest extends CreateFoodLibraryRequest {
+  id: string;
+}
